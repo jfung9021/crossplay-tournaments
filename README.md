@@ -1,0 +1,50 @@
+# Crossplay tournaments
+
+A plain Swiss tournament manager for Crossplay, built with Next.js and a private PostgreSQL schema in the existing Supabase project.
+
+## Rules
+
+- Win 1, draw 0.5, loss 0. Rank by match points, then total adjusted score difference. Exact ties share a rank.
+- Default overtime deduction: 2 points per completed 10 seconds. Interval and points are configurable before the first round.
+- Pair similar match records, avoid rematches, and give one eligible player a bye when the field is odd. Byes/forfeits contribute no score difference.
+- Players submit both scores and overtime values; the opponent confirms the report. Organizers resolve disputes and can correct results with a reason.
+- Published pairings remain fixed. Withdrawals affect future rounds. Competitive settings lock when the first round is published.
+
+The validated capacity is 2–256 entrants. Automatic round suggestion is `ceil(log2(players))`; the organizer can override it before play. More rounds and withdrawals can make legal pairings impossible; the app reports this instead of silently repeating opponents.
+
+## Development
+
+Use Node.js 24 and npm. Copy `.env.example` to `.env.local` and configure Supabase Auth plus the restricted database connection.
+
+```sh
+npm ci
+npm run dev
+```
+
+The app does not silently fall back to an in-memory database. An unconfigured deployment shows a setup error and accepts no tournament writes.
+
+## Database and organizer setup
+
+Production DDL is owned only by `Jonathan-Fung-Gaming/bite-open-card-draw`. Apply canonical migration `20260928010000_crossplay_schema.sql` there before enabling this app. Do not initialize a second Supabase migration history here.
+
+Use a `crossplay_runtime` login and transaction-pooler connection (port 6543) with access only to the private Crossplay function interface. The app rejects other database roles. Keep production credentials out of development and arbitrary previews. Never use the shared project's `postgres` or service-role credentials in Vercel.
+
+Organizer identity uses an existing Supabase email/password account. A database administrator explicitly adds its UUID to `crossplay.organizers`; signing up for another application on the project does not grant Crossplay access. Organizer login is `/login`. Player reporting uses revocable private invitation links and requires no signup.
+
+All variables and their purposes are in `.env.example`. `NEXT_PUBLIC_SITE_URL` must exactly match the browser origin for write requests. Set a random `CROSSPLAY_RATE_LIMIT_SECRET` of at least 32 characters separately for each environment. TLS is required for hosted database connections; only loopback test databases may disable it.
+
+## Verification
+
+```sh
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npm run benchmark
+```
+
+Browser acceptance requires an already running app at `http://127.0.0.1:3000`, an isolated PostgreSQL database with the canonical migration, and a real local Supabase Auth organizer. Store its local-only `{id,email,password}` fixture in ignored `.local/auth-fixture.json`, mirror that UUID into the test database's `auth.users` and `crossplay.organizers`, then run `npm run test:e2e`. The tests create unique disposable tournaments; never point them at production. Traces/video are disabled to avoid recording passwords or invitation secrets.
+
+The database owner's focused SQL and concurrency tests are the source of database verification. They do not run sibling-application suites or reset the shared database.
+
+See [implementation plan](docs/implementation-plan.md), [integration contract](docs/integration-contract.md), and [release record](docs/release-status.md).

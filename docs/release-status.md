@@ -35,7 +35,7 @@ The player-reporting browser scenario was rerun after the focused UI effect repa
 - Production HTTP smoke passed: home 200, Auth configured, public database-backed tournament list 200, anonymous admin access 403, cross-origin write 403.
 - Production credentials are environment-scoped. Vercel Preview has no production credentials and intentionally remains unconfigured; development/browser verification used isolated local data.
 
-Remaining user-input blocker: the first production organizer email is pending. No account was guessed or granted organizer access. Until that is supplied, public browsing works and organizer sign-in correctly denies unprovisioned accounts. No production tournament data or unrelated application data was created by verification.
+Organizer setup completed on 2026-09-28 for the existing confirmed Supabase account explicitly selected by the user. Its Crossplay organizer membership is active; the organizer authorization check and protected admin read both passed. Its existing password remains in use. No organizer setup blocker remains. No production tournament data or unrelated application data was created by verification.
 
 ## Scope and review boundary
 

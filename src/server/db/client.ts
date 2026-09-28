@@ -16,7 +16,8 @@ function database() {
   const target = new URL(url);
   const local = ["localhost", "127.0.0.1", "[::1]"].includes(target.hostname);
   if (process.env.CROSSPLAY_DATABASE_SSL === "false" && !local) throw new AppError("Hosted database connections require TLS.", 503);
-  connection = postgres(url, { prepare: false, max: 3, idle_timeout: 20, connect_timeout: 10, ssl: local && process.env.CROSSPLAY_DATABASE_SSL === "false" ? false : "verify-full" });
+  const ca = process.env.CROSSPLAY_DATABASE_CA?.replace(/\\n/g, "\n");
+  connection = postgres(url, { prepare: false, max: 3, idle_timeout: 20, connect_timeout: 10, ssl: local && process.env.CROSSPLAY_DATABASE_SSL === "false" ? false : ca ? { ca, rejectUnauthorized: true } : "verify-full" });
   return connection;
 }
 

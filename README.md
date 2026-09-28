@@ -31,7 +31,7 @@ Use a `crossplay_runtime` login and transaction-pooler connection (port 6543) wi
 
 Organizer identity uses an existing Supabase email/password account. A database administrator explicitly adds its UUID to `crossplay.organizers`; signing up for another application on the project does not grant Crossplay access. Organizer login is `/login`. Player reporting uses revocable private invitation links and requires no signup.
 
-All variables and their purposes are in `.env.example`. `NEXT_PUBLIC_SITE_URL` must exactly match the browser origin for write requests. Set a random `CROSSPLAY_RATE_LIMIT_SECRET` of at least 32 characters separately for each environment. TLS is required for hosted database connections; only loopback test databases may disable it.
+All variables and their purposes are in `.env.example`. `NEXT_PUBLIC_SITE_URL` must exactly match the browser origin for write requests. Set a random `CROSSPLAY_RATE_LIMIT_SECRET` of at least 32 characters separately for each environment. TLS is required for hosted database connections; only loopback test databases may disable it. Set `CROSSPLAY_DATABASE_CA` to the project CA certificate from Supabase Database Settings when its pooler uses the Supabase CA; certificate and hostname verification stay enabled.
 
 ## Verification
 

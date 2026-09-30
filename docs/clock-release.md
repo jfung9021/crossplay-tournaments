@@ -37,7 +37,9 @@ One review was divided into disjoint database/server, clock/recovery and UI scop
 ## Release
 
 - Database PR: https://github.com/Jonathan-Fung-Gaming/bite-open-card-draw/pull/161. Merged with focused CI passing; canonical migration `20260930020000` applied to verified project `gsiyqhkcgegjrvqcqioc` with exact local/remote migration parity. Only this reviewed migration was pending/applied.
-- Application merge and Vercel deployment: in progress; final deployment details will be recorded after verification.
+- Application PR: https://github.com/jfung9021/crossplay-tournaments/pull/1. Merged as `d3ff2cf5d0655b97e9fb2f5a433f5db1482d9ef6`; pull-request and main-branch application CI passed. Main CI: https://github.com/jfung9021/crossplay-tournaments/actions/runs/36677365755.
+- Vercel production deployment `dpl_GYtw5MUhp2wYABPixJKNsg3Hr5Bk` is Ready and serves https://crossplay-tournaments.vercel.app. Deployment: https://vercel.com/jonathansminigameparty/crossplay-tournaments/GYtw5MUhp2wYABPixJKNsg3Hr5Bk.
+- Production verification passed at `2026-09-30T06:17:46.961Z`: the dedicated runtime role reports the unchanged base version and new clock version; all seven new tables have RLS and deny direct runtime access. The homepage, auth and tournament endpoints return 200, anonymous admin access returns 403, an unknown clock returns 404, and a cross-origin clock mutation returns 403. Smoke checks changed no production tournament data. Sanitized evidence: `.local/clock-production-verification.json`.
 
 ## Verification limits
 

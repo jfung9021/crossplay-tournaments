@@ -7,6 +7,7 @@ import type { FormEvent, ReactNode } from "react";
 import type { Entrant, Match, Tournament, TournamentConfig, TournamentSnapshot } from "@/domain/types";
 import { calculateScore } from "@/domain/scoring";
 import { parsePlayerNames, suggestRoundCount } from "@/domain/roster";
+import { OrganizerMatchClock } from "@/components/organizer-match-clock";
 
 type AuthState = { authenticated: boolean; email?: string; isOrganizer: boolean; configured: boolean };
 type View = "matches" | "players" | "settings" | "rules" | "round" | "history";
@@ -108,9 +109,9 @@ export function TournamentListPage({ admin = false }: { admin?: boolean }) {
 
 type SettingsValues = { name: string; date: string; rounds: string; interval: string; deduction: string; timeLimit: string };
 function settingsValues(tournament?: Tournament): SettingsValues {
-  return { name: tournament?.name ?? "", date: tournament?.date?.slice(0, 10) ?? "", rounds: tournament?.config.roundCount?.toString() ?? "", interval: String(tournament?.config.penaltyIntervalSeconds ?? 10), deduction: String(tournament?.config.penaltyPoints ?? 2), timeLimit: tournament?.config.timeLimitSeconds?.toString() ?? "" };
+  return { name: tournament?.name ?? "", date: tournament?.date?.slice(0, 10) ?? "", rounds: tournament?.config.roundCount?.toString() ?? "", interval: String(tournament?.config.penaltyIntervalSeconds ?? 10), deduction: String(tournament?.config.penaltyPoints ?? 2), timeLimit: tournament ? tournament.config.timeLimitSeconds === null ? "" : String(tournament.config.timeLimitSeconds / 60) : "20" };
 }
-function configValues(values: SettingsValues): TournamentConfig { return { roundCount: values.rounds ? Number(values.rounds) : null, penaltyIntervalSeconds: Number(values.interval), penaltyPoints: Number(values.deduction), timeLimitSeconds: values.timeLimit ? Number(values.timeLimit) : null }; }
+function configValues(values: SettingsValues): TournamentConfig { return { roundCount: values.rounds ? Number(values.rounds) : null, penaltyIntervalSeconds: Number(values.interval), penaltyPoints: Number(values.deduction), timeLimitSeconds: values.timeLimit ? Math.round(Number(values.timeLimit) * 60) : null }; }
 
 function SettingsFields({ values, setValues, locked = false, playerCount }: { values: SettingsValues; setValues: (values: SettingsValues) => void; locked?: boolean; playerCount?: number }) {
   const update = (key: keyof SettingsValues, value: string) => setValues({ ...values, [key]: value });
@@ -119,7 +120,7 @@ function SettingsFields({ values, setValues, locked = false, playerCount }: { va
     <Field id="tournament-date" label="Date (optional)"><input id="tournament-date" type="date" value={values.date} onChange={event => update("date", event.target.value)} /></Field>
     {locked && <div className="notice">Rules were locked when the first round was published.</div>}
     <fieldset disabled={locked} className="compact-stack"><legend>Rules</legend>
-      <div className="form-grid"><Field id="round-count" label="Rounds" note={values.rounds ? "Set before the first round. Withdrawals may prevent later pairings." : `Automatic${playerCount && playerCount >= 2 ? `: ${suggestRoundCount(playerCount)} rounds for ${playerCount} players` : ": based on the number of players"}.`}><input id="round-count" type="number" min={1} max={255} step={1} placeholder="Automatic" value={values.rounds} onChange={event => update("rounds", event.target.value)} /></Field><Field id="time-limit" label="Time limit (seconds, optional)"><input id="time-limit" type="number" min={1} max={86400} step={1} value={values.timeLimit} onChange={event => update("timeLimit", event.target.value)} /></Field></div>
+      <div className="form-grid"><Field id="round-count" label="Rounds" note={values.rounds ? "Set before the first round. Withdrawals may prevent later pairings." : `Automatic${playerCount && playerCount >= 2 ? `: ${suggestRoundCount(playerCount)} rounds for ${playerCount} players` : ": based on the number of players"}.`}><input id="round-count" type="number" min={1} max={255} step={1} placeholder="Automatic" value={values.rounds} onChange={event => update("rounds", event.target.value)} /></Field><Field id="time-limit" label="Minutes per player" note="Leave blank to use an external clock."><input id="time-limit" type="number" min={1 / 60} max={1440} step="any" value={values.timeLimit} onChange={event => update("timeLimit", event.target.value)} /></Field></div>
       <div className="form-grid"><Field id="penalty-points" label="Overtime deduction (points)"><input id="penalty-points" type="number" required min={0} max={100} step={1} value={values.deduction} onChange={event => update("deduction", event.target.value)} /></Field><Field id="penalty-interval" label="For every (seconds)"><input id="penalty-interval" type="number" required min={1} max={3600} step={1} value={values.interval} onChange={event => update("interval", event.target.value)} /></Field></div>
       <p className="form-note">Completed intervals only. Win 1 · Draw ½ · Loss 0. Ties use cumulative score difference after penalties.</p>
     </fieldset>
@@ -350,6 +351,7 @@ function MatchCard({ match, snapshot, command, admin = false, player = false, dr
       {disputing && match.report && <form className="compact-stack score-entry" onSubmit={event => { event.preventDefault(); void run("dispute_report", { reportId: match.report!.id, reason }); }}><Field id={`dispute-${match.id}`} label="What needs to change?"><textarea id={`dispute-${match.id}`} required maxLength={1000} rows={3} value={reason} onChange={event => setReason(event.target.value)} /></Field><div className="actions"><button disabled={busy}>Send to organizer</button><button type="button" className="secondary" onClick={() => setDisputing(false)}>Cancel</button></div></form>}
     </div>}
     {admin && command && match.player2Id && !editing && <div className="match-bottom"><button className="secondary" onClick={() => setEditing(true)}>{match.status === "final" ? "Correct result" : match.status === "disputed" ? "Resolve result" : "Enter result"}</button></div>}
+    {admin && match.player2Id && <OrganizerMatchClock matchId={match.id} player1={{ id: match.player1Id, name: player1?.name ?? "Player 1" }} player2={{ id: match.player2Id, name: player2?.name ?? "Player 2" }} enabled={snapshot.tournament.config.timeLimitSeconds !== null} final={match.status === "final"} />}
     {editing && command && <ScoreForm match={match} snapshot={snapshot} command={command} admin={admin} close={() => setEditing(false)} />}
   </article>;
 }

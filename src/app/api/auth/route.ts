@@ -36,7 +36,9 @@ export async function DELETE(request: Request) {
   try {
     assertSameOrigin(request);
     if (authConfigured()) await (await authClient()).auth.signOut({ scope: "local" });
-    (await cookies()).delete(PLAYER_COOKIE);
+    const jar = await cookies();
+    jar.delete(PLAYER_COOKIE);
+    for (const cookie of jar.getAll()) if (cookie.name.startsWith("crossplay_match_")) jar.delete(cookie.name);
     return noStore({ ok: true });
   } catch (error) { return errorResponse(error); }
 }

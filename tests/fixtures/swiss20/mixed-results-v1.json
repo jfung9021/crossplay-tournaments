@@ -1,0 +1,5284 @@
+{
+  "id": "mixed-results-20x6-v1",
+  "title": "Autumn Crossplay Club Swiss",
+  "createRequestId": "c63a666f-e2fb-4ae1-ae94-e24778d1dae3",
+  "rosterRequestId": "fae4824d-f1ce-48c2-ad28-79bbf0343e60",
+  "seed": "c2e877a2-3ce1-4dad-a1d4-b6d694459af8",
+  "fixtureHash": "4bde45eaef867b6554ebefb574af52507268b91d69291fc8c5bb22f6dd60c551",
+  "config": {
+    "roundCount": 6,
+    "penaltyIntervalSeconds": 10,
+    "penaltyPoints": 2,
+    "timeLimitSeconds": null
+  },
+  "players": [
+    {
+      "id": "a8984fdd-290e-400a-ab28-31389f095204",
+      "name": "Morgan Vale",
+      "seed": 180618195,
+      "active": true
+    },
+    {
+      "id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+      "name": "Alex Rowan",
+      "seed": 177581942,
+      "active": true
+    },
+    {
+      "id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+      "name": "Samira Holt",
+      "seed": 238222487,
+      "active": true
+    },
+    {
+      "id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+      "name": "Theo Bennett",
+      "seed": 92779075,
+      "active": true
+    },
+    {
+      "id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+      "name": "Priya Marsh",
+      "seed": 238614621,
+      "active": true
+    },
+    {
+      "id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+      "name": "Elliot Park",
+      "seed": 155472660,
+      "active": true
+    },
+    {
+      "id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+      "name": "Nadia Wells",
+      "seed": 137490039,
+      "active": true
+    },
+    {
+      "id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+      "name": "Jules Avery",
+      "seed": 120664289,
+      "active": true
+    },
+    {
+      "id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+      "name": "Robin Calder",
+      "seed": 193550302,
+      "active": true
+    },
+    {
+      "id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+      "name": "Casey Flynn",
+      "seed": 186768335,
+      "active": true
+    },
+    {
+      "id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+      "name": "Maya Linden",
+      "seed": 104612705,
+      "active": true
+    },
+    {
+      "id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+      "name": "Owen Brooks",
+      "seed": 11607582,
+      "active": true
+    },
+    {
+      "id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+      "name": "Lena Mercer",
+      "seed": 87518997,
+      "active": true
+    },
+    {
+      "id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+      "name": "Arun Ellis",
+      "seed": 259198696,
+      "active": true
+    },
+    {
+      "id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+      "name": "Quinn Hale",
+      "seed": 2697285,
+      "active": true
+    },
+    {
+      "id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+      "name": "Tessa Reed",
+      "seed": 12502031,
+      "active": true
+    },
+    {
+      "id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+      "name": "Noah Finch",
+      "seed": 38674751,
+      "active": true
+    },
+    {
+      "id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+      "name": "Iris Morgan",
+      "seed": 175407491,
+      "active": true
+    },
+    {
+      "id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+      "name": "Dylan Shaw",
+      "seed": 183727765,
+      "active": true
+    },
+    {
+      "id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+      "name": "Cleo Hart",
+      "seed": 3683014,
+      "active": true
+    }
+  ],
+  "rounds": [
+    {
+      "number": 1,
+      "matches": [
+        {
+          "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "player2Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "raw1": 401,
+          "raw2": 399,
+          "overtime1": 9,
+          "overtime2": 0,
+          "roundNumber": 1,
+          "tableNumber": 1
+        },
+        {
+          "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "player2Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "raw1": 401,
+          "raw2": 399,
+          "overtime1": 10,
+          "overtime2": 0,
+          "roundNumber": 1,
+          "tableNumber": 2
+        },
+        {
+          "player1Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "player2Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "raw1": 401,
+          "raw2": 399,
+          "overtime1": 11,
+          "overtime2": 0,
+          "roundNumber": 1,
+          "tableNumber": 3
+        },
+        {
+          "player1Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "player2Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "raw1": 401,
+          "raw2": 399,
+          "overtime1": 19,
+          "overtime2": 0,
+          "roundNumber": 1,
+          "tableNumber": 4
+        },
+        {
+          "player1Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "player2Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "raw1": 401,
+          "raw2": 399,
+          "overtime1": 20,
+          "overtime2": 0,
+          "roundNumber": 1,
+          "tableNumber": 5
+        },
+        {
+          "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "player2Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "raw1": 405,
+          "raw2": 404,
+          "overtime1": 20,
+          "overtime2": 10,
+          "roundNumber": 1,
+          "tableNumber": 6
+        },
+        {
+          "player1Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+          "raw1": 373,
+          "raw2": 377,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 1,
+          "tableNumber": 7
+        },
+        {
+          "player1Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "player2Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "raw1": 344,
+          "raw2": 359,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 1,
+          "tableNumber": 8
+        },
+        {
+          "player1Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "raw1": 403,
+          "raw2": 403,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 1,
+          "tableNumber": 9
+        },
+        {
+          "player1Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "raw1": 353,
+          "raw2": 406,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 1,
+          "tableNumber": 10
+        }
+      ],
+      "expectedStandings": [
+        {
+          "entrantId": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "name": "Arun Ellis",
+          "rank": 1,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 53,
+          "rawDifference": 53,
+          "totalRaw": 406,
+          "wins": 1,
+          "draws": 0,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0
+        },
+        {
+          "entrantId": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "name": "Casey Flynn",
+          "rank": 2,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 15,
+          "rawDifference": 15,
+          "totalRaw": 359,
+          "wins": 1,
+          "draws": 0,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0
+        },
+        {
+          "entrantId": "a8984fdd-290e-400a-ab28-31389f095204",
+          "name": "Morgan Vale",
+          "rank": 3,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 4,
+          "rawDifference": 4,
+          "totalRaw": 377,
+          "wins": 1,
+          "draws": 0,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0
+        },
+        {
+          "entrantId": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "name": "Quinn Hale",
+          "rank": 4,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 2,
+          "rawDifference": 2,
+          "totalRaw": 401,
+          "wins": 1,
+          "draws": 0,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0
+        },
+        {
+          "entrantId": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "name": "Nadia Wells",
+          "rank": 4,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 2,
+          "rawDifference": -2,
+          "totalRaw": 399,
+          "wins": 1,
+          "draws": 0,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0
+        },
+        {
+          "entrantId": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "name": "Iris Morgan",
+          "rank": 6,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 1,
+          "rawDifference": -1,
+          "totalRaw": 404,
+          "wins": 1,
+          "draws": 0,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0
+        },
+        {
+          "entrantId": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "name": "Owen Brooks",
+          "rank": 7,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": 0,
+          "rawDifference": 2,
+          "totalRaw": 401,
+          "wins": 0,
+          "draws": 1,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0.5
+        },
+        {
+          "entrantId": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "name": "Tessa Reed",
+          "rank": 7,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": 0,
+          "rawDifference": -2,
+          "totalRaw": 399,
+          "wins": 0,
+          "draws": 1,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0.5
+        },
+        {
+          "entrantId": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "name": "Noah Finch",
+          "rank": 7,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": 0,
+          "rawDifference": 2,
+          "totalRaw": 401,
+          "wins": 0,
+          "draws": 1,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0.5
+        },
+        {
+          "entrantId": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "name": "Lena Mercer",
+          "rank": 7,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": 0,
+          "rawDifference": -2,
+          "totalRaw": 399,
+          "wins": 0,
+          "draws": 1,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0.5
+        },
+        {
+          "entrantId": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "name": "Theo Bennett",
+          "rank": 7,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": 0,
+          "rawDifference": 2,
+          "totalRaw": 401,
+          "wins": 0,
+          "draws": 1,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0.5
+        },
+        {
+          "entrantId": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "name": "Maya Linden",
+          "rank": 7,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": 0,
+          "rawDifference": -2,
+          "totalRaw": 399,
+          "wins": 0,
+          "draws": 1,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0.5
+        },
+        {
+          "entrantId": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "name": "Robin Calder",
+          "rank": 7,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": 0,
+          "rawDifference": 0,
+          "totalRaw": 403,
+          "wins": 0,
+          "draws": 1,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0.5
+        },
+        {
+          "entrantId": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "name": "Samira Holt",
+          "rank": 7,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": 0,
+          "rawDifference": 0,
+          "totalRaw": 403,
+          "wins": 0,
+          "draws": 1,
+          "losses": 0,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 0.5
+        },
+        {
+          "entrantId": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "name": "Elliot Park",
+          "rank": 15,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -1,
+          "rawDifference": 1,
+          "totalRaw": 405,
+          "wins": 0,
+          "draws": 0,
+          "losses": 1,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 1
+        },
+        {
+          "entrantId": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "name": "Cleo Hart",
+          "rank": 16,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -2,
+          "rawDifference": -2,
+          "totalRaw": 399,
+          "wins": 0,
+          "draws": 0,
+          "losses": 1,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 1
+        },
+        {
+          "entrantId": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "name": "Jules Avery",
+          "rank": 16,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -2,
+          "rawDifference": 2,
+          "totalRaw": 401,
+          "wins": 0,
+          "draws": 0,
+          "losses": 1,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 1
+        },
+        {
+          "entrantId": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "name": "Alex Rowan",
+          "rank": 18,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -4,
+          "rawDifference": -4,
+          "totalRaw": 373,
+          "wins": 0,
+          "draws": 0,
+          "losses": 1,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 1
+        },
+        {
+          "entrantId": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "name": "Dylan Shaw",
+          "rank": 19,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -15,
+          "rawDifference": -15,
+          "totalRaw": 344,
+          "wins": 0,
+          "draws": 0,
+          "losses": 1,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 1
+        },
+        {
+          "entrantId": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "name": "Priya Marsh",
+          "rank": 20,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -53,
+          "rawDifference": -53,
+          "totalRaw": 353,
+          "wins": 0,
+          "draws": 0,
+          "losses": 1,
+          "played": 1,
+          "active": true,
+          "opponentPoints": 1
+        }
+      ],
+      "pairingEvidence": {
+        "legal": true,
+        "optimal": true,
+        "minimumGap": 0,
+        "minimumFloat": 0,
+        "actualGap": 0,
+        "actualFloat": 0,
+        "checkedMasks": 10945,
+        "players": [
+          {
+            "id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "pointUnits": 0,
+            "previousOpponents": [],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          }
+        ],
+        "pairs": [
+          {
+            "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "player2Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "player2Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "player2Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "player2Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "player2Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "player2Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "player2Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "gap": 0,
+            "floatCost": 0
+          }
+        ]
+      }
+    },
+    {
+      "number": 2,
+      "matches": [
+        {
+          "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "player2Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "raw1": 401,
+          "raw2": 370,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 1
+        },
+        {
+          "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "player2Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "raw1": 377,
+          "raw2": 387,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 2
+        },
+        {
+          "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "player2Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "raw1": 360,
+          "raw2": 360,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 3
+        },
+        {
+          "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "player2Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "raw1": 397,
+          "raw2": 357,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 4
+        },
+        {
+          "player1Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "raw1": 340,
+          "raw2": 407,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 5
+        },
+        {
+          "player1Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "raw1": 391,
+          "raw2": 400,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 6
+        },
+        {
+          "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "player2Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "raw1": 406,
+          "raw2": 382,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 7
+        },
+        {
+          "player1Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+          "raw1": 374,
+          "raw2": 402,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 8
+        },
+        {
+          "player1Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "raw1": 341,
+          "raw2": 341,
+          "overtime1": 2,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 9
+        },
+        {
+          "player1Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "raw1": 438,
+          "raw2": 342,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 2,
+          "tableNumber": 10
+        }
+      ],
+      "expectedStandings": [
+        {
+          "entrantId": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "name": "Casey Flynn",
+          "rank": 1,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": 111,
+          "rawDifference": 111,
+          "totalRaw": 797,
+          "wins": 2,
+          "draws": 0,
+          "losses": 0,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 1.5
+        },
+        {
+          "entrantId": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "name": "Quinn Hale",
+          "rank": 2,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": 33,
+          "rawDifference": 33,
+          "totalRaw": 802,
+          "wins": 2,
+          "draws": 0,
+          "losses": 0,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 1
+        },
+        {
+          "entrantId": "a8984fdd-290e-400a-ab28-31389f095204",
+          "name": "Morgan Vale",
+          "rank": 3,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": 32,
+          "rawDifference": 32,
+          "totalRaw": 779,
+          "wins": 2,
+          "draws": 0,
+          "losses": 0,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 1
+        },
+        {
+          "entrantId": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "name": "Robin Calder",
+          "rank": 4,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": 67,
+          "rawDifference": 67,
+          "totalRaw": 810,
+          "wins": 1,
+          "draws": 1,
+          "losses": 0,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 2
+        },
+        {
+          "entrantId": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "name": "Tessa Reed",
+          "rank": 5,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": 40,
+          "rawDifference": 38,
+          "totalRaw": 796,
+          "wins": 1,
+          "draws": 1,
+          "losses": 0,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 1.5
+        },
+        {
+          "entrantId": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "name": "Samira Holt",
+          "rank": 6,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": 9,
+          "rawDifference": 9,
+          "totalRaw": 803,
+          "wins": 1,
+          "draws": 1,
+          "losses": 0,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 2
+        },
+        {
+          "entrantId": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "name": "Elliot Park",
+          "rank": 7,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 23,
+          "rawDifference": 25,
+          "totalRaw": 811,
+          "wins": 1,
+          "draws": 0,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 1
+        },
+        {
+          "entrantId": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "name": "Jules Avery",
+          "rank": 8,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 8,
+          "rawDifference": 12,
+          "totalRaw": 788,
+          "wins": 1,
+          "draws": 0,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 1
+        },
+        {
+          "entrantId": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "name": "Owen Brooks",
+          "rank": 9,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 0,
+          "rawDifference": 2,
+          "totalRaw": 761,
+          "wins": 0,
+          "draws": 2,
+          "losses": 0,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 2.5
+        },
+        {
+          "entrantId": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "name": "Noah Finch",
+          "rank": 9,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": 0,
+          "rawDifference": 2,
+          "totalRaw": 761,
+          "wins": 0,
+          "draws": 2,
+          "losses": 0,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 1.5
+        },
+        {
+          "entrantId": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "name": "Iris Morgan",
+          "rank": 11,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -27,
+          "rawDifference": -29,
+          "totalRaw": 778,
+          "wins": 1,
+          "draws": 0,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 3
+        },
+        {
+          "entrantId": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "name": "Nadia Wells",
+          "rank": 12,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -29,
+          "rawDifference": -33,
+          "totalRaw": 769,
+          "wins": 1,
+          "draws": 0,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 3
+        },
+        {
+          "entrantId": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "name": "Arun Ellis",
+          "rank": 13,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -43,
+          "rawDifference": -43,
+          "totalRaw": 748,
+          "wins": 1,
+          "draws": 0,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 2.5
+        },
+        {
+          "entrantId": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "name": "Maya Linden",
+          "rank": 14,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -9,
+          "rawDifference": -11,
+          "totalRaw": 790,
+          "wins": 0,
+          "draws": 1,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 2
+        },
+        {
+          "entrantId": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "name": "Dylan Shaw",
+          "rank": 15,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -15,
+          "rawDifference": -15,
+          "totalRaw": 685,
+          "wins": 0,
+          "draws": 1,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 2.5
+        },
+        {
+          "entrantId": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "name": "Lena Mercer",
+          "rank": 16,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -40,
+          "rawDifference": -42,
+          "totalRaw": 756,
+          "wins": 0,
+          "draws": 1,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 2.5
+        },
+        {
+          "entrantId": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "name": "Priya Marsh",
+          "rank": 17,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -53,
+          "rawDifference": -53,
+          "totalRaw": 694,
+          "wins": 0,
+          "draws": 1,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 1.5
+        },
+        {
+          "entrantId": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "name": "Theo Bennett",
+          "rank": 18,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -67,
+          "rawDifference": -65,
+          "totalRaw": 741,
+          "wins": 0,
+          "draws": 1,
+          "losses": 1,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 2
+        },
+        {
+          "entrantId": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "name": "Cleo Hart",
+          "rank": 19,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -12,
+          "rawDifference": -12,
+          "totalRaw": 776,
+          "wins": 0,
+          "draws": 0,
+          "losses": 2,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 3
+        },
+        {
+          "entrantId": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "name": "Alex Rowan",
+          "rank": 20,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -28,
+          "rawDifference": -28,
+          "totalRaw": 755,
+          "wins": 0,
+          "draws": 0,
+          "losses": 2,
+          "played": 2,
+          "active": true,
+          "opponentPoints": 3
+        }
+      ],
+      "pairingEvidence": {
+        "legal": true,
+        "optimal": true,
+        "minimumGap": 0,
+        "minimumFloat": 0,
+        "actualGap": 0,
+        "actualFloat": 0,
+        "checkedMasks": 10944,
+        "players": [
+          {
+            "id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "a8984fdd-290e-400a-ab28-31389f095204"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "84e9e5e7-258e-406b-ad70-6b97f25834be"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "18ac3255-df98-459d-a42b-671b9632fb2d"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "c85939fa-09d2-42a2-a53f-1111f85b493c"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "7cd01428-2d89-47ff-a79f-d9307de85be1"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          }
+        ],
+        "pairs": [
+          {
+            "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "player2Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "player2Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "player2Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "player2Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "player2Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "gap": 0,
+            "floatCost": 0
+          }
+        ]
+      }
+    },
+    {
+      "number": 3,
+      "matches": [
+        {
+          "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+          "raw1": 374,
+          "raw2": 348,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 3,
+          "tableNumber": 1
+        },
+        {
+          "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "player2Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "raw1": 402,
+          "raw2": 396,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 3,
+          "tableNumber": 2
+        },
+        {
+          "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "player2Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "raw1": 407,
+          "raw2": 376,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 3,
+          "tableNumber": 3
+        },
+        {
+          "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "raw1": 389,
+          "raw2": 382,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 3,
+          "tableNumber": 4
+        },
+        {
+          "player1Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "player2Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "raw1": 380,
+          "raw2": 388,
+          "overtime1": 19,
+          "overtime2": 12,
+          "roundNumber": 3,
+          "tableNumber": 5
+        },
+        {
+          "player1Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "player2Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "raw1": 340,
+          "raw2": 383,
+          "overtime1": 0,
+          "overtime2": 14,
+          "roundNumber": 3,
+          "tableNumber": 6
+        },
+        {
+          "player1Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "raw1": 385,
+          "raw2": 394,
+          "overtime1": 0,
+          "overtime2": 22,
+          "roundNumber": 3,
+          "tableNumber": 7
+        },
+        {
+          "player1Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "player2Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "raw1": 403,
+          "raw2": 357,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 3,
+          "tableNumber": 8
+        },
+        {
+          "player1Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "raw1": 373,
+          "raw2": 362,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 3,
+          "tableNumber": 9
+        },
+        {
+          "player1Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "raw1": 449,
+          "raw2": 347,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 3,
+          "tableNumber": 10
+        }
+      ],
+      "expectedStandings": [
+        {
+          "entrantId": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "name": "Casey Flynn",
+          "rank": 1,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 213,
+          "rawDifference": 213,
+          "totalRaw": 1246,
+          "wins": 3,
+          "draws": 0,
+          "losses": 0,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 4
+        },
+        {
+          "entrantId": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "name": "Quinn Hale",
+          "rank": 2,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 59,
+          "rawDifference": 59,
+          "totalRaw": 1176,
+          "wins": 3,
+          "draws": 0,
+          "losses": 0,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 5
+        },
+        {
+          "entrantId": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "name": "Tessa Reed",
+          "rank": 3,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": 47,
+          "rawDifference": 45,
+          "totalRaw": 1185,
+          "wins": 2,
+          "draws": 1,
+          "losses": 0,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 4
+        },
+        {
+          "entrantId": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "name": "Owen Brooks",
+          "rank": 4,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": 31,
+          "rawDifference": 33,
+          "totalRaw": 1168,
+          "wins": 1,
+          "draws": 2,
+          "losses": 0,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 4.5
+        },
+        {
+          "entrantId": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "name": "Nadia Wells",
+          "rank": 5,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": 17,
+          "rawDifference": 13,
+          "totalRaw": 1172,
+          "wins": 2,
+          "draws": 0,
+          "losses": 1,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 6
+        },
+        {
+          "entrantId": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "name": "Jules Avery",
+          "rank": 6,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": 16,
+          "rawDifference": 20,
+          "totalRaw": 1176,
+          "wins": 2,
+          "draws": 0,
+          "losses": 1,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 4
+        },
+        {
+          "entrantId": "a8984fdd-290e-400a-ab28-31389f095204",
+          "name": "Morgan Vale",
+          "rank": 7,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": 6,
+          "rawDifference": 6,
+          "totalRaw": 1127,
+          "wins": 2,
+          "draws": 0,
+          "losses": 1,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 4
+        },
+        {
+          "entrantId": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "name": "Samira Holt",
+          "rank": 8,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": 2,
+          "rawDifference": 2,
+          "totalRaw": 1185,
+          "wins": 1,
+          "draws": 1,
+          "losses": 1,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 4.5
+        },
+        {
+          "entrantId": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "name": "Dylan Shaw",
+          "rank": 9,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -4,
+          "rawDifference": -4,
+          "totalRaw": 1058,
+          "wins": 1,
+          "draws": 1,
+          "losses": 1,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 5.5
+        },
+        {
+          "entrantId": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "name": "Theo Bennett",
+          "rank": 10,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -26,
+          "rawDifference": -22,
+          "totalRaw": 1124,
+          "wins": 1,
+          "draws": 1,
+          "losses": 1,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 2.5
+        },
+        {
+          "entrantId": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "name": "Robin Calder",
+          "rank": 11,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -35,
+          "rawDifference": -35,
+          "totalRaw": 1157,
+          "wins": 1,
+          "draws": 1,
+          "losses": 1,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 6
+        },
+        {
+          "entrantId": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "name": "Priya Marsh",
+          "rank": 12,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -48,
+          "rawDifference": -44,
+          "totalRaw": 1088,
+          "wins": 1,
+          "draws": 1,
+          "losses": 1,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 3
+        },
+        {
+          "entrantId": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "name": "Cleo Hart",
+          "rank": 13,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -6,
+          "rawDifference": -6,
+          "totalRaw": 1178,
+          "wins": 1,
+          "draws": 0,
+          "losses": 2,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 5
+        },
+        {
+          "entrantId": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "name": "Noah Finch",
+          "rank": 14,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -8,
+          "rawDifference": -6,
+          "totalRaw": 1141,
+          "wins": 0,
+          "draws": 2,
+          "losses": 1,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 4.5
+        },
+        {
+          "entrantId": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "name": "Elliot Park",
+          "rank": 15,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -23,
+          "rawDifference": -21,
+          "totalRaw": 1168,
+          "wins": 1,
+          "draws": 0,
+          "losses": 2,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 3
+        },
+        {
+          "entrantId": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "name": "Arun Ellis",
+          "rank": 16,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -54,
+          "rawDifference": -54,
+          "totalRaw": 1110,
+          "wins": 1,
+          "draws": 0,
+          "losses": 2,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 6
+        },
+        {
+          "entrantId": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "name": "Iris Morgan",
+          "rank": 17,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -58,
+          "rawDifference": -60,
+          "totalRaw": 1154,
+          "wins": 1,
+          "draws": 0,
+          "losses": 2,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 5
+        },
+        {
+          "entrantId": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "name": "Maya Linden",
+          "rank": 18,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -14,
+          "rawDifference": -20,
+          "totalRaw": 1175,
+          "wins": 0,
+          "draws": 1,
+          "losses": 2,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 4.5
+        },
+        {
+          "entrantId": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "name": "Lena Mercer",
+          "rank": 19,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -81,
+          "rawDifference": -85,
+          "totalRaw": 1096,
+          "wins": 0,
+          "draws": 1,
+          "losses": 2,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 5
+        },
+        {
+          "entrantId": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "name": "Alex Rowan",
+          "rank": 20,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -34,
+          "rawDifference": -34,
+          "totalRaw": 1151,
+          "wins": 0,
+          "draws": 0,
+          "losses": 3,
+          "played": 3,
+          "active": true,
+          "opponentPoints": 4
+        }
+      ],
+      "pairingEvidence": {
+        "legal": true,
+        "optimal": true,
+        "minimumGap": 2,
+        "minimumFloat": 0,
+        "actualGap": 2,
+        "actualFloat": 0,
+        "checkedMasks": 10943,
+        "players": [
+          {
+            "id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "18ac3255-df98-459d-a42b-671b9632fb2d"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "a8984fdd-290e-400a-ab28-31389f095204"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          }
+        ],
+        "pairs": [
+          {
+            "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "player2Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "player2Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "player2Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "player2Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "player2Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "gap": 1,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "gap": 1,
+            "floatCost": 0
+          }
+        ]
+      }
+    },
+    {
+      "number": 4,
+      "matches": [
+        {
+          "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "player2Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "raw1": 401,
+          "raw2": 408,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 4,
+          "tableNumber": 1
+        },
+        {
+          "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "player2Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "raw1": 370,
+          "raw2": 365,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 4,
+          "tableNumber": 2
+        },
+        {
+          "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "player2Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "raw1": 357,
+          "raw2": 346,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 4,
+          "tableNumber": 3
+        },
+        {
+          "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "player2Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "raw1": 392,
+          "raw2": 407,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 4,
+          "tableNumber": 4
+        },
+        {
+          "player1Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "player2Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "raw1": 438,
+          "raw2": 384,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 4,
+          "tableNumber": 5
+        },
+        {
+          "player1Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+          "raw1": 345,
+          "raw2": 345,
+          "overtime1": 0,
+          "overtime2": 22,
+          "roundNumber": 4,
+          "tableNumber": 6
+        },
+        {
+          "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "raw1": 365,
+          "raw2": 360,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 4,
+          "tableNumber": 7
+        },
+        {
+          "player1Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "player2Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "raw1": 433,
+          "raw2": 376,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 4,
+          "tableNumber": 8
+        },
+        {
+          "player1Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "raw1": 359,
+          "raw2": 374,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 4,
+          "tableNumber": 9
+        },
+        {
+          "player1Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "raw1": 400,
+          "raw2": 389,
+          "overtime1": 0,
+          "overtime2": 11,
+          "roundNumber": 4,
+          "tableNumber": 10
+        }
+      ],
+      "expectedStandings": [
+        {
+          "entrantId": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "name": "Casey Flynn",
+          "rank": 1,
+          "matchPoints": 4,
+          "pointUnits": 8,
+          "difference": 220,
+          "rawDifference": 220,
+          "totalRaw": 1654,
+          "wins": 4,
+          "draws": 0,
+          "losses": 0,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 8
+        },
+        {
+          "entrantId": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "name": "Quinn Hale",
+          "rank": 2,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 52,
+          "rawDifference": 52,
+          "totalRaw": 1577,
+          "wins": 3,
+          "draws": 0,
+          "losses": 1,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 11
+        },
+        {
+          "entrantId": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "name": "Owen Brooks",
+          "rank": 3,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 42,
+          "rawDifference": 44,
+          "totalRaw": 1525,
+          "wins": 2,
+          "draws": 2,
+          "losses": 0,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 7
+        },
+        {
+          "entrantId": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "name": "Jules Avery",
+          "rank": 4,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 31,
+          "rawDifference": 35,
+          "totalRaw": 1583,
+          "wins": 3,
+          "draws": 0,
+          "losses": 1,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 8.5
+        },
+        {
+          "entrantId": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "name": "Nadia Wells",
+          "rank": 5,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 21,
+          "rawDifference": 13,
+          "totalRaw": 1517,
+          "wins": 3,
+          "draws": 0,
+          "losses": 1,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 10
+        },
+        {
+          "entrantId": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "name": "Tessa Reed",
+          "rank": 6,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": 32,
+          "rawDifference": 30,
+          "totalRaw": 1577,
+          "wins": 2,
+          "draws": 1,
+          "losses": 1,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 10
+        },
+        {
+          "entrantId": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "name": "Samira Holt",
+          "rank": 7,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": 15,
+          "rawDifference": 13,
+          "totalRaw": 1585,
+          "wins": 2,
+          "draws": 1,
+          "losses": 1,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 7
+        },
+        {
+          "entrantId": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "name": "Robin Calder",
+          "rank": 8,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": -20,
+          "rawDifference": -20,
+          "totalRaw": 1531,
+          "wins": 2,
+          "draws": 1,
+          "losses": 1,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 9.5
+        },
+        {
+          "entrantId": "a8984fdd-290e-400a-ab28-31389f095204",
+          "name": "Morgan Vale",
+          "rank": 9,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": 2,
+          "rawDifference": 6,
+          "totalRaw": 1472,
+          "wins": 2,
+          "draws": 0,
+          "losses": 2,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 8
+        },
+        {
+          "entrantId": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "name": "Cleo Hart",
+          "rank": 10,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": -1,
+          "rawDifference": -1,
+          "totalRaw": 1548,
+          "wins": 2,
+          "draws": 0,
+          "losses": 2,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 7
+        },
+        {
+          "entrantId": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "name": "Iris Morgan",
+          "rank": 10,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": -1,
+          "rawDifference": -3,
+          "totalRaw": 1587,
+          "wins": 2,
+          "draws": 0,
+          "losses": 2,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 7
+        },
+        {
+          "entrantId": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "name": "Elliot Park",
+          "rank": 12,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": -18,
+          "rawDifference": -16,
+          "totalRaw": 1533,
+          "wins": 2,
+          "draws": 0,
+          "losses": 2,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 6
+        },
+        {
+          "entrantId": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "name": "Dylan Shaw",
+          "rank": 13,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -19,
+          "rawDifference": -19,
+          "totalRaw": 1417,
+          "wins": 1,
+          "draws": 1,
+          "losses": 2,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 9
+        },
+        {
+          "entrantId": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "name": "Lena Mercer",
+          "rank": 14,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -27,
+          "rawDifference": -31,
+          "totalRaw": 1534,
+          "wins": 1,
+          "draws": 1,
+          "losses": 2,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 5.5
+        },
+        {
+          "entrantId": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "name": "Theo Bennett",
+          "rank": 15,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -37,
+          "rawDifference": -33,
+          "totalRaw": 1470,
+          "wins": 1,
+          "draws": 1,
+          "losses": 2,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 7.5
+        },
+        {
+          "entrantId": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "name": "Priya Marsh",
+          "rank": 16,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -61,
+          "rawDifference": -55,
+          "totalRaw": 1477,
+          "wins": 1,
+          "draws": 1,
+          "losses": 2,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 5.5
+        },
+        {
+          "entrantId": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "name": "Noah Finch",
+          "rank": 17,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -13,
+          "rawDifference": -11,
+          "totalRaw": 1506,
+          "wins": 0,
+          "draws": 2,
+          "losses": 2,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 9.5
+        },
+        {
+          "entrantId": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "name": "Arun Ellis",
+          "rank": 18,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -59,
+          "rawDifference": -59,
+          "totalRaw": 1470,
+          "wins": 1,
+          "draws": 0,
+          "losses": 3,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 9
+        },
+        {
+          "entrantId": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "name": "Maya Linden",
+          "rank": 19,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -68,
+          "rawDifference": -74,
+          "totalRaw": 1559,
+          "wins": 0,
+          "draws": 1,
+          "losses": 3,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 7
+        },
+        {
+          "entrantId": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "name": "Alex Rowan",
+          "rank": 20,
+          "matchPoints": 0,
+          "pointUnits": 0,
+          "difference": -91,
+          "rawDifference": -91,
+          "totalRaw": 1527,
+          "wins": 0,
+          "draws": 0,
+          "losses": 4,
+          "played": 4,
+          "active": true,
+          "opponentPoints": 8
+        }
+      ],
+      "pairingEvidence": {
+        "legal": true,
+        "optimal": true,
+        "minimumGap": 4,
+        "minimumFloat": 0,
+        "actualGap": 4,
+        "actualFloat": 0,
+        "checkedMasks": 10939,
+        "players": [
+          {
+            "id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "18ac3255-df98-459d-a42b-671b9632fb2d"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 1
+          },
+          {
+            "id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": -1
+          },
+          {
+            "id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": -1
+          },
+          {
+            "id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "a8984fdd-290e-400a-ab28-31389f095204"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "pointUnits": 5,
+            "previousOpponents": [
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 1
+          },
+          {
+            "id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          }
+        ],
+        "pairs": [
+          {
+            "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "player2Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "player2Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "player2Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "gap": 1,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "player2Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "gap": 1,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "player2Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "player2Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "gap": 2,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "gap": 0,
+            "floatCost": 0
+          }
+        ]
+      }
+    },
+    {
+      "number": 5,
+      "matches": [
+        {
+          "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "player2Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "raw1": 343,
+          "raw2": 363,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 5,
+          "tableNumber": 1
+        },
+        {
+          "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "player2Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "raw1": 408,
+          "raw2": 343,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 5,
+          "tableNumber": 2
+        },
+        {
+          "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "raw1": 310,
+          "raw2": 354,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 5,
+          "tableNumber": 3
+        },
+        {
+          "player1Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "raw1": 397,
+          "raw2": 356,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 5,
+          "tableNumber": 4
+        },
+        {
+          "player1Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "player2Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "raw1": 409,
+          "raw2": 363,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 5,
+          "tableNumber": 5
+        },
+        {
+          "player1Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "raw1": 406,
+          "raw2": 378,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 5,
+          "tableNumber": 6
+        },
+        {
+          "player1Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "player2Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "raw1": 401,
+          "raw2": 401,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 5,
+          "tableNumber": 7
+        },
+        {
+          "player1Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "raw1": 428,
+          "raw2": 400,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 5,
+          "tableNumber": 8
+        },
+        {
+          "player1Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "player2Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "raw1": 383,
+          "raw2": 399,
+          "overtime1": 0,
+          "overtime2": 2,
+          "roundNumber": 5,
+          "tableNumber": 9
+        },
+        {
+          "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+          "raw1": 357,
+          "raw2": 384,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 5,
+          "tableNumber": 10
+        }
+      ],
+      "expectedStandings": [
+        {
+          "entrantId": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "name": "Casey Flynn",
+          "rank": 1,
+          "matchPoints": 5,
+          "pointUnits": 10,
+          "difference": 236,
+          "rawDifference": 236,
+          "totalRaw": 2053,
+          "wins": 5,
+          "draws": 0,
+          "losses": 0,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 12
+        },
+        {
+          "entrantId": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "name": "Owen Brooks",
+          "rank": 2,
+          "matchPoints": 4,
+          "pointUnits": 8,
+          "difference": 62,
+          "rawDifference": 64,
+          "totalRaw": 1888,
+          "wins": 3,
+          "draws": 2,
+          "losses": 0,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 12
+        },
+        {
+          "entrantId": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "name": "Jules Avery",
+          "rank": 3,
+          "matchPoints": 4,
+          "pointUnits": 8,
+          "difference": 59,
+          "rawDifference": 63,
+          "totalRaw": 2011,
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 13
+        },
+        {
+          "entrantId": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "name": "Robin Calder",
+          "rank": 4,
+          "matchPoints": 3.5,
+          "pointUnits": 7,
+          "difference": 24,
+          "rawDifference": 24,
+          "totalRaw": 1885,
+          "wins": 3,
+          "draws": 1,
+          "losses": 1,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 14
+        },
+        {
+          "entrantId": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "name": "Cleo Hart",
+          "rank": 5,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 64,
+          "rawDifference": 64,
+          "totalRaw": 1956,
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 11.5
+        },
+        {
+          "entrantId": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "name": "Quinn Hale",
+          "rank": 6,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 32,
+          "rawDifference": 32,
+          "totalRaw": 1920,
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 18
+        },
+        {
+          "entrantId": "a8984fdd-290e-400a-ab28-31389f095204",
+          "name": "Morgan Vale",
+          "rank": 7,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 29,
+          "rawDifference": 33,
+          "totalRaw": 1856,
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 10.5
+        },
+        {
+          "entrantId": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "name": "Nadia Wells",
+          "rank": 8,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 5,
+          "rawDifference": -3,
+          "totalRaw": 1900,
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 17
+        },
+        {
+          "entrantId": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "name": "Lena Mercer",
+          "rank": 9,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": 19,
+          "rawDifference": 15,
+          "totalRaw": 1943,
+          "wins": 2,
+          "draws": 1,
+          "losses": 2,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 9.5
+        },
+        {
+          "entrantId": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "name": "Theo Bennett",
+          "rank": 10,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": -9,
+          "rawDifference": -5,
+          "totalRaw": 1876,
+          "wins": 2,
+          "draws": 1,
+          "losses": 2,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 12.5
+        },
+        {
+          "entrantId": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "name": "Tessa Reed",
+          "rank": 11,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": -12,
+          "rawDifference": -14,
+          "totalRaw": 1887,
+          "wins": 2,
+          "draws": 1,
+          "losses": 2,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 16.5
+        },
+        {
+          "entrantId": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "name": "Samira Holt",
+          "rank": 12,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": -13,
+          "rawDifference": -15,
+          "totalRaw": 1985,
+          "wins": 2,
+          "draws": 1,
+          "losses": 2,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 12.5
+        },
+        {
+          "entrantId": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "name": "Noah Finch",
+          "rank": 13,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": 28,
+          "rawDifference": 30,
+          "totalRaw": 1903,
+          "wins": 1,
+          "draws": 2,
+          "losses": 2,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 14.5
+        },
+        {
+          "entrantId": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "name": "Elliot Park",
+          "rank": 14,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": -45,
+          "rawDifference": -43,
+          "totalRaw": 1890,
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 9.5
+        },
+        {
+          "entrantId": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "name": "Iris Morgan",
+          "rank": 15,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": -66,
+          "rawDifference": -68,
+          "totalRaw": 1930,
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 12.5
+        },
+        {
+          "entrantId": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "name": "Dylan Shaw",
+          "rank": 16,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -65,
+          "rawDifference": -65,
+          "totalRaw": 1780,
+          "wins": 1,
+          "draws": 1,
+          "losses": 3,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 13.5
+        },
+        {
+          "entrantId": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "name": "Priya Marsh",
+          "rank": 17,
+          "matchPoints": 1.5,
+          "pointUnits": 3,
+          "difference": -89,
+          "rawDifference": -83,
+          "totalRaw": 1855,
+          "wins": 1,
+          "draws": 1,
+          "losses": 3,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 8.5
+        },
+        {
+          "entrantId": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "name": "Maya Linden",
+          "rank": 18,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -68,
+          "rawDifference": -74,
+          "totalRaw": 1960,
+          "wins": 0,
+          "draws": 2,
+          "losses": 3,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 9.5
+        },
+        {
+          "entrantId": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "name": "Arun Ellis",
+          "rank": 19,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -100,
+          "rawDifference": -100,
+          "totalRaw": 1826,
+          "wins": 1,
+          "draws": 0,
+          "losses": 4,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 12
+        },
+        {
+          "entrantId": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "name": "Alex Rowan",
+          "rank": 20,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -91,
+          "rawDifference": -91,
+          "totalRaw": 1928,
+          "wins": 0,
+          "draws": 1,
+          "losses": 4,
+          "played": 5,
+          "active": true,
+          "opponentPoints": 11
+        }
+      ],
+      "pairingEvidence": {
+        "legal": true,
+        "optimal": true,
+        "minimumGap": 4,
+        "minimumFloat": 6,
+        "actualGap": 4,
+        "actualFloat": 6,
+        "checkedMasks": 10915,
+        "players": [
+          {
+            "id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "18ac3255-df98-459d-a42b-671b9632fb2d"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "pointUnits": 0,
+            "previousOpponents": [
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 1
+          },
+          {
+            "id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "pointUnits": 5,
+            "previousOpponents": [
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 1
+          },
+          {
+            "id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "a8984fdd-290e-400a-ab28-31389f095204"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 1
+          },
+          {
+            "id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "pointUnits": 5,
+            "previousOpponents": [
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "pointUnits": 8,
+            "previousOpponents": [
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": 0
+          },
+          {
+            "id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": -1
+          },
+          {
+            "id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": 0
+          },
+          {
+            "id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "pointUnits": 5,
+            "previousOpponents": [
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": -1
+          },
+          {
+            "id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": -1
+          },
+          {
+            "id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          }
+        ],
+        "pairs": [
+          {
+            "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "player2Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "player2Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "player2Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "player2Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "gap": 1,
+            "floatCost": 4
+          },
+          {
+            "player1Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "gap": 1,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "player2Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "gap": 2,
+            "floatCost": 2
+          },
+          {
+            "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "player2Id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "gap": 0,
+            "floatCost": 0
+          }
+        ]
+      }
+    },
+    {
+      "number": 6,
+      "matches": [
+        {
+          "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "raw1": 395,
+          "raw2": 367,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 1
+        },
+        {
+          "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "player2Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "raw1": 397,
+          "raw2": 402,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 2
+        },
+        {
+          "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "player2Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "raw1": 355,
+          "raw2": 395,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 3
+        },
+        {
+          "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "player2Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "raw1": 372,
+          "raw2": 372,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 4
+        },
+        {
+          "player1Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "player2Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "raw1": 433,
+          "raw2": 347,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 5
+        },
+        {
+          "player1Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "raw1": 374,
+          "raw2": 359,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 6
+        },
+        {
+          "player1Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "raw1": 372,
+          "raw2": 386,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 7
+        },
+        {
+          "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "raw1": 342,
+          "raw2": 342,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 8
+        },
+        {
+          "player1Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "player2Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "raw1": 343,
+          "raw2": 364,
+          "overtime1": 24,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 9
+        },
+        {
+          "player1Id": "a8984fdd-290e-400a-ab28-31389f095204",
+          "player2Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "raw1": 352,
+          "raw2": 379,
+          "overtime1": 0,
+          "overtime2": 0,
+          "roundNumber": 6,
+          "tableNumber": 10
+        }
+      ],
+      "expectedStandings": [
+        {
+          "entrantId": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+          "name": "Casey Flynn",
+          "rank": 1,
+          "matchPoints": 6,
+          "pointUnits": 12,
+          "difference": 263,
+          "rawDifference": 263,
+          "totalRaw": 2432,
+          "wins": 6,
+          "draws": 0,
+          "losses": 0,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 19
+        },
+        {
+          "entrantId": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+          "name": "Jules Avery",
+          "rank": 2,
+          "matchPoints": 5,
+          "pointUnits": 10,
+          "difference": 99,
+          "rawDifference": 103,
+          "totalRaw": 2406,
+          "wins": 5,
+          "draws": 0,
+          "losses": 1,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 19.5
+        },
+        {
+          "entrantId": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+          "name": "Quinn Hale",
+          "rank": 3,
+          "matchPoints": 4,
+          "pointUnits": 8,
+          "difference": 60,
+          "rawDifference": 60,
+          "totalRaw": 2315,
+          "wins": 4,
+          "draws": 0,
+          "losses": 2,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 23.5
+        },
+        {
+          "entrantId": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+          "name": "Owen Brooks",
+          "rank": 4,
+          "matchPoints": 4,
+          "pointUnits": 8,
+          "difference": 22,
+          "rawDifference": 24,
+          "totalRaw": 2243,
+          "wins": 3,
+          "draws": 2,
+          "losses": 1,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 20
+        },
+        {
+          "entrantId": "18ac3255-df98-459d-a42b-671b9632fb2d",
+          "name": "Nadia Wells",
+          "rank": 5,
+          "matchPoints": 4,
+          "pointUnits": 8,
+          "difference": 10,
+          "rawDifference": 2,
+          "totalRaw": 2302,
+          "wins": 4,
+          "draws": 0,
+          "losses": 2,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 23.5
+        },
+        {
+          "entrantId": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+          "name": "Lena Mercer",
+          "rank": 6,
+          "matchPoints": 3.5,
+          "pointUnits": 7,
+          "difference": 34,
+          "rawDifference": 30,
+          "totalRaw": 2317,
+          "wins": 3,
+          "draws": 1,
+          "losses": 2,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 15
+        },
+        {
+          "entrantId": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+          "name": "Robin Calder",
+          "rank": 7,
+          "matchPoints": 3.5,
+          "pointUnits": 7,
+          "difference": -4,
+          "rawDifference": -4,
+          "totalRaw": 2252,
+          "wins": 3,
+          "draws": 1,
+          "losses": 2,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 21
+        },
+        {
+          "entrantId": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+          "name": "Noah Finch",
+          "rank": 8,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 114,
+          "rawDifference": 116,
+          "totalRaw": 2336,
+          "wins": 2,
+          "draws": 2,
+          "losses": 2,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 19.5
+        },
+        {
+          "entrantId": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+          "name": "Cleo Hart",
+          "rank": 9,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 59,
+          "rawDifference": 59,
+          "totalRaw": 2353,
+          "wins": 3,
+          "draws": 0,
+          "losses": 3,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 18.5
+        },
+        {
+          "entrantId": "a8984fdd-290e-400a-ab28-31389f095204",
+          "name": "Morgan Vale",
+          "rank": 10,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": 2,
+          "rawDifference": 6,
+          "totalRaw": 2208,
+          "wins": 3,
+          "draws": 0,
+          "losses": 3,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 19
+        },
+        {
+          "entrantId": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+          "name": "Theo Bennett",
+          "rank": 11,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": -9,
+          "rawDifference": -5,
+          "totalRaw": 2248,
+          "wins": 2,
+          "draws": 2,
+          "losses": 2,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 17
+        },
+        {
+          "entrantId": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+          "name": "Tessa Reed",
+          "rank": 12,
+          "matchPoints": 3,
+          "pointUnits": 6,
+          "difference": -12,
+          "rawDifference": -14,
+          "totalRaw": 2259,
+          "wins": 2,
+          "draws": 2,
+          "losses": 2,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 21.5
+        },
+        {
+          "entrantId": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+          "name": "Samira Holt",
+          "rank": 13,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": -28,
+          "rawDifference": -30,
+          "totalRaw": 2344,
+          "wins": 2,
+          "draws": 1,
+          "losses": 3,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 18
+        },
+        {
+          "entrantId": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+          "name": "Dylan Shaw",
+          "rank": 14,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": -40,
+          "rawDifference": -44,
+          "totalRaw": 2144,
+          "wins": 2,
+          "draws": 1,
+          "losses": 3,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 17.5
+        },
+        {
+          "entrantId": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+          "name": "Elliot Park",
+          "rank": 15,
+          "matchPoints": 2.5,
+          "pointUnits": 5,
+          "difference": -45,
+          "rawDifference": -43,
+          "totalRaw": 2232,
+          "wins": 2,
+          "draws": 1,
+          "losses": 3,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 13.5
+        },
+        {
+          "entrantId": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+          "name": "Arun Ellis",
+          "rank": 16,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": -86,
+          "rawDifference": -86,
+          "totalRaw": 2212,
+          "wins": 2,
+          "draws": 0,
+          "losses": 4,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 17
+        },
+        {
+          "entrantId": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+          "name": "Priya Marsh",
+          "rank": 17,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": -89,
+          "rawDifference": -83,
+          "totalRaw": 2197,
+          "wins": 1,
+          "draws": 2,
+          "losses": 3,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 13.5
+        },
+        {
+          "entrantId": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+          "name": "Iris Morgan",
+          "rank": 18,
+          "matchPoints": 2,
+          "pointUnits": 4,
+          "difference": -152,
+          "rawDifference": -154,
+          "totalRaw": 2277,
+          "wins": 2,
+          "draws": 0,
+          "losses": 4,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 16
+        },
+        {
+          "entrantId": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+          "name": "Maya Linden",
+          "rank": 19,
+          "matchPoints": 1,
+          "pointUnits": 2,
+          "difference": -82,
+          "rawDifference": -88,
+          "totalRaw": 2332,
+          "wins": 0,
+          "draws": 2,
+          "losses": 4,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 13.5
+        },
+        {
+          "entrantId": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+          "name": "Alex Rowan",
+          "rank": 20,
+          "matchPoints": 0.5,
+          "pointUnits": 1,
+          "difference": -116,
+          "rawDifference": -112,
+          "totalRaw": 2271,
+          "wins": 0,
+          "draws": 1,
+          "losses": 5,
+          "played": 6,
+          "active": true,
+          "opponentPoints": 14
+        }
+      ],
+      "pairingEvidence": {
+        "legal": true,
+        "optimal": true,
+        "minimumGap": 8,
+        "minimumFloat": 12,
+        "actualGap": 8,
+        "actualFloat": 12,
+        "checkedMasks": 10872,
+        "players": [
+          {
+            "id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "pointUnits": 1,
+            "previousOpponents": [
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c"
+            ],
+            "upFloats": 2,
+            "downFloats": 0,
+            "lastFloat": 1
+          },
+          {
+            "id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "pointUnits": 5,
+            "previousOpponents": [
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 1
+          },
+          {
+            "id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "pointUnits": 5,
+            "previousOpponents": [
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "a8984fdd-290e-400a-ab28-31389f095204"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 1
+          },
+          {
+            "id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "pointUnits": 8,
+            "previousOpponents": [
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd"
+            ],
+            "upFloats": 1,
+            "downFloats": 1,
+            "lastFloat": -1
+          },
+          {
+            "id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "pointUnits": 7,
+            "previousOpponents": [
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "pointUnits": 10,
+            "previousOpponents": [
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "18ac3255-df98-459d-a42b-671b9632fb2d"
+            ],
+            "upFloats": 0,
+            "downFloats": 2,
+            "lastFloat": -1
+          },
+          {
+            "id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": -1
+          },
+          {
+            "id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "pointUnits": 8,
+            "previousOpponents": [
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": 0
+          },
+          {
+            "id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "pointUnits": 5,
+            "previousOpponents": [
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+              "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+              "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "pointUnits": 2,
+            "previousOpponents": [
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": 0
+          },
+          {
+            "id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "18ac3255-df98-459d-a42b-671b9632fb2d",
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "pointUnits": 5,
+            "previousOpponents": [
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": 0
+          },
+          {
+            "id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "pointUnits": 4,
+            "previousOpponents": [
+              "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+              "a8984fdd-290e-400a-ab28-31389f095204",
+              "c85939fa-09d2-42a2-a53f-1111f85b493c",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3"
+            ],
+            "upFloats": 0,
+            "downFloats": 1,
+            "lastFloat": 0
+          },
+          {
+            "id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "pointUnits": 3,
+            "previousOpponents": [
+              "7cd01428-2d89-47ff-a79f-d9307de85be1",
+              "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+              "84e9e5e7-258e-406b-ad70-6b97f25834be",
+              "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+              "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc"
+            ],
+            "upFloats": 1,
+            "downFloats": 0,
+            "lastFloat": 0
+          },
+          {
+            "id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "pointUnits": 6,
+            "previousOpponents": [
+              "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+              "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+              "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+              "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+              "4b36d6f1-1529-4864-a30f-0ff6f69b99b7"
+            ],
+            "upFloats": 0,
+            "downFloats": 0,
+            "lastFloat": 0
+          }
+        ],
+        "pairs": [
+          {
+            "player1Id": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+            "player2Id": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+            "gap": 1,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+            "player2Id": "18ac3255-df98-459d-a42b-671b9632fb2d",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+            "player2Id": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+            "player2Id": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+            "player2Id": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+            "player2Id": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+            "player2Id": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+            "gap": 0,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+            "player2Id": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+            "gap": 1,
+            "floatCost": 0
+          },
+          {
+            "player1Id": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+            "player2Id": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+            "gap": 2,
+            "floatCost": 6
+          },
+          {
+            "player1Id": "a8984fdd-290e-400a-ab28-31389f095204",
+            "player2Id": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+            "gap": 4,
+            "floatCost": 6
+          }
+        ]
+      }
+    }
+  ],
+  "expectedStandings": [
+    {
+      "entrantId": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+      "name": "Casey Flynn",
+      "rank": 1,
+      "matchPoints": 6,
+      "pointUnits": 12,
+      "difference": 263,
+      "rawDifference": 263,
+      "totalRaw": 2432,
+      "wins": 6,
+      "draws": 0,
+      "losses": 0,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 19
+    },
+    {
+      "entrantId": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+      "name": "Jules Avery",
+      "rank": 2,
+      "matchPoints": 5,
+      "pointUnits": 10,
+      "difference": 99,
+      "rawDifference": 103,
+      "totalRaw": 2406,
+      "wins": 5,
+      "draws": 0,
+      "losses": 1,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 19.5
+    },
+    {
+      "entrantId": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+      "name": "Quinn Hale",
+      "rank": 3,
+      "matchPoints": 4,
+      "pointUnits": 8,
+      "difference": 60,
+      "rawDifference": 60,
+      "totalRaw": 2315,
+      "wins": 4,
+      "draws": 0,
+      "losses": 2,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 23.5
+    },
+    {
+      "entrantId": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+      "name": "Owen Brooks",
+      "rank": 4,
+      "matchPoints": 4,
+      "pointUnits": 8,
+      "difference": 22,
+      "rawDifference": 24,
+      "totalRaw": 2243,
+      "wins": 3,
+      "draws": 2,
+      "losses": 1,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 20
+    },
+    {
+      "entrantId": "18ac3255-df98-459d-a42b-671b9632fb2d",
+      "name": "Nadia Wells",
+      "rank": 5,
+      "matchPoints": 4,
+      "pointUnits": 8,
+      "difference": 10,
+      "rawDifference": 2,
+      "totalRaw": 2302,
+      "wins": 4,
+      "draws": 0,
+      "losses": 2,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 23.5
+    },
+    {
+      "entrantId": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+      "name": "Lena Mercer",
+      "rank": 6,
+      "matchPoints": 3.5,
+      "pointUnits": 7,
+      "difference": 34,
+      "rawDifference": 30,
+      "totalRaw": 2317,
+      "wins": 3,
+      "draws": 1,
+      "losses": 2,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 15
+    },
+    {
+      "entrantId": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+      "name": "Robin Calder",
+      "rank": 7,
+      "matchPoints": 3.5,
+      "pointUnits": 7,
+      "difference": -4,
+      "rawDifference": -4,
+      "totalRaw": 2252,
+      "wins": 3,
+      "draws": 1,
+      "losses": 2,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 21
+    },
+    {
+      "entrantId": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+      "name": "Noah Finch",
+      "rank": 8,
+      "matchPoints": 3,
+      "pointUnits": 6,
+      "difference": 114,
+      "rawDifference": 116,
+      "totalRaw": 2336,
+      "wins": 2,
+      "draws": 2,
+      "losses": 2,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 19.5
+    },
+    {
+      "entrantId": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+      "name": "Cleo Hart",
+      "rank": 9,
+      "matchPoints": 3,
+      "pointUnits": 6,
+      "difference": 59,
+      "rawDifference": 59,
+      "totalRaw": 2353,
+      "wins": 3,
+      "draws": 0,
+      "losses": 3,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 18.5
+    },
+    {
+      "entrantId": "a8984fdd-290e-400a-ab28-31389f095204",
+      "name": "Morgan Vale",
+      "rank": 10,
+      "matchPoints": 3,
+      "pointUnits": 6,
+      "difference": 2,
+      "rawDifference": 6,
+      "totalRaw": 2208,
+      "wins": 3,
+      "draws": 0,
+      "losses": 3,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 19
+    },
+    {
+      "entrantId": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+      "name": "Theo Bennett",
+      "rank": 11,
+      "matchPoints": 3,
+      "pointUnits": 6,
+      "difference": -9,
+      "rawDifference": -5,
+      "totalRaw": 2248,
+      "wins": 2,
+      "draws": 2,
+      "losses": 2,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 17
+    },
+    {
+      "entrantId": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+      "name": "Tessa Reed",
+      "rank": 12,
+      "matchPoints": 3,
+      "pointUnits": 6,
+      "difference": -12,
+      "rawDifference": -14,
+      "totalRaw": 2259,
+      "wins": 2,
+      "draws": 2,
+      "losses": 2,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 21.5
+    },
+    {
+      "entrantId": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+      "name": "Samira Holt",
+      "rank": 13,
+      "matchPoints": 2.5,
+      "pointUnits": 5,
+      "difference": -28,
+      "rawDifference": -30,
+      "totalRaw": 2344,
+      "wins": 2,
+      "draws": 1,
+      "losses": 3,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 18
+    },
+    {
+      "entrantId": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+      "name": "Dylan Shaw",
+      "rank": 14,
+      "matchPoints": 2.5,
+      "pointUnits": 5,
+      "difference": -40,
+      "rawDifference": -44,
+      "totalRaw": 2144,
+      "wins": 2,
+      "draws": 1,
+      "losses": 3,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 17.5
+    },
+    {
+      "entrantId": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+      "name": "Elliot Park",
+      "rank": 15,
+      "matchPoints": 2.5,
+      "pointUnits": 5,
+      "difference": -45,
+      "rawDifference": -43,
+      "totalRaw": 2232,
+      "wins": 2,
+      "draws": 1,
+      "losses": 3,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 13.5
+    },
+    {
+      "entrantId": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+      "name": "Arun Ellis",
+      "rank": 16,
+      "matchPoints": 2,
+      "pointUnits": 4,
+      "difference": -86,
+      "rawDifference": -86,
+      "totalRaw": 2212,
+      "wins": 2,
+      "draws": 0,
+      "losses": 4,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 17
+    },
+    {
+      "entrantId": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+      "name": "Priya Marsh",
+      "rank": 17,
+      "matchPoints": 2,
+      "pointUnits": 4,
+      "difference": -89,
+      "rawDifference": -83,
+      "totalRaw": 2197,
+      "wins": 1,
+      "draws": 2,
+      "losses": 3,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 13.5
+    },
+    {
+      "entrantId": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+      "name": "Iris Morgan",
+      "rank": 18,
+      "matchPoints": 2,
+      "pointUnits": 4,
+      "difference": -152,
+      "rawDifference": -154,
+      "totalRaw": 2277,
+      "wins": 2,
+      "draws": 0,
+      "losses": 4,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 16
+    },
+    {
+      "entrantId": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+      "name": "Maya Linden",
+      "rank": 19,
+      "matchPoints": 1,
+      "pointUnits": 2,
+      "difference": -82,
+      "rawDifference": -88,
+      "totalRaw": 2332,
+      "wins": 0,
+      "draws": 2,
+      "losses": 4,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 13.5
+    },
+    {
+      "entrantId": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+      "name": "Alex Rowan",
+      "rank": 20,
+      "matchPoints": 0.5,
+      "pointUnits": 1,
+      "difference": -116,
+      "rawDifference": -112,
+      "totalRaw": 2271,
+      "wins": 0,
+      "draws": 1,
+      "losses": 5,
+      "played": 6,
+      "active": true,
+      "opponentPoints": 14
+    }
+  ],
+  "witnesses": [
+    {
+      "id": "TB-01",
+      "playerIds": [
+        "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+        "c85939fa-09d2-42a2-a53f-1111f85b493c"
+      ],
+      "explanation": "Equal match points: higher cumulative adjusted differential ranks first.",
+      "values": {
+        "pointsA": 4,
+        "pointsB": 4,
+        "differenceA": 60,
+        "differenceB": 22,
+        "rawDifferenceA": 60,
+        "rawDifferenceB": 24,
+        "rankA": 3,
+        "rankB": 4,
+        "totalRawA": 2315,
+        "totalRawB": 2243,
+        "opponentPointsA": 23.5,
+        "opponentPointsB": 20
+      }
+    },
+    {
+      "id": "TB-02",
+      "playerIds": [
+        "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+        "dbfda522-bbc7-475c-ab18-cb79e1ab5279"
+      ],
+      "explanation": "Match points take priority over differential.",
+      "values": {
+        "pointsA": 5,
+        "pointsB": 3,
+        "differenceA": 99,
+        "differenceB": 114,
+        "rawDifferenceA": 103,
+        "rawDifferenceB": 116,
+        "rankA": 2,
+        "rankB": 8,
+        "totalRawA": 2406,
+        "totalRawB": 2336,
+        "opponentPointsA": 19.5,
+        "opponentPointsB": 19.5
+      }
+    },
+    {
+      "id": "TB-04",
+      "playerIds": [
+        "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+        "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0"
+      ],
+      "explanation": "Two negative differentials are ordered numerically, with the less negative first.",
+      "values": {
+        "pointsA": 3,
+        "pointsB": 3,
+        "differenceA": -9,
+        "differenceB": -12,
+        "rawDifferenceA": -5,
+        "rawDifferenceB": -14,
+        "rankA": 11,
+        "rankB": 12,
+        "totalRawA": 2248,
+        "totalRawB": 2259,
+        "opponentPointsA": 17,
+        "opponentPointsB": 21.5
+      }
+    },
+    {
+      "id": "TB-05",
+      "playerIds": [
+        "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+        "46ec7b32-586c-4e03-a9aa-ad5e50e91a09"
+      ],
+      "explanation": "Overtime-adjusted differential reverses the raw-differential order.",
+      "values": {
+        "pointsA": 2.5,
+        "pointsB": 2.5,
+        "differenceA": -40,
+        "differenceB": -45,
+        "rawDifferenceA": -44,
+        "rawDifferenceB": -43,
+        "rankA": 14,
+        "rankB": 15,
+        "totalRawA": 2144,
+        "totalRawB": 2232,
+        "opponentPointsA": 17.5,
+        "opponentPointsB": 13.5
+      }
+    }
+  ],
+  "profile": {
+    "scoreCount": 120,
+    "minimumRaw": 310,
+    "maximumRaw": 449,
+    "withinTypicalRange": true,
+    "scoreBands": {
+      "below340": 1,
+      "middle340To410": 113,
+      "above410": 6
+    },
+    "uniqueRawScores": 61,
+    "adjustedMargins": {
+      "draw": 9,
+      "narrow1To10": 15,
+      "moderate11To49": 28,
+      "large50Plus": 8
+    },
+    "zeroOvertime": 104,
+    "nonzeroOvertime": 16,
+    "maximumOvertime": 24,
+    "overtimeValues": [
+      0,
+      2,
+      9,
+      10,
+      11,
+      12,
+      14,
+      19,
+      20,
+      22,
+      24
+    ],
+    "bothPlayersOvertime": 2,
+    "naturalDraws": 6,
+    "overtimeDraws": 3,
+    "overtimeReversals": 2
+  },
+  "correction": {
+    "roundNumber": 1,
+    "matchIndex": 0,
+    "score": {
+      "raw1": 435,
+      "raw2": 365,
+      "overtime1": 9,
+      "overtime2": 0
+    },
+    "expectedStandings": [
+      {
+        "entrantId": "7cd01428-2d89-47ff-a79f-d9307de85be1",
+        "name": "Casey Flynn",
+        "rank": 1,
+        "matchPoints": 6,
+        "pointUnits": 12,
+        "difference": 263,
+        "rawDifference": 263,
+        "totalRaw": 2432,
+        "wins": 6,
+        "draws": 0,
+        "losses": 0,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 19
+      },
+      {
+        "entrantId": "f94f564c-5f89-454d-a32c-45fdb4a99ebf",
+        "name": "Jules Avery",
+        "rank": 2,
+        "matchPoints": 5,
+        "pointUnits": 10,
+        "difference": 99,
+        "rawDifference": 103,
+        "totalRaw": 2406,
+        "wins": 5,
+        "draws": 0,
+        "losses": 1,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 19.5
+      },
+      {
+        "entrantId": "8ddff92e-f6b3-4582-ac15-b49200d6b699",
+        "name": "Quinn Hale",
+        "rank": 3,
+        "matchPoints": 4,
+        "pointUnits": 8,
+        "difference": 128,
+        "rawDifference": 128,
+        "totalRaw": 2349,
+        "wins": 4,
+        "draws": 0,
+        "losses": 2,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 23.5
+      },
+      {
+        "entrantId": "c85939fa-09d2-42a2-a53f-1111f85b493c",
+        "name": "Owen Brooks",
+        "rank": 4,
+        "matchPoints": 4,
+        "pointUnits": 8,
+        "difference": 22,
+        "rawDifference": 24,
+        "totalRaw": 2243,
+        "wins": 3,
+        "draws": 2,
+        "losses": 1,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 20
+      },
+      {
+        "entrantId": "18ac3255-df98-459d-a42b-671b9632fb2d",
+        "name": "Nadia Wells",
+        "rank": 5,
+        "matchPoints": 4,
+        "pointUnits": 8,
+        "difference": 10,
+        "rawDifference": 2,
+        "totalRaw": 2302,
+        "wins": 4,
+        "draws": 0,
+        "losses": 2,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 23.5
+      },
+      {
+        "entrantId": "1e8018ec-50c9-4f74-a672-1cb4ee42f0dc",
+        "name": "Lena Mercer",
+        "rank": 6,
+        "matchPoints": 3.5,
+        "pointUnits": 7,
+        "difference": 34,
+        "rawDifference": 30,
+        "totalRaw": 2317,
+        "wins": 3,
+        "draws": 1,
+        "losses": 2,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 15
+      },
+      {
+        "entrantId": "e6eb88b1-4cd0-456d-a307-49940aac8dd9",
+        "name": "Robin Calder",
+        "rank": 7,
+        "matchPoints": 3.5,
+        "pointUnits": 7,
+        "difference": -4,
+        "rawDifference": -4,
+        "totalRaw": 2252,
+        "wins": 3,
+        "draws": 1,
+        "losses": 2,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 21
+      },
+      {
+        "entrantId": "dbfda522-bbc7-475c-ab18-cb79e1ab5279",
+        "name": "Noah Finch",
+        "rank": 8,
+        "matchPoints": 3,
+        "pointUnits": 6,
+        "difference": 114,
+        "rawDifference": 116,
+        "totalRaw": 2336,
+        "wins": 2,
+        "draws": 2,
+        "losses": 2,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 19.5
+      },
+      {
+        "entrantId": "a8984fdd-290e-400a-ab28-31389f095204",
+        "name": "Morgan Vale",
+        "rank": 9,
+        "matchPoints": 3,
+        "pointUnits": 6,
+        "difference": 2,
+        "rawDifference": 6,
+        "totalRaw": 2208,
+        "wins": 3,
+        "draws": 0,
+        "losses": 3,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 19
+      },
+      {
+        "entrantId": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+        "name": "Cleo Hart",
+        "rank": 10,
+        "matchPoints": 3,
+        "pointUnits": 6,
+        "difference": -9,
+        "rawDifference": -9,
+        "totalRaw": 2319,
+        "wins": 3,
+        "draws": 0,
+        "losses": 3,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 18.5
+      },
+      {
+        "entrantId": "1713b6ec-c4c6-4e67-ae13-5dd4d5b4bc0b",
+        "name": "Theo Bennett",
+        "rank": 10,
+        "matchPoints": 3,
+        "pointUnits": 6,
+        "difference": -9,
+        "rawDifference": -5,
+        "totalRaw": 2248,
+        "wins": 2,
+        "draws": 2,
+        "losses": 2,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 17
+      },
+      {
+        "entrantId": "c0cb992a-a4e0-40f6-a5ae-bc74a38e01c0",
+        "name": "Tessa Reed",
+        "rank": 12,
+        "matchPoints": 3,
+        "pointUnits": 6,
+        "difference": -12,
+        "rawDifference": -14,
+        "totalRaw": 2259,
+        "wins": 2,
+        "draws": 2,
+        "losses": 2,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 21.5
+      },
+      {
+        "entrantId": "a4612df0-38e3-4636-a988-2a6e7a9497fd",
+        "name": "Samira Holt",
+        "rank": 13,
+        "matchPoints": 2.5,
+        "pointUnits": 5,
+        "difference": -28,
+        "rawDifference": -30,
+        "totalRaw": 2344,
+        "wins": 2,
+        "draws": 1,
+        "losses": 3,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 18
+      },
+      {
+        "entrantId": "67ffcd1d-6be8-4c3b-a48b-b30bec0bb004",
+        "name": "Dylan Shaw",
+        "rank": 14,
+        "matchPoints": 2.5,
+        "pointUnits": 5,
+        "difference": -40,
+        "rawDifference": -44,
+        "totalRaw": 2144,
+        "wins": 2,
+        "draws": 1,
+        "losses": 3,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 17.5
+      },
+      {
+        "entrantId": "46ec7b32-586c-4e03-a9aa-ad5e50e91a09",
+        "name": "Elliot Park",
+        "rank": 15,
+        "matchPoints": 2.5,
+        "pointUnits": 5,
+        "difference": -45,
+        "rawDifference": -43,
+        "totalRaw": 2232,
+        "wins": 2,
+        "draws": 1,
+        "losses": 3,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 13.5
+      },
+      {
+        "entrantId": "84e9e5e7-258e-406b-ad70-6b97f25834be",
+        "name": "Arun Ellis",
+        "rank": 16,
+        "matchPoints": 2,
+        "pointUnits": 4,
+        "difference": -86,
+        "rawDifference": -86,
+        "totalRaw": 2212,
+        "wins": 2,
+        "draws": 0,
+        "losses": 4,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 17
+      },
+      {
+        "entrantId": "066a36f3-e486-4ac1-a045-eb05a2f18e40",
+        "name": "Priya Marsh",
+        "rank": 17,
+        "matchPoints": 2,
+        "pointUnits": 4,
+        "difference": -89,
+        "rawDifference": -83,
+        "totalRaw": 2197,
+        "wins": 1,
+        "draws": 2,
+        "losses": 3,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 13.5
+      },
+      {
+        "entrantId": "4b36d6f1-1529-4864-a30f-0ff6f69b99b7",
+        "name": "Iris Morgan",
+        "rank": 18,
+        "matchPoints": 2,
+        "pointUnits": 4,
+        "difference": -152,
+        "rawDifference": -154,
+        "totalRaw": 2277,
+        "wins": 2,
+        "draws": 0,
+        "losses": 4,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 16
+      },
+      {
+        "entrantId": "00257395-ea8c-4758-a9ea-90a0e0e4ce2c",
+        "name": "Maya Linden",
+        "rank": 19,
+        "matchPoints": 1,
+        "pointUnits": 2,
+        "difference": -82,
+        "rawDifference": -88,
+        "totalRaw": 2332,
+        "wins": 0,
+        "draws": 2,
+        "losses": 4,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 13.5
+      },
+      {
+        "entrantId": "464a2272-3de1-4da5-ab9a-d9e6a0c54943",
+        "name": "Alex Rowan",
+        "rank": 20,
+        "matchPoints": 0.5,
+        "pointUnits": 1,
+        "difference": -116,
+        "rawDifference": -112,
+        "totalRaw": 2271,
+        "wins": 0,
+        "draws": 1,
+        "losses": 5,
+        "played": 6,
+        "active": true,
+        "opponentPoints": 14
+      }
+    ],
+    "witness": {
+      "beforeFirstId": "bed9316f-7827-4ec0-a9fc-5dc93b31e3a3",
+      "afterFirstId": "a8984fdd-290e-400a-ab28-31389f095204"
+    }
+  }
+}

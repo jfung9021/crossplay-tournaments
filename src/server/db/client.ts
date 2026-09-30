@@ -56,3 +56,29 @@ export async function consumeRateLimit(bucket: string, limit: number, seconds: n
   const rows = await sql`select crossplay.consume_rate_limit(${bucket}, ${limit}, ${seconds}) as allowed`;
   if (!rows[0].allowed) throw new AppError("Too many attempts. Please wait a minute and try again.", 429);
 }
+
+export type ClockActor = Actor | { matchSessionHash: string };
+export const REQUIRED_CLOCK_VERSION = "20260930020000";
+let clockReadiness: Promise<void> | undefined;
+
+async function clockReady() {
+  const sql = await ready();
+  clockReadiness ??= (async () => {
+    const rows = await sql`select crossplay.clock_version() as version`;
+    if (rows[0]?.version !== REQUIRED_CLOCK_VERSION) throw new AppError("Match clocks are not available yet.", 503);
+  })().catch((error) => { clockReadiness = undefined; throw error; });
+  await clockReadiness;
+  return sql;
+}
+
+export async function readClock(actor: ClockActor, matchId: string): Promise<Record<string, unknown>> {
+  const sql = await clockReady();
+  const rows = await sql`select crossplay.clock_read(${sql.json(actor)}, ${matchId}::uuid) as data`;
+  return rows[0].data;
+}
+
+export async function executeClock(actor: ClockActor, command: string, payload: Record<string, unknown>, requestId: string, expectedVersion?: number): Promise<Record<string, unknown>> {
+  const sql = await clockReady();
+  const rows = await sql`select crossplay.clock_execute(${sql.json(actor)}, ${command}, ${sql.json(payload as postgres.JSONValue)}, ${requestId}::uuid, ${expectedVersion ?? null}::bigint) as data`;
+  return rows[0].data;
+}

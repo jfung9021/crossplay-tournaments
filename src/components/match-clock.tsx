@@ -7,12 +7,11 @@ import type { ClockJournalSnapshot } from "@/client/clock-storage";
 import { ClockApiError, clockError, matchClockApi, matchControllerId } from "@/client/match-clock-api";
 import type { MatchClockSnapshot } from "@/client/match-clock-api";
 import { deriveClock } from "@/domain/clock";
+import { formatDuration } from "@/domain/duration";
 import type { ClockEventKind, ClockSide } from "@/domain/clock-types";
 import { SharedMatchReport } from "@/components/shared-match-report";
 import { OrganizerMatchClock } from "@/components/organizer-match-clock";
 import styles from "./match-clock.module.css";
-
-function formatTime(seconds: number) { return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`; }
 
 export function MatchClockPage({ matchId }: { matchId: string }) {
   const [snapshot, setSnapshot] = useState<MatchClockSnapshot | null>(null);
@@ -195,14 +194,14 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
     const player = ordered[index]; const value = display[player.side - 1];
     const active = state.status === "running" && state.activeSide === player.side;
     return <button type="button" className={`${styles.clockPanel} ${index === 0 ? styles.upper : ""} ${active ? styles.active : ""} ${value.isOvertime ? styles.overtime : ""}`} aria-label={`${player.name} clock${active ? ", tap to pass turn" : ""}`} aria-disabled={!canWrite || !active} onClick={event => { if (canWrite && active) act("switch", player.side, `click:${event.timeStamp}:${player.side}`); }} data-side={player.side} data-active={active}>
-      <span className={styles.panelContents}><span className={styles.name}>{player.name}</span><span className={styles.state}>{value.isOvertime ? active ? "Overtime · Running" : "Overtime" : active ? "Running" : state.status === "paused" ? "Paused" : ""}</span><span className={styles.timer} aria-hidden="true">{value.isOvertime ? "+" : ""}{formatTime(value.displaySeconds)}</span><span className="sr-only">{formatTime(value.displaySeconds)}{value.isOvertime ? " overtime" : " remaining"}</span><span className={styles.penalty}>{value.isOvertime ? `−${value.deduction} points` : ""}</span></span>
+      <span className={styles.panelContents}><span className={styles.name}>{player.name}</span><span className={styles.state}>{value.isOvertime ? active ? "Overtime · Running" : "Overtime" : active ? "Running" : state.status === "paused" ? "Paused" : ""}</span><span className={styles.timer} aria-hidden="true">{value.isOvertime ? "+" : ""}{formatDuration(value.displaySeconds)}</span><span className="sr-only">{formatDuration(value.displaySeconds)}{value.isOvertime ? " overtime" : " remaining"}</span><span className={styles.penalty}>{value.deduction > 0 ? `−${value.deduction} points` : ""}</span></span>
     </button>;
   };
   return <div data-match-screen className={styles.shell}>
     {showReport ? <SharedMatchReport key={`${snapshot.report?.id ?? "unreported"}:${snapshot.report?.revision ?? snapshot.matchRevision}`} snapshot={snapshot} display={display} canWrite={canWrite} waiting={waiting} busy={busy} error={error ?? (state.reviewRequired ? "Ask the organizer to review the clock before reporting." : null)} onCommand={reportCommand} onResume={() => act("resume")} onReload={local?.controllerConflict ? () => void initialize() : undefined} /> : <div className={`${styles.screen} ${faceToFace ? styles.faceToFace : ""}`}>
       {panel(0)}
       <div className={styles.controls}>
-        <div className="sr-only" role="status" aria-live="polite">{state.status === "running" ? `${starterName} running` : state.status}. {snapshot.players[0].name}: {display[0].deduction} points deducted. {snapshot.players[1].name}: {display[1].deduction} points deducted.</div>
+        <div className="sr-only" role="status" aria-live="polite">{state.status === "running" ? `${starterName} running` : state.status}.{display.map((value, index) => value.deduction > 0 ? ` ${snapshot.players[index].name}: ${value.deduction} points deducted.` : "").join("")}</div>
         {isReady && <p><strong>{starterName} starts</strong></p>}
         {state.status === "paused" && <p>Paused</p>}
         {readonly && <p className={styles.status}>Read-only · Clock on another device</p>}

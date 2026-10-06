@@ -54,7 +54,7 @@ export async function execute(actor: Actor, command: string, payload: Record<str
 export async function consumeRateLimit(bucket: string, limit: number, seconds: number) {
   const sql = await ready();
   const rows = await sql`select crossplay.consume_rate_limit(${bucket}, ${limit}, ${seconds}) as allowed`;
-  if (!rows[0].allowed) throw new AppError("Too many attempts. Please wait a minute and try again.", 429);
+  if (!rows[0].allowed) throw new AppError("Too many attempts. Please wait 1:00 and try again.", 429);
 }
 
 export type ClockActor = Actor | { matchSessionHash: string };

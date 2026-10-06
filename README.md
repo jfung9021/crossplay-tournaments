@@ -5,10 +5,11 @@ A plain Swiss tournament manager for Crossplay, built with Next.js and a private
 ## Rules
 
 - Win 1, draw 0.5, loss 0. Rank by match points, then total adjusted score difference. Exact ties share a rank.
-- Default overtime deduction: 2 points per completed 10 seconds. Interval and points are configurable before the first round.
+- Default overtime deduction: 2 points per completed **0:10**. Durations display and accept **m:ss** throughout the app. Interval and points are configurable before the first round.
 - Pair similar match records, avoid rematches, and give one eligible player a bye when the field is odd. Byes/forfeits contribute no score difference.
 - Players submit both scores and overtime values; the opponent confirms the report. Organizers resolve disputes and can correct results with a reason.
-- Sign in on each shared phone/iPad, choose **Start Match** on its match card, then **Start Timer** when both players are ready. New tournaments default to 20 minutes per player. Tap the running panel to pass the turn, pause if needed, and end the game before reporting actual scores. Overtime deductions are recorded automatically. No special timer links are issued or accepted.
+- Sign in on each shared phone/iPad, select its table, choose **Start Match**, then **Start Timer** when both players are ready. New tournaments default to **20:00** per player. Tap the running panel to pass the turn, pause if needed, and end the game before reporting actual scores. Overtime deductions are recorded automatically. Cards show **Continue match**, **Report scores** or **Review scores** as appropriate. No special timer links are issued or accepted.
+- Each device remembers its table independently. Manual overrides are in **Organizer actions**; optional player invitations are in **Individual player access**. Select **External timer** explicitly for manual timing/reporting. Completed tournaments show final standings first.
 - The app balances first turns by fewer prior starts, then more prior seconds, then a saved random draw. Shared-device results require both named acknowledgements; history distinguishes these from independently authenticated opponent confirmations.
 - Published pairings remain fixed. Withdrawals affect future rounds. Competitive settings lock when the first round is published.
 

@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { expect, type BrowserContext, type Page, type TestInfo } from "@playwright/test";
 import type { Match, TournamentSnapshot } from "../../src/domain/types";
-import { command, fillScore, matchCard, snapshot } from "./swiss20-browser";
+import { command, fillScore, issuePlayerInvite, matchCard, openOrganizerActions, snapshot } from "./swiss20-browser";
 
 export const exceptionNames = [
   "Amelia Brooks", "Benjamin Reed", "Clara Ellis", "Daniel Park", "Elena Torres",
@@ -44,22 +44,26 @@ export async function withdraw(page: Page, id: string, entrantId: string) {
 export async function administrativeResult(page: Page, current: TournamentSnapshot, match: Match,
   kind: "forfeit" | "double_forfeit", reason: string) {
   const card = matchCard(page, current, match);
-  await card.getByRole("button", { name: "Enter result", exact: true }).click();
+  await openOrganizerActions(card);
+  await card.getByRole("button", { name: /^(Enter|Report) result$/ }).click();
   await card.getByLabel("Result type", { exact: true }).selectOption(kind);
   if (kind === "forfeit") await card.getByLabel("Winner", { exact: true }).selectOption(match.player1Id);
-  await card.getByLabel("Reason", { exact: true }).fill(reason);
+  await card.locator("form.score-entry").getByLabel("Reason", { exact: true }).fill(reason);
   await card.getByRole("button", { name: "Save result", exact: true }).click();
+  await openOrganizerActions(card);
   await expect(card.getByRole("button", { name: "Correct result", exact: true })).toBeVisible();
 }
 
 export async function scoreWithPreview(page: Page, current: TournamentSnapshot, match: Match,
   raw1: number, raw2: number, overtime1: number, expected1: number, expected2: number, reason?: string) {
   const card = matchCard(page, current, match);
-  await card.getByRole("button", { name: /^(Enter|Correct) result$/ }).click();
+  await openOrganizerActions(card);
+  await card.getByRole("button", { name: /^(Enter|Report|Correct) result$/ }).click();
   await fillScore(card, raw1, raw2, overtime1, 0);
-  if (reason) await card.getByLabel("Reason", { exact: true }).fill(reason);
+  if (reason) await card.locator("form.score-entry").getByLabel("Reason", { exact: true }).fill(reason);
   await expect(card.getByText("Final result:")).toContainText(`${expected1}–${expected2}`);
   await card.getByRole("button", { name: "Save result", exact: true }).click();
+  await openOrganizerActions(card);
   await expect(card.getByRole("button", { name: "Correct result", exact: true })).toBeVisible();
   const saved = (await snapshot(page.request, current.tournament.id)).rounds
     .flatMap(round => round.matches).find(item => item.id === match.id)!;
@@ -71,14 +75,7 @@ export async function scoreWithPreview(page: Page, current: TournamentSnapshot, 
 }
 
 export async function issueInvitation(page: Page, id: string, entrantId: string) {
-  const current = await snapshot(page.request, id);
-  const name = current.entrants.find(entrant => entrant.id === entrantId)!.name;
-  await page.goto(`/admin/tournaments/${id}/players`);
-  const row = page.locator(".roster-row").filter({ has: page.getByText(name, { exact: true }) });
-  await row.getByRole("button", { name: "New player link", exact: true }).click();
-  const input = row.getByLabel(`Private player link for ${name}`, { exact: true });
-  await expect(input).toBeVisible();
-  return input.inputValue();
+  return issuePlayerInvite(page, id, entrantId);
 }
 
 export async function loginAuxiliary(page: Page, role: "unrelatedAuth" | "otherOrganizer") {

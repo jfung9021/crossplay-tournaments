@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { FormEvent } from "react";
 import type { MatchClockSnapshot } from "@/client/match-clock-api";
 import type { ClockDisplay } from "@/domain/clock-types";
+import { formatDuration } from "@/domain/duration";
 import styles from "./match-clock.module.css";
 
 export type SharedReportCommand = (command: string, payload: Record<string, unknown>) => Promise<void>;
@@ -43,13 +44,13 @@ export function SharedMatchReport({ snapshot, display, canWrite, waiting, busy, 
     {editing && !final && !disputed ? <form onSubmit={event => void submit(event)}>
       <div className={styles.reportCards}>{snapshot.players.map((player, index) => <div className={styles.reportCard} key={player.id}>
         <h2>{player.name}</h2><label htmlFor={`raw-score-${player.side}`}>Game score</label><input id={`raw-score-${player.side}`} aria-label={`${player.name} game score`} type="number" inputMode="numeric" min={-100000} max={100000} step={1} required value={values[index]} onChange={event => index === 0 ? setRaw1(event.target.value) : setRaw2(event.target.value)} />
-        <p>{display[index].overtimeSeconds}s overtime · −{display[index].deduction} points</p>{values[index] !== "" && <p>Final score <strong>{adjusted[index]}</strong></p>}
+        {display[index].overtimeSeconds > 0 && <p>{formatDuration(display[index].overtimeSeconds)} overtime{display[index].deduction > 0 && <> · −{display[index].deduction} points</>}</p>}{values[index] !== "" && <p>Final score <strong>{adjusted[index]}</strong></p>}
       </div>)}</div>
       <div className={styles.reportActions}><button type="submit" disabled={disabled || !valid}>{busy ? "Saving…" : "Review scores"}</button>{report && <button type="button" className="secondary" disabled={busy} onClick={() => setEditing(false)}>Cancel edit</button>}</div>
       {!report && <div className={styles.reportActions}><button type="button" className="secondary" disabled={busy || !canWrite} onClick={onResume}>Resume game</button></div>}
     </form> : <>
       <div className={styles.reportCards}>{snapshot.players.map((player, index) => <div className={styles.reportCard} key={player.id}>
-        <h2>{player.name}</h2><div className={styles.finalScore}>{adjusted[index] ?? "—"}</div><p>{summaries[index].raw ?? "—"} game score · −{summaries[index].deduction} points</p><p>{summaries[index].overtime}s overtime</p>
+        <h2>{player.name}</h2><div className={styles.finalScore}>{adjusted[index] ?? "—"}</div><p>{summaries[index].raw ?? "—"} game score{summaries[index].deduction > 0 && <> · −{summaries[index].deduction} points</>}</p>{summaries[index].overtime > 0 && <p>{formatDuration(summaries[index].overtime)} overtime</p>}
         {!final && !disputed && report && <button className={`${styles.reviewButton} ${report.acknowledgedSides.includes(player.side) ? "secondary" : ""}`} disabled={disabled || report.acknowledgedSides.includes(player.side)} onClick={() => void onCommand("acknowledge_shared_report", { reportId: report.id, expectedRevision: snapshot.matchRevision, side: player.side }).catch(() => {})}>{report.acknowledgedSides.includes(player.side) ? `${player.name} confirmed` : `${player.name}: agree`}</button>}
       </div>)}</div>
       {!final && !disputed && report && <div className={styles.reportActions}><button className="secondary" disabled={disabled} onClick={() => { setRaw1(String(report.raw1)); setRaw2(String(report.raw2)); setEditing(true); }}>Edit scores</button><button className="secondary" disabled={disabled} onClick={() => setDisputing(true)}>Report issue</button></div>}

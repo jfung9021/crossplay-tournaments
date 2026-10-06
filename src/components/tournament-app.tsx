@@ -9,6 +9,12 @@ import { calculateScore } from "@/domain/scoring";
 import { parsePlayerNames, suggestRoundCount } from "@/domain/roster";
 import { OrganizerMatchClock } from "@/components/organizer-match-clock";
 import { StartMatch } from "@/components/start-match";
+import { DurationInput } from "@/components/duration-input";
+import { formatDuration, parseDuration, durationValidationMessage } from "@/domain/duration";
+import { IndividualPlayerAccess } from "@/components/individual-player-access";
+import { MatchEntriesProvider } from "@/client/use-match-entries";
+import { TableSelector, useTableSelection } from "@/components/table-selector";
+import { matchClockApi, type MatchClockSnapshot } from "@/client/match-clock-api";
 
 type AuthState = { authenticated: boolean; email?: string; isOrganizer: boolean; configured: boolean };
 type View = "matches" | "players" | "settings" | "rules" | "round" | "history";
@@ -108,11 +114,16 @@ export function TournamentListPage({ admin = false }: { admin?: boolean }) {
   </>;
 }
 
-type SettingsValues = { name: string; date: string; rounds: string; interval: string; deduction: string; timeLimit: string };
+type SettingsValues = { name: string; date: string; rounds: string; interval: string; deduction: string; timeLimit: string; timerMode: "app" | "external" };
 function settingsValues(tournament?: Tournament): SettingsValues {
-  return { name: tournament?.name ?? "", date: tournament?.date?.slice(0, 10) ?? "", rounds: tournament?.config.roundCount?.toString() ?? "", interval: String(tournament?.config.penaltyIntervalSeconds ?? 10), deduction: String(tournament?.config.penaltyPoints ?? 2), timeLimit: tournament ? tournament.config.timeLimitSeconds === null ? "" : String(tournament.config.timeLimitSeconds / 60) : "20" };
+  return { name: tournament?.name ?? "", date: tournament?.date?.slice(0, 10) ?? "", rounds: tournament?.config.roundCount?.toString() ?? "", interval: formatDuration(tournament?.config.penaltyIntervalSeconds ?? 10), deduction: String(tournament?.config.penaltyPoints ?? 2), timeLimit: formatDuration(tournament?.config.timeLimitSeconds ?? 1200), timerMode: tournament?.config.timeLimitSeconds === null ? "external" : "app" };
 }
-function configValues(values: SettingsValues): TournamentConfig { return { roundCount: values.rounds ? Number(values.rounds) : null, penaltyIntervalSeconds: Number(values.interval), penaltyPoints: Number(values.deduction), timeLimitSeconds: values.timeLimit ? Math.round(Number(values.timeLimit) * 60) : null }; }
+function configValues(values: SettingsValues): TournamentConfig {
+  const intervalError = durationValidationMessage(values.interval, { required: true, minSeconds: 1, maxSeconds: 3600 });
+  const timeError = values.timerMode === "app" ? durationValidationMessage(values.timeLimit, { required: true, minSeconds: 1, maxSeconds: 86400 }) : null;
+  if (intervalError || timeError) throw new Error(intervalError ?? timeError!);
+  return { roundCount: values.rounds ? Number(values.rounds) : null, penaltyIntervalSeconds: parseDuration(values.interval)!, penaltyPoints: Number(values.deduction), timeLimitSeconds: values.timerMode === "app" ? parseDuration(values.timeLimit)! : null };
+}
 
 function SettingsFields({ values, setValues, locked = false, playerCount }: { values: SettingsValues; setValues: (values: SettingsValues) => void; locked?: boolean; playerCount?: number }) {
   const update = (key: keyof SettingsValues, value: string) => setValues({ ...values, [key]: value });
@@ -121,8 +132,9 @@ function SettingsFields({ values, setValues, locked = false, playerCount }: { va
     <Field id="tournament-date" label="Date (optional)"><input id="tournament-date" type="date" value={values.date} onChange={event => update("date", event.target.value)} /></Field>
     {locked && <div className="notice">Rules were locked when the first round was published.</div>}
     <fieldset disabled={locked} className="compact-stack"><legend>Rules</legend>
-      <div className="form-grid"><Field id="round-count" label="Rounds" note={values.rounds ? "Set before the first round. Withdrawals may prevent later pairings." : `Automatic${playerCount && playerCount >= 2 ? `: ${suggestRoundCount(playerCount)} rounds for ${playerCount} players` : ": based on the number of players"}.`}><input id="round-count" type="number" min={1} max={255} step={1} placeholder="Automatic" value={values.rounds} onChange={event => update("rounds", event.target.value)} /></Field><Field id="time-limit" label="Minutes per player" note="Leave blank to use an external clock."><input id="time-limit" type="number" min={1 / 60} max={1440} step="any" value={values.timeLimit} onChange={event => update("timeLimit", event.target.value)} /></Field></div>
-      <div className="form-grid"><Field id="penalty-points" label="Overtime deduction (points)"><input id="penalty-points" type="number" required min={0} max={100} step={1} value={values.deduction} onChange={event => update("deduction", event.target.value)} /></Field><Field id="penalty-interval" label="For every (seconds)"><input id="penalty-interval" type="number" required min={1} max={3600} step={1} value={values.interval} onChange={event => update("interval", event.target.value)} /></Field></div>
+      <div className="form-grid"><Field id="round-count" label="Rounds" note={values.rounds ? "Set before the first round. Withdrawals may prevent later pairings." : `Automatic${playerCount && playerCount >= 2 ? `: ${suggestRoundCount(playerCount)} rounds for ${playerCount} players` : ": based on the number of players"}.`}><input id="round-count" type="number" min={1} max={255} step={1} placeholder="Automatic" value={values.rounds} onChange={event => update("rounds", event.target.value)} /></Field><Field id="timer-mode" label="Timer"><select id="timer-mode" value={values.timerMode} onChange={event => update("timerMode", event.target.value)}><option value="app">App timer</option><option value="external">External timer</option></select></Field></div>
+      {values.timerMode === "app" && <Field id="time-limit" label="Time per player (m:ss)"><DurationInput id="time-limit" required minSeconds={1} maxSeconds={86400} value={values.timeLimit} onChange={value => update("timeLimit", value)} /></Field>}
+      <div className="form-grid"><Field id="penalty-points" label="Overtime deduction (points)"><input id="penalty-points" type="number" required min={0} max={100} step={1} value={values.deduction} onChange={event => update("deduction", event.target.value)} /></Field><Field id="penalty-interval" label="For every (m:ss)"><DurationInput id="penalty-interval" required minSeconds={1} maxSeconds={3600} value={values.interval} onChange={value => update("interval", value)} /></Field></div>
       <p className="form-note">Completed intervals only. Win 1 · Draw ½ · Loss 0. Ties use cumulative score difference after penalties.</p>
     </fieldset>
   </>;
@@ -165,7 +177,7 @@ export function TournamentPage({ tournamentKey, admin = false, view = "matches",
   if (admin && !snapshot.viewer.isOrganizer) return <div className="narrow"><h1>Organizer sign in</h1><p className="muted">An organizer account is required to manage this tournament.</p><Link className="button" href="/login">Sign in</Link></div>;
   const tournament = snapshot.tournament;
   const base = admin ? `/admin/tournaments/${tournament.id}` : `/t/${tournament.slug}`;
-  return <>
+  return <MatchEntriesProvider key={tournament.id} refreshKey={snapshot}>
     <Link className="back" href={admin ? "/admin" : "/"}>← {admin ? "Your tournaments" : "Tournaments"}</Link>
     <div className="page-heading"><div><p className="eyebrow">{["Swiss", dateLabel(tournament.date), `${tournament.entrantCount} players`].filter(Boolean).join(" · ")}</p><h1>{tournament.name}</h1><Badge status={tournament.status} /></div><div className="actions">{admin ? <Link className="button secondary" href={`/t/${tournament.slug}`}>Public page</Link> : snapshot.viewer.isOrganizer && <Link className="button secondary" href={`/admin/tournaments/${tournament.id}`}>Manage</Link>}</div></div>
     <nav className="tabs" aria-label="Tournament navigation"><Link href={base} aria-current={view === "matches" ? "page" : undefined}>{admin ? "Rounds & results" : "Tournament"}</Link>{admin ? <><Link href={`${base}/players`} aria-current={view === "players" ? "page" : undefined}>Players</Link><Link href={`${base}/settings`} aria-current={view === "settings" ? "page" : undefined}>Settings</Link></> : <><Link href={`${base}#standings`}>Standings</Link><Link href={`${base}/rules`} aria-current={view === "rules" ? "page" : undefined}>Rules</Link></>}</nav>
@@ -176,7 +188,7 @@ export function TournamentPage({ tournamentKey, admin = false, view = "matches",
     {view === "history" && <PlayerHistory snapshot={snapshot} entrantId={entrantId ?? ""} />}
     {view === "round" && <RoundPanel snapshot={snapshot} roundNumber={roundNumber} command={command} />}
     {view === "matches" && (admin ? <OrganizerPanel snapshot={snapshot} command={command} /> : <PublicPanel snapshot={snapshot} command={command} />)}
-  </>;
+  </MatchEntriesProvider>;
 }
 
 function RosterPanel({ snapshot, command }: { snapshot: TournamentSnapshot; command: Command }) {
@@ -193,7 +205,7 @@ function RosterPanel({ snapshot, command }: { snapshot: TournamentSnapshot; comm
     finally { setBusy(false); }
   }
   return <div className={tournament.status === "draft" ? "main-and-aside" : "stack"}>
-    <section><div className="section-heading"><h2>Players <span className="muted">{entrants.length}</span></h2><span className="muted">{entrants.filter(entrant => entrant.active).length} active</span></div>{entrants.length === 0 ? <div className="empty"><p>No players added.</p></div> : <div>{entrants.map(entrant => <RosterRow key={entrant.id} entrant={entrant} tournament={tournament} command={command} />)}</div>}</section>
+    <section><div className="section-heading"><h2>Players <span className="muted">{entrants.length}</span></h2><span className="muted">{entrants.filter(entrant => entrant.active).length} active</span></div>{entrants.length === 0 ? <div className="empty"><p>No players added.</p></div> : <div>{entrants.map(entrant => <RosterRow key={entrant.id} entrant={entrant} tournament={tournament} command={command} />)}</div>}<IndividualPlayerAccess entrants={entrants} tournament={tournament} command={command} /></section>
     {tournament.status === "draft" && <aside className="panel"><h2>Add players</h2><form className="compact-stack" onSubmit={add}><Field id="bulk-names" label="Player names" note="One player per line. Up to 256 players."><textarea id="bulk-names" rows={9} placeholder={"Alex\nJamie\nMorgan"} value={names} onChange={event => { setNames(event.target.value); setSuccess(null); }} /></Field><div aria-live="polite"><p className="form-note">{parsed.names.length} {parsed.names.length === 1 ? "player" : "players"} to add</p>{parsed.errors.length > 0 && <div className="notice error">{parsed.errors.map((issue, index) => <div key={index}>Line {issue.line}: {issue.message}</div>)}</div>}{entrants.length + parsed.names.length > 256 && <div className="notice error">A tournament can have up to 256 players.</div>}</div><ErrorNotice message={error} />{success && <p role="status" className="notice success">{success}</p>}<button disabled={busy || !parsed.names.length || parsed.errors.length > 0 || entrants.length + parsed.names.length > 256}>{busy ? "Adding…" : "Add players"}</button></form></aside>}
   </div>;
 }
@@ -201,23 +213,19 @@ function RosterPanel({ snapshot, command }: { snapshot: TournamentSnapshot; comm
 function RosterRow({ entrant, tournament, command }: { entrant: Entrant; tournament: Tournament; command: Command }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(entrant.name);
-  const [invite, setInvite] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const writable = tournament.status === "draft" || tournament.status === "active";
   async function run(action: string, payload: Record<string, unknown> = {}) {
     setBusy(true); setError(null);
-    try { const result = await command(action, { entrantId: entrant.id, ...payload }); if (action === "issue_invite") { setInvite(String(result.inviteUrl)); setCopied(false); } if (action === "update_entrant") setEditing(false); }
+    try { await command(action, { entrantId: entrant.id, ...payload }); if (action === "update_entrant") setEditing(false); }
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
   return <div className="roster-row"><div className="roster-content">
     {editing ? <form className="inline-form" onSubmit={event => { event.preventDefault(); void run("update_entrant", { name }); }}><label className="sr-only" htmlFor={`name-${entrant.id}`}>Player name</label><input id={`name-${entrant.id}`} autoFocus required maxLength={80} value={name} onChange={event => setName(event.target.value)} /><button disabled={busy}>Save</button><button type="button" className="secondary" onClick={() => setEditing(false)}>Cancel</button></form> : <span className="player-name">{entrant.name} {!entrant.active && <span className="badge">Withdrawn</span>}</span>}
-    {invite && <><div className="invite"><label className="sr-only" htmlFor={`invite-${entrant.id}`}>Private player link for {entrant.name}</label><input ref={inputRef} id={`invite-${entrant.id}`} value={invite} readOnly onFocus={event => event.target.select()} /><button className="secondary" onClick={async () => { try { await navigator.clipboard.writeText(invite); setCopied(true); } catch { inputRef.current?.select(); setError("Select and copy the player link."); } }}>{copied ? "Copied" : "Copy"}</button></div><p className="form-note">Private link for {entrant.name}. Earlier links and sessions have been replaced.</p></>}
     <ErrorNotice message={error} />
-  </div>{!editing && writable && <div className="roster-actions"><button className="text" disabled={busy} onClick={() => { setName(entrant.name); setEditing(true); }}>Rename</button>{entrant.active && <button className="text" disabled={busy} onClick={() => void run("issue_invite")}>New player link</button>}{tournament.status === "draft" ? <button className="text" disabled={busy} onClick={() => void run("remove_entrant")}>Remove</button> : entrant.active && <button className="text" disabled={busy} onClick={() => void run("withdraw_entrant")}>Withdraw</button>}</div>}</div>;
+  </div>{!editing && writable && <div className="roster-actions"><button className="text" disabled={busy} onClick={() => { setName(entrant.name); setEditing(true); }}>Rename</button>{tournament.status === "draft" ? <button className="text" disabled={busy} onClick={() => void run("remove_entrant")}>Remove</button> : entrant.active && <button className="text" disabled={busy} onClick={() => void run("withdraw_entrant")}>Withdraw</button>}</div>}</div>;
 }
 
 function SettingsPanel({ snapshot, command }: { snapshot: TournamentSnapshot; command: Command }) {
@@ -229,7 +237,7 @@ function SettingsPanel({ snapshot, command }: { snapshot: TournamentSnapshot; co
   const readOnly = tournament.status === "finished" || tournament.status === "archived";
   async function save(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError(null); setSaved(false);
-    try { await command("update_settings", { name: values.name, date: values.date || null, config: configValues(values) }); setSaved(true); }
+    try { await command("update_settings", { name: values.name, date: values.date || null, config: tournament.status === "draft" ? configValues(values) : tournament.config }); setSaved(true); }
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
@@ -238,11 +246,22 @@ function SettingsPanel({ snapshot, command }: { snapshot: TournamentSnapshot; co
 
 function RulesPanel({ tournament }: { tournament: Tournament }) {
   const config = tournament.config;
-  return <section style={{ maxWidth: 760 }}><h2>Tournament rules</h2><dl className="rules-list"><dt>Format</dt><dd>Swiss · {config.roundCount ?? "Automatic"} rounds</dd><dt>Match points</dt><dd>Win 1 · Draw ½ · Loss 0</dd><dt>Tiebreaker</dt><dd>Cumulative score difference after overtime penalties. Equal match points and difference share a rank.</dd><dt>Overtime</dt><dd>{config.penaltyPoints} {config.penaltyPoints === 1 ? "point" : "points"} deducted for each completed {config.penaltyIntervalSeconds} seconds over time.{config.penaltyPoints > 0 && <> At {config.penaltyIntervalSeconds - 1} seconds: 0 points. At {config.penaltyIntervalSeconds} seconds: {config.penaltyPoints} points.</>}</dd>{config.timeLimitSeconds !== null && <><dt>Time limit</dt><dd>{config.timeLimitSeconds} seconds per player</dd></>}<dt>Reporting</dt><dd>Either player reports both scores and overtime. The opponent confirms. An organizer resolves disputes.</dd><dt>Byes</dt><dd>1 match point, no score difference. No repeat bye after a bye or forfeit win.</dd><dt>Forfeits</dt><dd>Winner receives 1 match point. No score difference. A double forfeit awards no match points.</dd><dt>Pairings</dt><dd>Similar match points where possible. No repeated opponents. Withdrawn players are excluded from future rounds.</dd></dl></section>;
+  const appTimer = config.timeLimitSeconds !== null;
+  return <section style={{ maxWidth: 760 }}><h2>Tournament rules</h2><dl className="rules-list">
+    <dt>Format</dt><dd>Swiss · {config.roundCount ?? "Automatic"} {config.roundCount === 1 ? "round" : "rounds"}</dd>
+    <dt>Match points</dt><dd>Win 1 · Draw ½ · Loss 0</dd>
+    <dt>Tiebreaker</dt><dd>Cumulative score difference after overtime penalties. Equal match points and difference share a rank.</dd>
+    <dt>Overtime</dt><dd>{config.penaltyPoints} {config.penaltyPoints === 1 ? "point" : "points"} deducted per completed {formatDuration(config.penaltyIntervalSeconds)} overtime.{config.penaltyPoints > 0 && <> At {formatDuration(config.penaltyIntervalSeconds - 1)}: 0 points. At {formatDuration(config.penaltyIntervalSeconds)}: {config.penaltyPoints} points.</>}</dd>
+    <dt>Timer</dt><dd>{appTimer ? <>{formatDuration(config.timeLimitSeconds!)} per player · App timer</> : "External timer"}</dd>
+    <dt>Reporting</dt><dd>{appTimer ? "Start Match → Start Timer → End game → enter scores → both players agree. Overtime comes from the timer." : "Use an external timer. The organizer records both game scores and overtime."} An organizer resolves disputes.</dd>
+    <dt>Byes</dt><dd>1 match point, no score difference. No repeat bye after a bye or forfeit win.</dd>
+    <dt>Forfeits</dt><dd>Winner receives 1 match point. No score difference. A double forfeit awards no match points.</dd>
+    <dt>Pairings</dt><dd>Similar match points where possible. No repeated opponents. Withdrawn players are excluded from future rounds.</dd>
+  </dl><details className="section-space"><summary>Optional individual reporting</summary><p className="form-note">Invited players can report both game scores and overtime; the opponent confirms. Matches with an app timer must use its score sheet.</p></details></section>;
 }
 
 function StandingsPanel({ snapshot }: { snapshot: TournamentSnapshot }) {
-  return <section id="standings"><div className="section-heading"><h2>Standings</h2><span className="muted" style={{ fontSize: 12 }}>Confirmed results</span></div>{snapshot.standings.length === 0 ? <p className="muted">Standings will appear when players are added.</p> : <div className="table-wrap"><table><thead><tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col" className="number">Points</th><th scope="col" className="number">Difference</th></tr></thead><tbody>{snapshot.standings.map(standing => <tr key={standing.entrantId} className={standing.entrantId === snapshot.viewer.entrantId ? "my-row" : undefined}><td>{standing.rank}</td><td className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${standing.entrantId}`}>{standing.name}</Link>{standing.entrantId === snapshot.viewer.entrantId && <small> · You</small>}{!standing.active && <small> · Withdrawn</small>}</td><td className="number">{standing.matchPoints}</td><td className="number">{signed(standing.difference)}</td></tr>)}</tbody></table></div>}</section>;
+  return <section id="standings"><div className="section-heading"><h2>{snapshot.tournament.status === "finished" || snapshot.tournament.status === "archived" ? "Final standings" : "Standings"}</h2><span className="muted" style={{ fontSize: 12 }}>Confirmed results</span></div>{snapshot.standings.length === 0 ? <p className="muted">Standings will appear when players are added.</p> : <div className="table-wrap"><table><thead><tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col" className="number">Points</th><th scope="col" className="number">Difference</th></tr></thead><tbody>{snapshot.standings.map(standing => <tr key={standing.entrantId} className={standing.entrantId === snapshot.viewer.entrantId ? "my-row" : undefined}><td>{standing.rank}</td><td className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${standing.entrantId}`}>{standing.name}</Link>{standing.entrantId === snapshot.viewer.entrantId && <small> · You</small>}{!standing.active && <small> · Withdrawn</small>}</td><td className="number">{standing.matchPoints}</td><td className="number">{signed(standing.difference)}</td></tr>)}</tbody></table></div>}</section>;
 }
 
 function RoundLinks({ snapshot, selected }: { snapshot: TournamentSnapshot; selected?: number }) {
@@ -253,11 +272,22 @@ function RoundLinks({ snapshot, selected }: { snapshot: TournamentSnapshot; sele
 function PublicPanel({ snapshot, command }: { snapshot: TournamentSnapshot; command: Command }) {
   const rounds = snapshot.rounds.filter(round => round.status !== "draft");
   const current = rounds.at(-1);
-  const mine = current?.matches.find(match => match.player1Id === snapshot.viewer.entrantId || match.player2Id === snapshot.viewer.entrantId);
+  const [table, setTable] = useTableSelection(snapshot.tournament.id);
+  const finished = snapshot.tournament.status === "finished" || snapshot.tournament.status === "archived";
+  const mine = snapshot.viewer.entrantId ? current?.matches.find(match => match.player1Id === snapshot.viewer.entrantId || match.player2Id === snapshot.viewer.entrantId) : undefined;
+  const tables = current?.matches.filter(match => match.player2Id).map(match => match.tableNumber) ?? [];
+  const matches = current?.matches.filter(match => finished || table === "all" || (match.player2Id && match.tableNumber === table)) ?? [];
   return <div className="stack">
+    {finished && <StandingsPanel snapshot={snapshot} />}
     {mine && snapshot.tournament.status === "active" && <section><h2>Your match · Round {current?.number}</h2><MatchCard match={mine} snapshot={snapshot} command={command} player /></section>}
-    {!current ? <div className="empty"><h2>Pairings are not published yet</h2><p>The first round will appear here.</p></div> : <section><div className="section-heading"><h2>{snapshot.tournament.status === "finished" || snapshot.tournament.status === "archived" ? "Final round" : `Round ${current.number}`}</h2><Badge status={current.status} /></div><RoundLinks snapshot={snapshot} selected={current.number} /><div className="match-list">{current.matches.map(match => <MatchCard key={match.id} match={match} snapshot={snapshot} />)}</div></section>}
-    <StandingsPanel snapshot={snapshot} />
+    {!current ? <div className="empty"><h2>Pairings are not published yet</h2><p>The first round will appear here.</p></div> : <section>
+      <div className="section-heading"><h2>{finished ? "Final round" : "Round " + current.number}</h2><Badge status={current.status} /></div>
+      <RoundLinks snapshot={snapshot} selected={current.number} />
+      {!finished && <TableSelector tables={tables} value={table} onChange={setTable} />}
+      {!matches.length && table !== "all" && !finished && <div className="notice"><p>Table {table} has no match this round</p><div className="actions"><button className="secondary" onClick={() => setTable("all")}>Show all tables</button></div></div>}
+      <div className="match-list">{matches.map(match => <MatchCard key={match.id} match={match} snapshot={snapshot} command={command} />)}</div>
+    </section>}
+    {!finished && <StandingsPanel snapshot={snapshot} />}
   </div>;
 }
 
@@ -308,20 +338,27 @@ function OrganizerPanel({ snapshot, command }: { snapshot: TournamentSnapshot; c
       {tournament.status === "active" && published.length > 0 && !pending && !allRoundsPlayed && <details className="section-space" open={tournament.correctionsOnly || undefined}><summary>{tournament.correctionsOnly ? "Finish corrected tournament" : "Finish early"}</summary><form className="form" onSubmit={event => { event.preventDefault(); void run("finish_tournament", { reason }); }}><Field id="finish-reason" label="Reason"><input id="finish-reason" required maxLength={1000} value={reason} onChange={event => setReason(event.target.value)} /></Field><div><button className="secondary" disabled={busy}>{tournament.correctionsOnly ? "Finish tournament" : "Finish tournament early"}</button></div></form></details>}
       {tournament.status === "finished" && <details className="section-space"><summary>Reopen results for a correction</summary><form className="form" onSubmit={event => { event.preventDefault(); void run("reopen_tournament", { reason }); }}><Field id="reopen-reason" label="Reason"><input id="reopen-reason" required maxLength={1000} value={reason} onChange={event => setReason(event.target.value)} /></Field><div><button className="secondary" disabled={busy}>Reopen results</button></div></form></details>}
     </section>
+    {finished && <StandingsPanel snapshot={snapshot} />}
     {selected && <section><div className="section-heading"><h2>Round {selected.number}</h2><Badge status={selected.status} /></div>{rounds.length > 1 && <div className="round-nav">{rounds.map(round => <button key={round.id} className={round.number === selected.number ? "" : "secondary"} onClick={() => setSelectedRound(round.number)}>Round {round.number}{round.status === "draft" ? " · Draft" : ""}</button>)}</div>}<div className="match-list">{selected.matches.map(match => <MatchCard key={match.id} match={match} snapshot={snapshot} command={command} admin={!finished && selected.status !== "draft"} draft={selected.status === "draft"} />)}</div></section>}
-    <StandingsPanel snapshot={snapshot} />
+    {!finished && <StandingsPanel snapshot={snapshot} />}
     {snapshot.audit && snapshot.audit.length > 0 && <details><summary>Organizer history</summary><ul className="list">{snapshot.audit.slice().reverse().map(event => <li key={event.id} className="history-meta"><time dateTime={event.createdAt}>{new Date(event.createdAt).toLocaleString()}</time> · {event.action.replaceAll("_", " ")}{event.reason && ` · ${event.reason}`}</li>)}</ul></details>}
   </div>;
 }
 
 function MatchCard({ match, snapshot, command, admin = false, player = false, draft = false }: { match: Match; snapshot: TournamentSnapshot; command?: Command; admin?: boolean; player?: boolean; draft?: boolean }) {
   const [editing, setEditing] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const [reviewTime, setReviewTime] = useState(false);
   const [disputing, setDisputing] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const player1 = snapshot.entrants.find(entrant => entrant.id === match.player1Id);
   const player2 = snapshot.entrants.find(entrant => entrant.id === match.player2Id);
+  const organizer = snapshot.viewer.isOrganizer && !draft && snapshot.tournament.status === "active" && !!command && !!match.player2Id;
+  const appTimer = snapshot.tournament.config.timeLimitSeconds !== null;
+  const externalReport = organizer && !appTimer && match.status !== "final";
+  const organizerTools = organizer && (admin || appTimer);
   const canReport = player && snapshot.tournament.status === "active" && match.status !== "final" && match.status !== "disputed" && !!match.player2Id;
   const ownReport = match.report?.submittedBy === snapshot.viewer.entrantId;
   const reported = match.report ? calculateScore(match.report, snapshot.tournament.config) : null;
@@ -339,29 +376,33 @@ function MatchCard({ match, snapshot, command, admin = false, player = false, dr
     if (match.kind === "forfeit" || match.kind === "double_forfeit") return (side === 1 ? displayed.points1 : displayed.points2) > 0 ? "Win" : "Loss";
     return side === 1 ? displayed.adjusted1 : displayed.adjusted2;
   }
-  return <article className="match" aria-label={`${player1?.name ?? "Player"}${player2 ? ` versus ${player2.name}` : ", bye"}`}>
+  return <article id={`match-${match.id}`} className="match" aria-label={`${player1?.name ?? "Player"}${player2 ? ` versus ${player2.name}` : ", bye"}`}>
     <div className="match-topline"><span>{match.player2Id ? `Table ${match.tableNumber}` : "Bye"}</span>{draft ? <span>Not published</span> : <Badge status={match.status} />}</div>
     <div className="match-player"><span className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${match.player1Id}`}>{player1?.name ?? "Player"}</Link>{player && snapshot.viewer.entrantId === match.player1Id && <small> · You</small>}</span><span className="match-score">{score(1)}</span></div>
     {match.player2Id && <div className="match-player"><span className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${match.player2Id}`}>{player2?.name ?? "Player"}</Link>{player && snapshot.viewer.entrantId === match.player2Id && <small> · You</small>}</span><span className="match-score">{score(2)}</span></div>}
     {match.kind === "forfeit" && <p className="score-preview">Forfeit</p>}{match.kind === "double_forfeit" && <p className="score-preview">Double forfeit · No match points</p>}
-    {displayed && (displayed.overtime1 > 0 || displayed.overtime2 > 0) && <p className="score-preview">{[{ name: player1?.name, seconds: displayed.overtime1, raw: displayed.raw1, adjusted: displayed.adjusted1 }, { name: player2?.name, seconds: displayed.overtime2, raw: displayed.raw2, adjusted: displayed.adjusted2 }].filter(side => side.seconds > 0).map(side => `${side.name}: ${side.seconds}s overtime${side.raw !== null && side.adjusted !== null ? ` (−${side.raw - side.adjusted} points)` : ""}`).join(" · ")}</p>}
+    {displayed && (displayed.overtime1 > 0 || displayed.overtime2 > 0) && <p className="score-preview">{[{ name: player1?.name, seconds: displayed.overtime1, raw: displayed.raw1, adjusted: displayed.adjusted1 }, { name: player2?.name, seconds: displayed.overtime2, raw: displayed.raw2, adjusted: displayed.adjusted2 }].filter(side => side.seconds > 0).map(side => `${side.name}: ${formatDuration(side.seconds)} overtime${side.raw !== null && side.adjusted !== null && side.raw > side.adjusted ? ` (−${side.raw - side.adjusted} points)` : ""}`).join(" · ")}</p>}
     {match.report && !match.result && <div className="match-bottom"><p className="muted">{match.status === "disputed" ? "An organizer is reviewing this result." : ownReport && player ? "Waiting for your opponent to confirm." : "Reported result · Not yet confirmed"}</p>{match.report.disputeReason && (admin || player) && <p>Issue: {match.report.disputeReason}</p>}</div>}
-    {snapshot.viewer.isOrganizer && !draft && snapshot.tournament.status === "active" && match.player2Id && match.status !== "final" && snapshot.tournament.config.timeLimitSeconds !== null && <StartMatch matchId={match.id} reported={match.status !== "unreported"} />}
+    {organizer && appTimer && match.status !== "final" && !editing && <StartMatch match={match} onReviewTime={() => { setReviewTime(true); setToolsOpen(true); }} />}
+    {externalReport && !editing && <div className="match-bottom"><button onClick={() => setEditing(true)}>{match.status === "disputed" ? "Resolve result" : match.report ? "Review result" : "Report result"}</button></div>}
     {canReport && command && !editing && <div className="match-bottom">
       <ErrorNotice message={error} />
       {match.report && !ownReport ? <div className="actions"><button disabled={busy} onClick={() => void run("confirm_report", { reportId: match.report!.id })}>{busy ? "Confirming…" : "Confirm result"}</button><button className="secondary" disabled={busy} onClick={() => setDisputing(true)}>Report issue</button></div> : <button className={match.report ? "secondary" : ""} onClick={() => setEditing(true)}>{match.report ? "Edit result" : "Report result"}</button>}
       {disputing && match.report && <form className="compact-stack score-entry" onSubmit={event => { event.preventDefault(); void run("dispute_report", { reportId: match.report!.id, reason }); }}><Field id={`dispute-${match.id}`} label="What needs to change?"><textarea id={`dispute-${match.id}`} required maxLength={1000} rows={3} value={reason} onChange={event => setReason(event.target.value)} /></Field><div className="actions"><button disabled={busy}>Send to organizer</button><button type="button" className="secondary" onClick={() => setDisputing(false)}>Cancel</button></div></form>}
     </div>}
-    {admin && command && match.player2Id && !editing && <div className="match-bottom"><button className="secondary" onClick={() => setEditing(true)}>{match.status === "final" ? "Correct result" : match.status === "disputed" ? "Resolve result" : "Enter result"}</button></div>}
-    {admin && match.player2Id && <OrganizerMatchClock matchId={match.id} player1={{ id: match.player1Id, name: player1?.name ?? "Player 1" }} player2={{ id: match.player2Id, name: player2?.name ?? "Player 2" }} enabled={snapshot.tournament.config.timeLimitSeconds !== null} final={match.status === "final"} />}
-    {editing && command && <ScoreForm match={match} snapshot={snapshot} command={command} admin={admin} close={() => setEditing(false)} />}
+    {organizerTools && <details className="match-bottom organizer-actions" open={toolsOpen} onToggle={event => setToolsOpen(event.currentTarget.open)}><summary>Organizer actions</summary>
+      {!editing && !externalReport && <button className="secondary" onClick={() => setEditing(true)}>{match.status === "final" ? "Correct result" : match.status === "disputed" ? "Resolve result" : match.report ? "Review result" : "Enter result"}</button>}
+      {toolsOpen && <OrganizerMatchClock embedded initialAction={reviewTime ? "correct_clock" : undefined} matchId={match.id} player1={{ id: match.player1Id, name: player1?.name ?? "Player 1" }} player2={{ id: match.player2Id!, name: player2?.name ?? "Player 2" }} enabled={appTimer} final={match.status === "final"} />}
+    </details>}
+    {organizerTools && appTimer && match.status === "disputed" && !toolsOpen && <button className="text" onClick={() => setToolsOpen(true)}>Resolve result</button>}
+    {editing && command && <ScoreForm match={match} snapshot={snapshot} command={command} admin={organizer || admin} close={() => setEditing(false)} />}
   </article>;
 }
 
 type ScoreValues = { raw1: string; raw2: string; overtime1: string; overtime2: string };
 function initialScores(match: Match): ScoreValues {
   const previous = match.report ?? match.result;
-  return { raw1: previous?.raw1?.toString() ?? "", raw2: previous?.raw2?.toString() ?? "", overtime1: previous?.overtime1 ? String(previous.overtime1) : "", overtime2: previous?.overtime2 ? String(previous.overtime2) : "" };
+  return { raw1: previous?.raw1?.toString() ?? "", raw2: previous?.raw2?.toString() ?? "", overtime1: previous?.overtime1 ? formatDuration(previous.overtime1) : "", overtime2: previous?.overtime2 ? formatDuration(previous.overtime2) : "" };
 }
 
 function ScoreForm({ match, snapshot, command, admin, close }: { match: Match; snapshot: TournamentSnapshot; command: Command; admin: boolean; close: () => void }) {
@@ -373,8 +414,16 @@ function ScoreForm({ match, snapshot, command, admin, close }: { match: Match; s
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const stale = revision !== match.revision;
-  const changedReason = admin && (match.status === "final" || match.status === "disputed" || kind !== "played");
-  const scores = { raw1: Number(values.raw1), raw2: Number(values.raw2), overtime1: Number(values.overtime1 || 0), overtime2: Number(values.overtime2 || 0) };
+  const [hasClock, setHasClock] = useState(false);
+  const appOverride = admin && snapshot.tournament.config.timeLimitSeconds !== null;
+  useEffect(() => {
+    if (!appOverride) return;
+    let active = true;
+    void matchClockApi<MatchClockSnapshot>(match.id).then(value => { if (active) setHasClock(!!value.state); }).catch(() => {});
+    return () => { active = false; };
+  }, [appOverride, match.id]);
+  const changedReason = admin && (hasClock || match.status === "final" || match.status === "disputed" || kind !== "played");
+  const scores = { raw1: Number(values.raw1), raw2: Number(values.raw2), overtime1: values.overtime1.trim() ? parseDuration(values.overtime1) ?? NaN : 0, overtime2: values.overtime2.trim() ? parseDuration(values.overtime2) ?? NaN : 0 };
   const validScores = values.raw1 !== "" && values.raw2 !== "" && [scores.raw1, scores.raw2].every(value => Number.isInteger(value) && value >= -100000 && value <= 100000) && [scores.overtime1, scores.overtime2].every(value => Number.isInteger(value) && value >= 0 && value <= 86400);
   const preview = validScores && kind === "played" ? calculateScore(scores, snapshot.tournament.config) : null;
   const players = [snapshot.entrants.find(entrant => entrant.id === match.player1Id), snapshot.entrants.find(entrant => entrant.id === match.player2Id)];
@@ -392,11 +441,11 @@ function ScoreForm({ match, snapshot, command, admin, close }: { match: Match; s
       const rawKey = `raw${side}` as "raw1" | "raw2";
       const overtimeKey = `overtime${side}` as "overtime1" | "overtime2";
       const penalty = preview ? Number(values[rawKey]) - (side === 1 ? preview.adjusted1! : preview.adjusted2!) : 0;
-      return <fieldset key={side}><legend>{entrant?.name ?? "Player"}</legend><div className="form-grid"><Field id={`score-${side}-${match.id}`} label="Score"><input id={`score-${side}-${match.id}`} type="number" inputMode="numeric" min={-100000} max={100000} step={1} required value={values[rawKey]} onChange={event => setValues({ ...values, [rawKey]: event.target.value })} /></Field><Field id={`overtime-${side}-${match.id}`} label="Overtime (seconds)"><input id={`overtime-${side}-${match.id}`} type="number" inputMode="numeric" min={0} max={86400} step={1} placeholder="0" value={values[overtimeKey]} onChange={event => setValues({ ...values, [overtimeKey]: event.target.value })} /></Field></div>{preview && penalty > 0 && <p className="score-preview">−{penalty} points · Final score <strong>{side === 1 ? preview.adjusted1 : preview.adjusted2}</strong></p>}</fieldset>;
+      return <fieldset key={side}><legend>{entrant?.name ?? "Player"}</legend><div className="form-grid"><Field id={`score-${side}-${match.id}`} label="Score"><input id={`score-${side}-${match.id}`} type="number" inputMode="numeric" min={-100000} max={100000} step={1} required value={values[rawKey]} onChange={event => setValues({ ...values, [rawKey]: event.target.value })} /></Field><Field id={`overtime-${side}-${match.id}`} label="Overtime (m:ss)"><DurationInput id={`overtime-${side}-${match.id}`} minSeconds={0} maxSeconds={86400} placeholder="0:00" value={values[overtimeKey]} onChange={value => setValues({ ...values, [overtimeKey]: value })} /></Field></div>{preview && penalty > 0 && <p className="score-preview">−{penalty} points · Final score <strong>{side === 1 ? preview.adjusted1 : preview.adjusted2}</strong></p>}</fieldset>;
     })}{preview && <p className="score-preview" aria-live="polite">Final result: <strong>{preview.adjusted1}–{preview.adjusted2}</strong>{preview.adjusted1 === preview.adjusted2 ? " · Draw" : ` · ${players[preview.adjusted1! > preview.adjusted2! ? 0 : 1]?.name} wins`}</p>}</>}
     {kind === "forfeit" && <Field id={`winner-${match.id}`} label="Winner"><select id={`winner-${match.id}`} value={winnerId} onChange={event => setWinnerId(event.target.value)}>{players.map(entrant => entrant && <option value={entrant.id} key={entrant.id}>{entrant.name}</option>)}</select></Field>}
     {kind !== "played" && <p className="form-note">{kind === "forfeit" ? "Winner receives 1 match point. No score difference." : "Both players receive 0 match points. No score difference."}</p>}
-    {changedReason && <div style={{ marginTop: 18 }}><Field id={`correction-${match.id}`} label="Reason"><input id={`correction-${match.id}`} required maxLength={1000} value={reason} onChange={event => setReason(event.target.value)} /></Field>{match.status === "final" && <p className="form-note">Standings will update. Already published opponents stay the same.</p>}</div>}
+    {(changedReason || appOverride) && <div style={{ marginTop: 18 }}><Field id={`correction-${match.id}`} label="Reason"><input id={`correction-${match.id}`} required={changedReason} maxLength={1000} value={reason} onChange={event => setReason(event.target.value)} /></Field>{match.status === "final" && <p className="form-note">Standings will update. Already published opponents stay the same.</p>}</div>}
     <ErrorNotice message={error} />
     <div className="actions"><button disabled={busy || stale || (kind === "played" && !validScores)}>{busy ? "Saving…" : admin ? "Save result" : "Submit result"}</button><button type="button" className="secondary" onClick={close} disabled={busy}>Cancel</button></div>
   </form>;

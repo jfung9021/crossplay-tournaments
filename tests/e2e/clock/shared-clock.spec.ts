@@ -117,11 +117,18 @@ test("20 players complete six rounds through ten shared clocks with independent 
     expect(finished.rounds.every(round => round.matches.every(match => match.status === "final"))).toBe(true);
     assertStandings(finished.standings, fixture.expectedStandings);
     await assertStandingsUI(page, fixture.expectedStandings);
+    await expect(page.getByRole("heading", { name: "Final standings", exact: true })).toBeVisible();
     await page.screenshot({ path: evidencePath("organizer-complete.png"), fullPage: true });
     await tables[0]!.page.screenshot({ path: evidencePath("shared-match-complete.png"), fullPage: true });
     await page.goto(`/t/${finished.tournament.slug}`);
     await expect(page.getByRole("heading", { name: "Final round", exact: true })).toBeVisible();
     await expect(page.getByText("Finished", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Final standings", exact: true })).toBeVisible();
+    expect(await page.evaluate(() => {
+      const standings = document.querySelector("#standings");
+      const match = document.querySelector("article.match");
+      return !!standings && !!match && !!(standings.compareDocumentPosition(match) & Node.DOCUMENT_POSITION_FOLLOWING);
+    }), "Final standings precede final-round matches").toBe(true);
     await assertStandingsUI(page, fixture.expectedStandings);
     await page.screenshot({ path: evidencePath("final-standings.png"), fullPage: true });
     await page.locator("#standings").screenshot({ path: evidencePath("final-standings-table.png") });
@@ -164,6 +171,10 @@ test("phone and iPad layouts, overtime reversal, offline ending and frozen repor
     await expect(phone.getByRole("button", { name: "Review scores", exact: true })).toBeEnabled();
     await phone.getByRole("button", { name: "Review scores", exact: true }).click();
     await expect(phone.getByRole("heading", { name: "Review scores", exact: true })).toBeVisible();
+    await expect(phone.getByText("0:20 overtime", { exact: true })).toBeVisible();
+    await expect(phone.getByText("401 game score · −4 points", { exact: true })).toBeVisible();
+    await expect(phone.getByText("0:00 overtime", { exact: true })).toHaveCount(0);
+    await expect(phone.getByText(/−0 points/)).toHaveCount(0);
     const report = await clockRead(phone.request, match.id);
     expect(report.state!.usedMs).toEqual(durations);
     expect(report.report).toMatchObject({ raw1: 401, raw2: 399, overtime1: 20, overtime2: 0, adjusted1: 397, adjusted2: 399 });

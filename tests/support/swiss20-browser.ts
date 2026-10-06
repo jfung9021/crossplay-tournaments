@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { expect, type APIRequestContext, type Browser, type BrowserContext, type Locator, type Page, type TestInfo } from "@playwright/test";
 import type { Match, ScoreInput, TournamentSnapshot } from "../../src/domain/types";
+import { formatDuration } from "../../src/domain/duration";
 import { assertStandings, calculateScore, calculateStandings, pairingEvidence, verifyFixture, type Fixture, type ReferenceMatch } from "./swiss-reference";
 import { checkpointLocalDatabase, readDatabaseEvidence, restartLocalApp, restoreLocalDatabase } from "./local-environment";
 
@@ -87,13 +88,15 @@ export async function login(page: Page, alternative?: { email: string; password:
   await expect(page).toHaveURL(/\/admin$/);
 }
 
-export async function createSimpleTournament(page: Page, name: string, names: string, rounds: number, penaltyPoints = 2, interval = 10): Promise<string> {
+export async function createSimpleTournament(page: Page, name: string, names: string, rounds: number, penaltyPoints = 2, interval = 10, timeLimitSeconds: number | null = 1200): Promise<string> {
   await installPacing(page.context());
   await page.goto("/admin/tournaments/new");
   await page.getByLabel("Tournament name", { exact: true }).fill(name);
   await page.getByLabel("Rounds", { exact: true }).fill(String(rounds));
   await page.getByLabel("Overtime deduction (points)").fill(String(penaltyPoints));
-  await page.getByLabel("For every (seconds)").fill(String(interval));
+  await page.getByLabel("For every (m:ss)").fill(formatDuration(interval));
+  await page.getByLabel("Timer", { exact: true }).selectOption(timeLimitSeconds === null ? "external" : "app");
+  if (timeLimitSeconds !== null) await page.getByLabel("Time per player (m:ss)", { exact: true }).fill(formatDuration(timeLimitSeconds));
   await page.getByRole("button", { name: "Create tournament", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/tournaments\/[^/]+\/players$/);
   const id = new URL(page.url()).pathname.split("/")[3]!;
@@ -130,16 +133,24 @@ export async function openMatchFromCard(page: Page, tournamentId: string, matchI
 export async function fillScore(card: Locator, raw1: number, raw2: number, overtime1 = 0, overtime2 = 0): Promise<void> {
   await card.getByLabel("Score", { exact: true }).nth(0).fill(String(raw1));
   await card.getByLabel("Score", { exact: true }).nth(1).fill(String(raw2));
-  await card.getByLabel("Overtime (seconds)", { exact: true }).nth(0).fill(String(overtime1));
-  await card.getByLabel("Overtime (seconds)", { exact: true }).nth(1).fill(String(overtime2));
+  await card.getByLabel("Overtime (m:ss)", { exact: true }).nth(0).fill(formatDuration(overtime1));
+  await card.getByLabel("Overtime (m:ss)", { exact: true }).nth(1).fill(formatDuration(overtime2));
+}
+
+export async function openOrganizerActions(card: Locator): Promise<void> {
+  const summary = card.locator("summary").filter({ hasText: /^Organizer actions$/ });
+  if (await summary.count() && await summary.locator("..").getAttribute("open") === null) await summary.click();
+  if (await summary.count()) await expect(card.locator("button.text").filter({ hasText: /^Resolve result$/ })).toHaveCount(0);
 }
 
 export async function organizerScore(page: Page, current: TournamentSnapshot, match: Match, scores: [number, number, number?, number?], reason?: string): Promise<void> {
   const card = matchCard(page, current, match);
-  await card.getByRole("button", { name: /^(Enter|Resolve|Correct) result$/ }).click();
+  await openOrganizerActions(card);
+  await card.getByRole("button", { name: /^(Enter|Report|Resolve|Correct) result$/ }).click();
   await fillScore(card, ...scores);
-  if (reason) await card.getByLabel("Reason", { exact: true }).fill(reason);
+  if (reason) await card.locator("form.score-entry").getByLabel("Reason", { exact: true }).fill(reason);
   await card.getByRole("button", { name: "Save result", exact: true }).click();
+  await openOrganizerActions(card);
   await expect(card.getByRole("button", { name: "Correct result", exact: true })).toBeVisible();
 }
 
@@ -147,9 +158,11 @@ export async function issuePlayerInvite(admin: Page, id: string, entrantId: stri
   const current = await snapshot(admin.request, id);
   const name = current.entrants.find((entrant) => entrant.id === entrantId)!.name;
   await admin.goto(`/admin/tournaments/${id}/players`);
-  const row = admin.locator(".roster-row").filter({ has: admin.getByText(name, { exact: true }) });
-  await row.getByRole("button", { name: "New player link", exact: true }).click();
-  const input = row.getByLabel(`Private player link for ${name}`, { exact: true });
+  const access = admin.locator("details").filter({ has: admin.locator("summary").filter({ hasText: /^Individual player access$/ }) });
+  await access.locator("summary").click();
+  await access.getByLabel("Player", { exact: true }).selectOption(entrantId);
+  await access.getByRole("button", { name: "Create or replace player link", exact: true }).click();
+  const input = access.getByLabel(`Private player link for ${name}`, { exact: true });
   await expect(input).toBeVisible();
   return input.inputValue();
 }
@@ -211,7 +224,7 @@ export async function runFullEvent(page: Page, browser: Browser, fixture: Fixtur
   writeEvidence(`${fixture.id}/fixture-identity.json`, { id: fixture.id, sha256: createHash("sha256").update(JSON.stringify(fixture)).digest("hex"), seed: fixture.seed, createRequestId: fixture.createRequestId, rosterRequestId: fixture.rosterRequestId });
   await login(page);
   deterministicRequests.set(page, { create: fixture.createRequestId, roster: fixture.rosterRequestId });
-  const id = await createSimpleTournament(page, fixture.title, `  ${fixture.players.map((player) => player.name).join(" \r\n\r\n")}  `, 6);
+  const id = await createSimpleTournament(page, fixture.title, `  ${fixture.players.map((player) => player.name).join(" \r\n\r\n")}  `, 6, fixture.config.penaltyPoints, fixture.config.penaltyIntervalSeconds, fixture.config.timeLimitSeconds);
   let current = await snapshot(page.request, id);
   expect(current.tournament.seed).toBe(fixture.seed);
   expect(current.tournament.config).toEqual(fixture.config);

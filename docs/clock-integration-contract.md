@@ -1,6 +1,6 @@
 # Shared clock integration contract
 
-Accepted implementation contract, 2026-09-30. Additive private SQL capability `20260930020000`; base `schema_version()` remains `20260928010000`. Shared match credentials authorize both named acknowledgements on one device, recorded as `shared_device` rather than independent identities.
+Accepted implementation contract, 2026-09-30, with match entry revised 2026-10-06. Additive private SQL capability `20260930020000`; base `schema_version()` remains `20260928010000`. Shared match credentials authorize both named acknowledgements on one device, recorded as `shared_device` rather than independent identities.
 
 ## SQL boundary
 
@@ -35,8 +35,8 @@ All commands except `claim_match_link` include `matchId`. Response is a snapshot
 
 | Command | Additional payload | Authority and result |
 | --- | --- | --- |
-| `issue_match_link` | `inviteHash` | Staff; `{matchId,tournamentId}`. Revokes prior shared credentials; app returns secret URL. |
-| `claim_match_link` | `inviteHash,sessionHash` | Anonymous one-time exchange; returns snapshot. |
+| `issue_match_link` | `inviteHash` | Internal SQL capability used only inside authenticated match entry; `{matchId,tournamentId}`. No public HTTP command or secret URL. |
+| `claim_match_link` | `inviteHash,sessionHash` | Internal SQL exchange inside the same match-entry transaction; returns snapshot. Not exposed as a public HTTP endpoint. |
 | `claim_clock` | `controllerId` | Shared session or staff; ready clock with saved starter. Existing same-controller pending/disputed clock can reattach after reload; a manual pending report cannot acquire a new clock. Existing other controller rejected. |
 | `append_events` | `controllerId,epoch,events` | Controller; expected clock version required. Maximum 100 events. |
 | `submit_shared_report` | `raw1,raw2,expectedRevision,clockVersion` | Shared session; accepted ended clock, exact clock version, no timing-review flag. SQL derives overtime. |
@@ -54,4 +54,8 @@ Replacing/revoking any claimed controller marks timing for review even if its la
 
 ## HTTP boundary
 
-`GET/POST /api/matches/[matchId]/clock`; POST `{command,payload,requestId,expectedClockVersion?}`. `POST /api/matches/[matchId]/claim` accepts `{token,requestId}`, stores the exchanged session in an HttpOnly cookie, and returns the snapshot. Organizer link creation produces `/match/[matchId]#token` (the UI removes the fragment after exchange). No clock fields enter the tournament `Round` model or its pairing hash.
+`GET/POST /api/matches/[matchId]/clock`; POST `{command,payload,requestId,expectedClockVersion?}`. `POST /api/matches/[matchId]/open` accepts only `{requestId,controllerId}` from a verified organizer. The server creates and claims a device session and reserves a ready clock in one transaction, serialized by a per-match advisory lock. Existing valid device cookies reopen the same match; another device sees the existing clock read-only. Repeating a committed entry request can restore a lost response cookie without replacing the controller. The HttpOnly cookie never appears in a URL.
+
+The match card's **Start Match** button opens `/match/[matchId]`; **Start Timer** starts timing, and **End game** freezes time before score entry. The old `/claim` endpoint, timer invitation command, fragment parsing, and timer-link controls are removed. Individual player invitations for optional manual reporting are separate and unchanged. No clock fields enter the tournament `Round` model or its pairing hash. No database migration is required for this entry revision.
+
+All nine table devices may use the same organizer login. They retain full organizer permissions, while each match has one controlling browser. Organizer sign-in permits 16 attempts per minute per network address.

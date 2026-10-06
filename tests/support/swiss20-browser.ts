@@ -13,13 +13,14 @@ const deterministicRequests = new WeakMap<Page, { create?: string; roster?: stri
 let pacingQueue = Promise.resolve();
 
 /** Persist the rate budget because Playwright starts a fresh worker after a failure. */
-async function pace(kind: "command" | "claim"): Promise<void> {
+async function pace(kind: "command" | "claim" | "login"): Promise<void> {
   const operation = pacingQueue.then(async () => {
     const directory = resolve(process.env.CROSSPLAY_EVIDENCE_DIR ?? ".local/evidence/swiss20/development");
     mkdirSync(directory, { recursive: true });
     const path = resolve(directory, ".pacing.json");
     const previous = existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) as Record<string, number> : {};
-    const delay = Math.max(0, (previous[kind] ?? 0) + (kind === "claim" ? 4_200 : 370) - Date.now());
+    const interval = kind === "login" ? 3_800 : kind === "claim" ? 4_200 : 370;
+    const delay = Math.max(0, (previous[kind] ?? 0) + interval - Date.now());
     if (delay) await new Promise<void>((done) => setTimeout(done, delay));
     previous[kind] = Date.now();
     writeFileSync(path, JSON.stringify(previous));
@@ -38,6 +39,7 @@ export async function installPacing(context: BrowserContext): Promise<void> {
     const request = route.request();
     if (request.method() !== "POST") { await route.continue(); return; }
     const path = new URL(request.url()).pathname;
+    if (path === "/api/auth") await pace("login");
     if (path === "/api/join") await paceClaim();
     if (path.endsWith("/commands")) await paceCommand();
     const identities = deterministicRequests.get(request.frame().page());
@@ -114,6 +116,15 @@ export function matchCard(page: Page, current: TournamentSnapshot, match: Match,
   const second = current.entrants.find((entrant) => entrant.id === match.player2Id)?.name;
   const root = own ? page.locator("section").filter({ has: page.getByRole("heading", { name: /^Your match/ }) }) : page;
   return root.getByRole("article", { name: second ? `${first} versus ${second}` : `${first}, bye`, exact: true });
+}
+
+export async function openMatchFromCard(page: Page, tournamentId: string, matchId: string): Promise<void> {
+  await page.goto(`/t/${tournamentId}`);
+  const current = await snapshot(page.request, tournamentId);
+  const match = current.rounds.flatMap(round => round.matches).find(match => match.id === matchId)!;
+  await matchCard(page, current, match).getByRole("button", { name: "Start Match", exact: true }).click();
+  await expect(page).toHaveURL(`${baseURL}/match/${matchId}`);
+  await expect(page.getByRole("button", { name: "Start Timer", exact: true })).toBeEnabled();
 }
 
 export async function fillScore(card: Locator, raw1: number, raw2: number, overtime1 = 0, overtime2 = 0): Promise<void> {

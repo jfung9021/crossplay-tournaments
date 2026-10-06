@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { FormEvent } from "react";
 import type { MatchClockSnapshot } from "@/client/match-clock-api";
 import type { ClockDisplay } from "@/domain/clock-types";
@@ -54,5 +55,6 @@ export function SharedMatchReport({ snapshot, display, canWrite, waiting, busy, 
       {!final && !disputed && report && <div className={styles.reportActions}><button className="secondary" disabled={disabled} onClick={() => { setRaw1(String(report.raw1)); setRaw2(String(report.raw2)); setEditing(true); }}>Edit scores</button><button className="secondary" disabled={disabled} onClick={() => setDisputing(true)}>Report issue</button></div>}
     </>}
     {disputing && report && <form className="compact-stack section-space" onSubmit={event => { event.preventDefault(); void onCommand("dispute_shared_report", { reportId: report.id, expectedRevision: snapshot.matchRevision, reason }).then(() => setDisputing(false)).catch(() => {}); }}><label htmlFor="shared-dispute">What needs to change?</label><textarea id="shared-dispute" required rows={3} maxLength={1000} value={reason} onChange={event => setReason(event.target.value)} /><div className={styles.reportActions}><button disabled={disabled}>Send to organizer</button><button type="button" className="secondary" disabled={busy} onClick={() => setDisputing(false)}>Cancel</button></div></form>}
+    <div className={styles.reportActions}><Link href={`/t/${snapshot.tournamentId}`}>Back to tournament</Link></div>
   </section>;
 }

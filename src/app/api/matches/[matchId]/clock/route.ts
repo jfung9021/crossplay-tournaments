@@ -25,7 +25,7 @@ export async function POST(request: Request, context: Context) {
     const matchId = await matchIdFrom(context);
     const input = await jsonBody(request, clockCommandSchema);
     const actor = await currentClockActor(matchId, organizerClockCommands.has(input.command));
-    if (!Object.keys(actor).length) throw new AppError("Use your private match link or sign in as an organizer.", 403);
+    if (!Object.keys(actor).length) throw new AppError("Sign in and open this match from your tournament.", 403);
     // Table controllers have their own budget; shared Wi-Fi must support ten active tables.
     await rateLimit(request, "clock", 1000);
     await limitClockActor(actor, matchId);

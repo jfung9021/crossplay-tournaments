@@ -7,9 +7,8 @@ import type { MatchClockSnapshot } from "@/client/match-clock-api";
 
 type Player = { id: string; name: string };
 
-export function OrganizerMatchClock({ matchId, player1, player2, enabled, final }: { matchId: string; player1: Player; player2: Player; enabled: boolean; final: boolean }) {
+export function OrganizerMatchClock({ matchId, player1, player2, final }: { matchId: string; player1: Player; player2: Player; enabled: boolean; final: boolean }) {
   const [snapshot, setSnapshot] = useState<MatchClockSnapshot | null>(null);
-  const [link, setLink] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -31,25 +30,16 @@ export function OrganizerMatchClock({ matchId, player1, player2, enabled, final 
     } catch (cause) { setError(clockError(cause)); }
     finally { setBusy(false); }
   }
-  async function issue() {
-    setBusy(true); setError(null); setNotice(null);
-    try { const result = await matchClockApi<{ inviteUrl: string }>(matchId, { command: "issue_match_link", payload: {} }); setLink(result.inviteUrl); setNotice("Previous shared links are revoked. If play was interrupted, review the used times before resuming on the replacement device."); }
-    catch (cause) { setError(clockError(cause)); }
-    finally { setBusy(false); }
-  }
   async function apply(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError(null); setNotice(null);
     try {
       const payload = action === "correct_clock" ? { usedMs: [Math.round(Number(used1) * 1000), Math.round(Number(used2) * 1000)], activeSide: Number(activeSide), reason } : action === "revoke_match_link" ? { reason } : { entrantId: starterId, reason };
       const result = await matchClockApi<MatchClockSnapshot>(matchId, { command: action, payload, ...(action === "correct_clock" ? { expectedClockVersion: snapshot?.state?.version } : {}) });
       setSnapshot(result); setReason(""); setNotice("Saved.");
-      if (action === "revoke_match_link") setLink(null);
     } catch (cause) { setError(clockError(cause)); }
     finally { setBusy(false); }
   }
   return <div className="match-bottom">
-    {enabled && !final && <div className="actions"><button type="button" className="secondary" disabled={busy} onClick={() => void issue()}>{link ? "Replace shared match link" : "Create shared match link"}</button></div>}
-    {link && <div className="invite"><input aria-label={`Shared match link for ${player1.name} and ${player2.name}`} readOnly value={link} onFocus={event => event.target.select()} /><button type="button" className="secondary" onClick={async () => { try { await navigator.clipboard.writeText(link); setNotice("Link copied."); } catch { setNotice("Select and copy the link above."); } }}>Copy</button><a className="button secondary" href={link} target="_blank" rel="noreferrer">Open</a></div>}
     {error && <p role="alert" className="error notice" style={{ marginTop: 12 }}>{error}</p>}
     {notice && <p role="status" className="form-note">{notice}</p>}
     <details style={{ marginTop: 12 }} onToggle={event => { if (event.currentTarget.open && !snapshot) void load(); }}>

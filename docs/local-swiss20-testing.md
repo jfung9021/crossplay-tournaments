@@ -11,6 +11,16 @@ This implements `20-player-six-round-e2e-plan.md`. It runs the production applic
 - Port 3001 free. The runner refuses to attach to an existing server.
 - Canonical migration and database test files present in `../bite-open-card-draw/supabase`.
 
+If Windows reserves port 55432, the clock runner can use another dedicated PostgreSQL 17 container without changing Windows port reservations or the existing database. Its name must start with `crossplay-test-`; the runner verifies the selected port is bound to `127.0.0.1` before writing. For example, the October 6 clock rehearsal used:
+
+```powershell
+$env:CROSSPLAY_TEST_CONTAINER = 'crossplay-test-clock-smoke'
+$env:CROSSPLAY_TEST_DATABASE_PORT = '25432'
+npm run test:e2e:clock -- --grep "20 players complete six rounds"
+```
+
+The selected container must already be running with `127.0.0.1:25432` mapped to PostgreSQL port 5432. This example runs the complete 60-match clock event through Finish tournament and the final results screen; it does not run every other smoke scenario. The default container/port remain `crossplay-test-db` and `55432`.
+
 ## Execute
 
 ```powershell

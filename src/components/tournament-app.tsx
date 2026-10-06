@@ -8,6 +8,7 @@ import type { Entrant, Match, Tournament, TournamentConfig, TournamentSnapshot }
 import { calculateScore } from "@/domain/scoring";
 import { parsePlayerNames, suggestRoundCount } from "@/domain/roster";
 import { OrganizerMatchClock } from "@/components/organizer-match-clock";
+import { StartMatch } from "@/components/start-match";
 
 type AuthState = { authenticated: boolean; email?: string; isOrganizer: boolean; configured: boolean };
 type View = "matches" | "players" | "settings" | "rules" | "round" | "history";
@@ -345,6 +346,7 @@ function MatchCard({ match, snapshot, command, admin = false, player = false, dr
     {match.kind === "forfeit" && <p className="score-preview">Forfeit</p>}{match.kind === "double_forfeit" && <p className="score-preview">Double forfeit · No match points</p>}
     {displayed && (displayed.overtime1 > 0 || displayed.overtime2 > 0) && <p className="score-preview">{[{ name: player1?.name, seconds: displayed.overtime1, raw: displayed.raw1, adjusted: displayed.adjusted1 }, { name: player2?.name, seconds: displayed.overtime2, raw: displayed.raw2, adjusted: displayed.adjusted2 }].filter(side => side.seconds > 0).map(side => `${side.name}: ${side.seconds}s overtime${side.raw !== null && side.adjusted !== null ? ` (−${side.raw - side.adjusted} points)` : ""}`).join(" · ")}</p>}
     {match.report && !match.result && <div className="match-bottom"><p className="muted">{match.status === "disputed" ? "An organizer is reviewing this result." : ownReport && player ? "Waiting for your opponent to confirm." : "Reported result · Not yet confirmed"}</p>{match.report.disputeReason && (admin || player) && <p>Issue: {match.report.disputeReason}</p>}</div>}
+    {snapshot.viewer.isOrganizer && !draft && snapshot.tournament.status === "active" && match.player2Id && match.status !== "final" && snapshot.tournament.config.timeLimitSeconds !== null && <StartMatch matchId={match.id} reported={match.status !== "unreported"} />}
     {canReport && command && !editing && <div className="match-bottom">
       <ErrorNotice message={error} />
       {match.report && !ownReport ? <div className="actions"><button disabled={busy} onClick={() => void run("confirm_report", { reportId: match.report!.id })}>{busy ? "Confirming…" : "Confirm result"}</button><button className="secondary" disabled={busy} onClick={() => setDisputing(true)}>Report issue</button></div> : <button className={match.report ? "secondary" : ""} onClick={() => setEditing(true)}>{match.report ? "Edit result" : "Report result"}</button>}

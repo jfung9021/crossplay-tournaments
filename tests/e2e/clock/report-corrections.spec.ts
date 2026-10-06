@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import type { MatchClockSnapshot } from "../../../src/client/match-clock-api";
-import { baseURL, command, createSimpleTournament, evidencePath, login, origin, publishNext, writeEvidence } from "../../support/swiss20-browser";
+import { baseURL, command, createSimpleTournament, evidencePath, login, openMatchFromCard, origin, publishNext, writeEvidence } from "../../support/swiss20-browser";
 
 async function readClock(request: APIRequestContext, matchId: string): Promise<MatchClockSnapshot> {
   const response = await request.get(`${baseURL}/api/matches/${matchId}/clock`);
@@ -22,14 +22,11 @@ test("CLOCK-REPORT-CORRECTIONS: pending reload, revised acknowledgements and org
   const tournamentId = await createSimpleTournament(admin, "Shared scores — correction handoff", "Maya Chen\nOwen Brooks", 1);
   const tournament = await publishNext(admin, tournamentId, 1);
   const matchId = tournament.rounds[0].matches[0].id;
-  const issued = await clockCommand(admin.request, matchId, "issue_match_link");
-  expect(issued.status()).toBe(200);
-  const link = new URL((await issued.json() as { inviteUrl: string }).inviteUrl);
-  const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } });
+  const context = await browser.newContext({ baseURL, storageState: await admin.context().storageState(), viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   try {
-    await page.goto(`${baseURL}${link.pathname}${link.hash}`);
-    await page.getByRole("button", { name: "Start clock", exact: true }).click();
+    await openMatchFromCard(page, tournamentId, matchId);
+    await page.getByRole("button", { name: "Start Timer", exact: true }).click();
     await page.getByRole("button", { name: "End game", exact: true }).click();
     const ready = await readClock(page.request, matchId);
     const [first, second] = ready.players;

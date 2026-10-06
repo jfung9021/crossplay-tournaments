@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { expect, test, type APIRequestContext, type Browser, type Page } from "@playwright/test";
 import type { MatchClockSnapshot } from "../../../src/client/match-clock-api";
 import type { ClockState } from "../../../src/domain/clock-types";
-import { baseURL, createSimpleTournament, evidencePath, login, origin, publishNext, snapshot, writeEvidence } from "../../support/swiss20-browser";
+import { baseURL, createSimpleTournament, evidencePath, login, openMatchFromCard, origin, publishNext, snapshot, writeEvidence } from "../../support/swiss20-browser";
 
 async function clockSnapshot(request: APIRequestContext, matchId: string): Promise<MatchClockSnapshot> {
   const response = await request.get(`${baseURL}/api/matches/${matchId}/clock`);
@@ -14,14 +14,11 @@ async function clockCommand(request: APIRequestContext, matchId: string, command
     headers: { Origin: origin }, data: { command, payload, expectedClockVersion, requestId: randomUUID() },
   });
 }
-async function openShared(browser: Browser, admin: Page, matchId: string) {
-  const issued = await clockCommand(admin.request, matchId, "issue_match_link");
-  expect(issued.status()).toBe(200);
-  const link = new URL((await issued.json() as { inviteUrl: string }).inviteUrl);
-  const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } });
+async function openShared(browser: Browser, admin: Page, tournamentId: string, matchId: string) {
+  const context = await browser.newContext({ baseURL, storageState: await admin.context().storageState(), viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
-  await page.goto(`${baseURL}${link.pathname}${link.hash}`);
-  await expect(page.getByRole("button", { name: "Start clock", exact: true })).toBeEnabled();
+  await openMatchFromCard(page, tournamentId, matchId);
+  await expect(page.getByRole("button", { name: "Start Timer", exact: true })).toBeEnabled();
   expect(new URL(page.url()).hash).toBe("");
   expect((await context.cookies()).some(cookie => cookie.httpOnly)).toBe(true);
   return { context, page };
@@ -38,7 +35,7 @@ async function setup(admin: Page, browser: Browser, name: string, players = "May
   const tournamentId = await createSimpleTournament(admin, name, players, 1);
   const published = await publishNext(admin, tournamentId, 1);
   const matchId = published.rounds[0].matches[0].id;
-  return { tournamentId, published, matchId, ...await openShared(browser, admin, matchId) };
+  return { tournamentId, published, matchId, ...await openShared(browser, admin, tournamentId, matchId) };
 }
 
 test("CLOCK-RECOVERY: real-time refresh, pause, keyboard switching and a second tab preserve one timeline", async ({ page: admin, browser }) => {
@@ -48,7 +45,7 @@ test("CLOCK-RECOVERY: real-time refresh, pause, keyboard switching and a second 
     const before = await clockSnapshot(page.request, matchId);
     const starter = before.state!.activeSide;
     const tournamentVersion = (await snapshot(admin.request, tournamentId)).tournament.version;
-    await page.getByRole("button", { name: "Start clock", exact: true }).click();
+    await page.getByRole("button", { name: "Start Timer", exact: true }).click();
     await expect.poll(async () => (await clockSnapshot(page.request, matchId)).state?.status).toBe("running");
     await page.waitForTimeout(350);
     const otherSide = starter === 1 ? 2 : 1;
@@ -96,7 +93,7 @@ test("CLOCK-RECOVERY: real-time refresh, pause, keyboard switching and a second 
 test("CLOCK-OFFLINE: offline taps and end remain frozen until ordered reconnect acceptance", async ({ page: admin, browser }) => {
   const { page, context, matchId } = await setup(admin, browser, "Clock recovery — offline handoff");
   try {
-    await page.getByRole("button", { name: "Start clock", exact: true }).click();
+    await page.getByRole("button", { name: "Start Timer", exact: true }).click();
     await expect.poll(async () => (await clockSnapshot(page.request, matchId)).state?.sequence).toBe(1);
     await context.setOffline(true);
     await page.waitForTimeout(180);
@@ -140,7 +137,7 @@ test("CLOCK-LOST-RESPONSE: committed events survive a missing response and brows
         await route.abort("failed");
       } else await route.continue();
     });
-    await page.getByRole("button", { name: "Start clock", exact: true }).click();
+    await page.getByRole("button", { name: "Start Timer", exact: true }).click();
     await expect.poll(() => committed).toBe(true);
     await page.waitForTimeout(150);
     const active = (await savedClock(page, matchId)).state.activeSide;
@@ -164,6 +161,9 @@ test("CLOCK-SECURITY: match scope, anonymous access, controller epochs and revoc
   const { page, context, matchId, published, tournamentId } = await setup(admin, browser, "Clock access — table-scoped sessions", "Maya Chen\nOwen Brooks\nPriya Shah\nTheo Martin");
   const anonymous = await browser.newContext({ baseURL });
   try {
+    // Isolate the match capability to verify its scope independently of the device's full admin access.
+    const matchCookies = (await context.cookies()).filter(cookie => cookie.name.startsWith("crossplay_match_"));
+    await context.clearCookies(); await context.addCookies(matchCookies);
     const otherMatch = published.rounds[0].matches.find(match => match.id !== matchId)!;
     const own = await clockSnapshot(page.request, matchId);
     const anonymousRead = await anonymous.request.get(`${baseURL}/api/matches/${matchId}/clock`);
@@ -172,7 +172,7 @@ test("CLOCK-SECURITY: match scope, anonymous access, controller epochs and revoc
     expect([401, 403, 404]).toContain(crossRead.status());
     const crossWrite = await clockCommand(page.request, otherMatch.id, "claim_clock", { controllerId: randomUUID() });
     expect([401, 403, 404]).toContain(crossWrite.status());
-    const adminImpersonation = await clockCommand(page.request, matchId, "issue_match_link");
+    const adminImpersonation = await clockCommand(page.request, matchId, "correct_starter", { entrantId: own.players[0].id, reason: "Cannot impersonate an organizer." });
     expect([401, 403]).toContain(adminImpersonation.status());
     const forgedSide = await clockCommand(page.request, matchId, "append_events", {
       controllerId: own.controllerId, epoch: own.state!.epoch,
@@ -190,7 +190,7 @@ test("CLOCK-SECURITY: match scope, anonymous access, controller epochs and revoc
       events: [{ sequence: 1, kind: "start", elapsedMs: 0, atMs: Date.now(), side: own.state!.activeSide }],
     }, own.state!.version);
     expect([403, 409]).toContain(stale.status());
-    const revoked = await clockCommand(admin.request, matchId, "revoke_match_link", { reason: "Acceptance test: table link revoked." });
+    const revoked = await clockCommand(admin.request, matchId, "revoke_match_link", { reason: "Acceptance test: table device revoked." });
     expect(revoked.status()).toBe(200);
     const revokedRead = await page.request.get(`${baseURL}/api/matches/${matchId}/clock`);
     expect([401, 403, 404, 410]).toContain(revokedRead.status());

@@ -8,7 +8,7 @@ A plain Swiss tournament manager for Crossplay, built with Next.js and a private
 - Default overtime deduction: 2 points per completed 10 seconds. Interval and points are configurable before the first round.
 - Pair similar match records, avoid rematches, and give one eligible player a bye when the field is odd. Byes/forfeits contribute no score difference.
 - Players submit both scores and overtime values; the opponent confirms the report. Organizers resolve disputes and can correct results with a reason.
-- Shared match links provide a phone/iPad clock and score sheet. New tournaments default to 20 minutes per player. Tap the running panel to pass the turn, pause if needed, and end the game before reporting actual scores. Overtime deductions are recorded automatically.
+- Sign in on each shared phone/iPad, choose **Start Match** on its match card, then **Start Timer** when both players are ready. New tournaments default to 20 minutes per player. Tap the running panel to pass the turn, pause if needed, and end the game before reporting actual scores. Overtime deductions are recorded automatically. No special timer links are issued or accepted.
 - The app balances first turns by fewer prior starts, then more prior seconds, then a saved random draw. Shared-device results require both named acknowledgements; history distinguishes these from independently authenticated opponent confirmations.
 - Published pairings remain fixed. Withdrawals affect future rounds. Competitive settings lock when the first round is published.
 
@@ -33,7 +33,7 @@ Shared clocks additionally require `20260930020000_crossplay_shared_clock.sql`. 
 
 Use a `crossplay_runtime` login and transaction-pooler connection (port 6543) with access only to the private Crossplay function interface. The app rejects other database roles. Keep production credentials out of development and arbitrary previews. Never use the shared project's `postgres` or service-role credentials in Vercel.
 
-Organizer identity uses an existing Supabase email/password account. A database administrator explicitly adds its UUID to `crossplay.organizers`; signing up for another application on the project does not grant Crossplay access. Organizer login is `/login`. Player reporting uses revocable private invitation links and requires no signup.
+Organizer identity uses an existing Supabase email/password account. A database administrator explicitly adds its UUID to `crossplay.organizers`; signing up for another application on the project does not grant Crossplay access. Organizer login is `/login`, capped at 16 attempts per minute per network address. Multiple devices may use one organizer account with independent match clocks; each device retains full organizer access. Optional individual player reporting uses revocable private player invitations and requires no signup.
 
 All variables and their purposes are in `.env.example`. `NEXT_PUBLIC_SITE_URL` must exactly match the browser origin for write requests. Set a random `CROSSPLAY_RATE_LIMIT_SECRET` of at least 32 characters separately for each environment. TLS is required for hosted database connections; only loopback test databases may disable it. Set `CROSSPLAY_DATABASE_CA` to the project CA certificate from Supabase Database Settings when its pooler uses the Supabase CA; certificate and hostname verification stay enabled.
 

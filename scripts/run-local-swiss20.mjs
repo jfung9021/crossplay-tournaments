@@ -14,7 +14,8 @@ const sibling = resolve(root, "../bite-open-card-draw");
 const clockMode = process.argv.includes("--clock");
 const runId = `${Date.now().toString(16)}_${randomBytes(4).toString("hex")}`;
 const database = `crossplay_acceptance_${runId}`;
-const container = "crossplay-test-db";
+const container = process.env.CROSSPLAY_TEST_CONTAINER ?? "crossplay-test-db";
+const databasePort = process.env.CROSSPLAY_TEST_DATABASE_PORT ?? "55432";
 const evidence = resolve(root, clockMode ? ".local/evidence/clock" : ".local/evidence/swiss20", runId);
 mkdirSync(evidence, { recursive: true });
 const json = (name, data) => { const path = resolve(evidence, name); mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, JSON.stringify(data, null, 2) + "\n"); };
@@ -71,10 +72,12 @@ async function startApp() {
 }
 
 try {
-  // Prove the fixed Docker target is the existing dedicated isolated Postgres, not Supabase.
+  // Verify an isolated test container and its exact loopback binding before any writes.
+  if (!/^crossplay-test-[a-z0-9-]+$/.test(container)) throw new Error("An isolated Crossplay test container is required.");
+  if (!/^\d+$/.test(databasePort) || Number(databasePort) < 1024 || Number(databasePort) > 65535) throw new Error("Invalid local test database port.");
   const inspected = JSON.parse(docker("inspect", container))[0];
   const binding = inspected.NetworkSettings.Ports["5432/tcp"]?.[0];
-  if (!inspected.Config.Image.startsWith("postgres:17") || binding?.HostIp !== "127.0.0.1" || binding?.HostPort !== "55432") throw new Error("Unexpected dedicated Postgres image or binding.");
+  if (!inspected.Config.Image.startsWith("postgres:17") || binding?.HostIp !== "127.0.0.1" || binding?.HostPort !== databasePort) throw new Error("Unexpected dedicated Postgres image or binding.");
   await new Promise((done, reject) => { const probe = createNetServer(); probe.once("error", () => reject(new Error("Port 3001 is in use; refusing to attach to an existing app."))); probe.listen(3001, "127.0.0.1", () => probe.close(done)); });
   const priorAuth = JSON.parse(readFileSync(resolve(root, ".local/auth-fixture.json"), "utf8"));
   const authUrl = assertLoopback(priorAuth.url, "Local Auth").origin;
@@ -82,7 +85,7 @@ try {
   if (assertLoopback(localStatus.API_URL, "CLI local Auth").origin !== authUrl || !localStatus.SERVICE_ROLE_KEY) throw new Error("Local Supabase Auth admin credentials do not match the verified local endpoint.");
   const serviceKey = localStatus.SERVICE_ROLE_KEY;
   const admin = createClient(authUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
-  env = { ...process.env, PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3001", NEXT_PUBLIC_SITE_URL: "http://127.0.0.1:3001", NEXT_PUBLIC_SUPABASE_URL: authUrl, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: priorAuth.key, CROSSPLAY_DATABASE_URL: `postgresql://crossplay_runtime:crossplay-runtime-local@127.0.0.1:55432/${database}`, CROSSPLAY_DATABASE_SSL: "false", CROSSPLAY_DATABASE_CA: "", CROSSPLAY_RATE_LIMIT_SECRET: randomBytes(32).toString("hex"), CROSSPLAY_ACCEPTANCE_DATABASE: database, CROSSPLAY_TEST_CONTAINER: container, CROSSPLAY_EVIDENCE_DIR: evidence, CROSSPLAY_E2E_AUTH_FIXTURE: resolve(evidence, "private-auth.json"), CROSSPLAY_TEST_CONTROL_TOKEN: randomBytes(32).toString("hex"), NEXT_TELEMETRY_DISABLED: "1" };
+  env = { ...process.env, PLAYWRIGHT_BASE_URL: "http://127.0.0.1:3001", NEXT_PUBLIC_SITE_URL: "http://127.0.0.1:3001", NEXT_PUBLIC_SUPABASE_URL: authUrl, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: priorAuth.key, CROSSPLAY_DATABASE_URL: `postgresql://crossplay_runtime:crossplay-runtime-local@127.0.0.1:${databasePort}/${database}`, CROSSPLAY_DATABASE_SSL: "false", CROSSPLAY_DATABASE_CA: "", CROSSPLAY_RATE_LIMIT_SECRET: randomBytes(32).toString("hex"), CROSSPLAY_ACCEPTANCE_DATABASE: database, CROSSPLAY_TEST_CONTAINER: container, CROSSPLAY_EVIDENCE_DIR: evidence, CROSSPLAY_E2E_AUTH_FIXTURE: resolve(evidence, "private-auth.json"), CROSSPLAY_TEST_CONTROL_TOKEN: randomBytes(32).toString("hex"), NEXT_TELEMETRY_DISABLED: "1" };
   assertLocalEnvironment(env);
   if (!env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) throw new Error("Local publishable Auth key missing.");
   stage = "provision";

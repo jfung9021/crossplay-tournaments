@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { ClockJournal, acquireClockTabLock } from "@/client/clock-storage";
 import type { ClockJournalSnapshot } from "@/client/clock-storage";
-import { ClockApiError, clockError, matchClockApi } from "@/client/match-clock-api";
+import { ClockApiError, clockError, matchClockApi, matchControllerId } from "@/client/match-clock-api";
 import type { MatchClockSnapshot } from "@/client/match-clock-api";
 import { deriveClock } from "@/domain/clock";
 import type { ClockEventKind, ClockSide } from "@/domain/clock-types";
@@ -12,13 +13,6 @@ import { OrganizerMatchClock } from "@/components/organizer-match-clock";
 import styles from "./match-clock.module.css";
 
 function formatTime(seconds: number) { return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`; }
-function controllerKey(matchId: string) { return `crossplay.clock.controller.${matchId}`; }
-function browserController(matchId: string): string {
-  const key = controllerKey(matchId);
-  const existing = localStorage.getItem(key);
-  if (existing) return existing;
-  const id = crypto.randomUUID(); localStorage.setItem(key, id); return id;
-}
 
 export function MatchClockPage({ matchId }: { matchId: string }) {
   const [snapshot, setSnapshot] = useState<MatchClockSnapshot | null>(null);
@@ -28,7 +22,6 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
   const releaseLock = useRef<(() => void) | null>(null);
   const initializing = useRef<Promise<void> | null>(null);
   const flushing = useRef<Promise<boolean> | null>(null);
-  const fragment = useRef<string | null>(null);
   const mounted = useRef(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,16 +84,10 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
     const work = async () => {
       setError(null); setLoading(true);
       try {
-        if (fragment.current === null) {
-          const value = window.location.hash.slice(1);
-          fragment.current = value ? new URLSearchParams(value).get("token") ?? value : "";
-          if (value) window.history.replaceState(null, "", window.location.pathname + window.location.search);
-        }
-        let next = await matchClockApi<MatchClockSnapshot>(matchId, fragment.current ? { token: fragment.current } : undefined, !!fragment.current);
-        fragment.current = "";
+        let next = await matchClockApi<MatchClockSnapshot>(matchId);
         acceptSnapshot(next);
         if (!next.canControl || next.isOrganizer || next.matchStatus === "final") { setReadonly(true); return; }
-        const id = browserController(matchId); controller.current = id;
+        const id = matchControllerId(matchId); controller.current = id;
         if (!releaseLock.current) releaseLock.current = await acquireClockTabLock(matchId, () => { journal.current?.setControllerConflict(); setReadonly(true); });
         if (!releaseLock.current) { setReadonly(true); setError("This clock is open in another tab, or this browser cannot safely control it. Close the other tab and try again."); return; }
         next = await matchClockApi<MatchClockSnapshot>(matchId, { command: "claim_clock", payload: { controllerId: id } });
@@ -194,7 +181,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
     finally { setBusy(false); }
   }
 
-  if (loading || !snapshot || !state || snapshot.rules.timeLimitSeconds === null) return <div data-match-screen className={styles.shell}><section className={styles.entry}><h1>Match clock</h1>{loading ? <p role="status">Opening match…</p> : <>{error && <p role="alert">{error}</p>}{!error && <p>{snapshot?.isOrganizer ? "Create a shared match link for the players." : "Open the private match link from your organizer."}</p>}<button onClick={() => void initialize()}>Try again</button></>}{snapshot?.isOrganizer && <OrganizerMatchClock matchId={matchId} player1={snapshot.players[0]} player2={snapshot.players[1]} enabled={snapshot.rules.timeLimitSeconds !== null} final={snapshot.matchStatus === "final"} />}</section></div>;
+  if (loading || !snapshot || !state || snapshot.rules.timeLimitSeconds === null) return <div data-match-screen className={styles.shell}><section className={styles.entry}><h1>Match timer</h1>{loading ? <p role="status">Opening match…</p> : <>{error && <p role="alert">{error}</p>}{!error && <p>Open your tournament and choose Start Match.</p>}<button onClick={() => void initialize()}>Try again</button></>}{snapshot?.isOrganizer && <OrganizerMatchClock matchId={matchId} player1={snapshot.players[0]} player2={snapshot.players[1]} enabled={snapshot.rules.timeLimitSeconds !== null} final={snapshot.matchStatus === "final"} />}</section></div>;
   const elapsedMs = local?.elapsedMs ?? (state.status === "running" && state.anchorAtMs !== null ? Math.max(0, nowMs - state.anchorAtMs) : 0);
   const display = deriveClock(state, { ...snapshot.rules, timeLimitSeconds: snapshot.rules.timeLimitSeconds }, Math.floor(elapsedMs));
   const canWrite = !readonly && !local?.controllerConflict && !state.reviewRequired && !local?.recoveryPending;
@@ -223,7 +210,8 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
         {local?.recoveryPending && <p role="status" className={styles.status}>Reconnect to verify the clock.</p>}
         {error && <p role="alert" className={styles.error}>{error}</p>}
         {local?.controllerConflict && <button className="secondary" onClick={() => void initialize()}>Reload clock</button>}
-        <div className={styles.actions}>{isReady ? <button disabled={!canWrite || busy} onClick={() => act("start", state.activeSide)}>Start clock</button> : <><button className="secondary" disabled={!canWrite || busy} onClick={() => act(state.status === "paused" ? "resume" : "pause")}>{state.status === "paused" ? "Resume" : "Pause"}</button><button className={display.some(value => value.isOvertime) ? styles.endHighlight : ""} disabled={!canWrite || busy} onClick={() => act("end")}>End game</button></>}</div>
+        <div className={styles.actions}>{isReady ? <button disabled={!canWrite || busy} onClick={() => act("start", state.activeSide)}>Start Timer</button> : <><button className="secondary" disabled={!canWrite || busy} onClick={() => act(state.status === "paused" ? "resume" : "pause")}>{state.status === "paused" ? "Resume" : "Pause"}</button><button className={display.some(value => value.isOvertime) ? styles.endHighlight : ""} disabled={!canWrite || busy} onClick={() => act("end")}>End game</button></>}</div>
+        <Link href={`/t/${snapshot.tournamentId}`} style={{ fontSize: 13 }}>Tournament</Link>
         {stopped && <div className={styles.tools}><button onClick={() => setFlipped(value => !value)}>Flip sides</button><button className={styles.facing} aria-pressed={faceToFace} onClick={() => setFaceToFace(value => !value)}>Face to face {faceToFace ? "on" : "off"}</button></div>}
         {saveFailed && <p className={styles.status} role="status">Waiting to save</p>}
         {wakeUnavailable && state.status === "running" && <p className={styles.status}>Keep this screen awake</p>}

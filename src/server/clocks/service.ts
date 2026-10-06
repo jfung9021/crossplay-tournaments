@@ -1,9 +1,7 @@
 import "server-only";
 import { createHmac } from "node:crypto";
-import { hashToken } from "@/server/auth/session";
 import { consumeRateLimit, executeClock, type ClockActor } from "@/server/db/client";
 import { AppError } from "@/server/errors";
-import { tokenFor } from "@/server/tournaments/service";
 import { clockPayloads, type ClockCommand } from "./validation";
 
 export async function limitClockActor(actor: ClockActor, matchId: string) {
@@ -18,12 +16,5 @@ export async function runClockCommand(actor: ClockActor, matchId: string, comman
   if (!parsed.success) throw new AppError(parsed.error.issues.map((issue) => issue.message).join(" "));
   if (["append_events", "correct_clock"].includes(command) && expectedVersion === undefined) throw new AppError("Refresh this clock before making changes.", 409);
   const payload: Record<string, unknown> = { ...parsed.data, matchId };
-  let token: string | undefined;
-  if (command === "issue_match_link") {
-    token = tokenFor(`match-invite:${requestId}:${matchId}`);
-    payload.inviteHash = hashToken(token);
-  }
-  const result = await executeClock(actor, command, payload, requestId, expectedVersion);
-  if (token) return { ...result, inviteUrl: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/match/${matchId}#${token}` };
-  return result;
+  return executeClock(actor, command, payload, requestId, expectedVersion);
 }

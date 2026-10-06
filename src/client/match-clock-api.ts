@@ -28,8 +28,15 @@ export class ClockApiError extends Error {
 
 const requests = new Map<string, string>();
 
-export async function matchClockApi<T>(matchId: string, body?: Record<string, unknown>, claim = false): Promise<T> {
-  const path = `/api/matches/${encodeURIComponent(matchId)}/${claim ? "claim" : "clock"}`;
+export function matchControllerId(matchId: string): string {
+  const key = `crossplay.clock.controller.${matchId}`;
+  const existing = localStorage.getItem(key);
+  if (existing) return existing;
+  const id = crypto.randomUUID(); localStorage.setItem(key, id); return id;
+}
+
+export async function matchClockApi<T>(matchId: string, body?: Record<string, unknown>, mode: "clock" | "open" = "clock"): Promise<T> {
+  const path = `/api/matches/${encodeURIComponent(matchId)}/${mode}`;
   const fingerprint = body ? `${path}:${JSON.stringify(body)}` : "";
   const requestId = body ? requests.get(fingerprint) ?? crypto.randomUUID() : undefined;
   if (requestId) requests.set(fingerprint, requestId);

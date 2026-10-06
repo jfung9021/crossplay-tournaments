@@ -82,3 +82,36 @@ export async function executeClock(actor: ClockActor, command: string, payload: 
   const rows = await sql`select crossplay.clock_execute(${sql.json(actor)}, ${command}, ${sql.json(payload as postgres.JSONValue)}, ${requestId}::uuid, ${expectedVersion ?? null}::bigint) as data`;
   return rows[0].data;
 }
+
+export async function openOrganizerMatch(actor: Actor, matchId: string, sessionHash: string, inviteHash: string, controllerId: string, requestIds: { issue: string; claim: string; controller: string }): Promise<{ sessionCreated: boolean; snapshot: Record<string, unknown> }> {
+  const sql = await clockReady();
+  const result = await sql.begin(async tx => {
+    // Serialize entry through controller reservation so two devices cannot replace one another's ready clock.
+    await tx`select pg_advisory_xact_lock(hashtextextended(${`match-entry:${matchId}`}, 0))`;
+    const read = await tx`select crossplay.clock_read(${tx.json(actor)}, ${matchId}::uuid) as data`;
+    const current = read[0].data;
+    if (!current.isOrganizer) throw new AppError("An organizer account is required to start this match.", 403);
+    if (current.state && current.controllerId) {
+      try {
+        // A retry can recover its committed session even when the original cookie response was lost.
+        const snapshot = await tx.savepoint(async retry => {
+          const rows = await retry`select crossplay.clock_read(${retry.json({ matchSessionHash: sessionHash })}, ${matchId}::uuid) as data`;
+          return rows[0].data;
+        });
+        return { sessionCreated: true, snapshot };
+      } catch (error) {
+        if ((error as { message?: string }).message !== "FORBIDDEN") throw error;
+        return { sessionCreated: false, snapshot: current };
+      }
+    }
+    const executeEntry = async (entryActor: ClockActor, command: string, payload: Record<string, unknown>, id: string) => {
+      const rows = await tx`select crossplay.clock_execute(${tx.json(entryActor)}, ${command}, ${tx.json({ ...payload, matchId } as postgres.JSONValue)}, ${id}::uuid, null::bigint) as data`;
+      return rows[0].data;
+    };
+    await executeEntry(actor, "issue_match_link", { inviteHash }, requestIds.issue);
+    await executeEntry({}, "claim_match_link", { inviteHash, sessionHash }, requestIds.claim);
+    const snapshot = await executeEntry({ matchSessionHash: sessionHash }, "claim_clock", { controllerId }, requestIds.controller);
+    return { sessionCreated: true, snapshot };
+  });
+  return result as { sessionCreated: boolean; snapshot: Record<string, unknown> };
+}

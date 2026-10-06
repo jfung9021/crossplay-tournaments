@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { test, expect, type APIRequestContext, type Browser, type BrowserContext, type Page } from "@playwright/test";
 import type { MatchClockSnapshot } from "../../../src/client/match-clock-api";
 import { assertStandings, calculateStandings, pairingEvidence, type Fixture, type ReferenceMatch } from "../../support/swiss-reference";
-import { baseURL, origin, login, publishNext, snapshot, writeEvidence, evidencePath, createSimpleTournament } from "../../support/swiss20-browser";
+import { baseURL, origin, login, openMatchFromCard, publishNext, snapshot, writeEvidence, evidencePath, createSimpleTournament, assertStandingsUI } from "../../support/swiss20-browser";
 import { restartLocalApp } from "../../support/local-environment";
 
 async function clockRead(request: APIRequestContext, matchId: string): Promise<MatchClockSnapshot> {
@@ -12,21 +12,8 @@ async function clockRead(request: APIRequestContext, matchId: string): Promise<M
   expect(response.status(), await response.text()).toBe(200);
   return response.json();
 }
-async function clockCommand(request: APIRequestContext, matchId: string, name: string, payload: Record<string, unknown> = {}, expectedClockVersion?: number) {
-  return request.post(`${baseURL}/api/matches/${matchId}/clock`, { headers: { Origin: origin }, data: { command: name, payload, requestId: randomUUID(), expectedClockVersion } });
-}
-async function issue(request: APIRequestContext, matchId: string) {
-  const response = await clockCommand(request, matchId, "issue_match_link");
-  expect(response.status(), await response.text()).toBe(200);
-  return (await response.json() as { inviteUrl: string }).inviteUrl;
-}
-async function openMatch(page: Page, url: string) {
-  await page.goto(url);
-  await expect(page.getByRole("button", { name: "Start clock", exact: true })).toBeVisible();
-  expect(new URL(page.url()).hash).toBe("");
-}
-async function frozenPage(browser: Browser): Promise<{ context: BrowserContext; page: Page }> {
-  const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } });
+async function frozenPage(browser: Browser, admin: Page): Promise<{ context: BrowserContext; page: Page }> {
+  const context = await browser.newContext({ baseURL, storageState: await admin.context().storageState(), viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   const time = new Date();
   await page.clock.install({ time });
@@ -53,7 +40,7 @@ test("20 players complete six rounds through ten shared clocks with independent 
   const initial = await snapshot(page.request, id);
   const roster = await page.request.post(`${baseURL}/api/tournaments/${id}/commands`, { headers: { Origin: origin }, data: { command: "add_entrants", payload: { names: fixture.players.map(player => player.name).join("\n") }, requestId: fixture.rosterRequestId, expectedVersion: initial.tournament.version } });
   expect(roster.status(), await roster.text()).toBe(200);
-  const tables = await Promise.all(Array.from({ length: 10 }, () => frozenPage(browser)));
+  const tables = await Promise.all(Array.from({ length: 10 }, () => frozenPage(browser, page)));
   const counts = new Map(fixture.players.map(player => [player.id, { firsts: 0, seconds: 0 }]));
   const ledger: ReferenceMatch[] = [];
   const timing: unknown[] = [];
@@ -64,8 +51,7 @@ test("20 players complete six rounds through ten shared clocks with independent 
       const matches = published.rounds[round.number - 1]!.matches;
       expect(matches.map(m => [m.player1Id, m.player2Id])).toEqual(round.matches.map(m => [m.player1Id, m.player2Id]));
       const proof = pairingEvidence(fixture.players, fixture.rounds.slice(0, round.number - 1), matches, config);
-      const links = await Promise.all(matches.map(match => issue(page.request, match.id)));
-      await Promise.all(tables.map((table, index) => openMatch(table.page, links[index]!)));
+      await Promise.all(tables.map((table, index) => openMatchFromCard(table.page, id, matches[index]!.id)));
       const ready = await Promise.all(tables.map((table, index) => clockRead(table.page.request, matches[index]!.id)));
       for (const [index, state] of ready.entries()) {
         const match = matches[index]!;
@@ -88,7 +74,7 @@ test("20 players complete six rounds through ten shared clocks with independent 
       await Promise.all(tables.map(async (table, index) => {
         const match = matches[index]!; const expected = round.matches[index]!; const start = ready[index]!;
         const durations: [number, number] = [expected.overtime1 ? 1_200_000 + expected.overtime1 * 1000 : 1_110_000, expected.overtime2 ? 1_200_000 + expected.overtime2 * 1000 : 1_070_000];
-        await table.page.getByRole("button", { name: "Start clock", exact: true }).click();
+        await table.page.getByRole("button", { name: "Start Timer", exact: true }).click();
         await table.page.clock.fastForward(durations[start.start!.side - 1]!);
         await table.page.locator(`[data-side="${start.start!.side}"]`).click();
         await table.page.clock.fastForward(durations[2 - start.start!.side]!);
@@ -121,9 +107,25 @@ test("20 players complete six rounds through ten shared clocks with independent 
     expect((await snapshot(page.request, id)).standings.reduce((sum, row) => sum + row.matchPoints, 0)).toBe(60);
     await restartLocalApp();
     assertStandings((await snapshot(page.request, id)).standings, fixture.expectedStandings);
-    await page.goto(`/t/${(await snapshot(page.request, id)).tournament.slug}`);
+    await page.goto(`/admin/tournaments/${id}`);
+    await page.getByRole("button", { name: "Finish tournament", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Tournament complete", exact: true })).toBeVisible();
+    const finished = await snapshot(page.request, id);
+    expect(finished.tournament.status).toBe("finished");
+    expect(finished.rounds).toHaveLength(6);
+    expect(finished.rounds.flatMap(round => round.matches)).toHaveLength(60);
+    expect(finished.rounds.every(round => round.matches.every(match => match.status === "final"))).toBe(true);
+    assertStandings(finished.standings, fixture.expectedStandings);
+    await assertStandingsUI(page, fixture.expectedStandings);
+    await page.screenshot({ path: evidencePath("organizer-complete.png"), fullPage: true });
+    await tables[0]!.page.screenshot({ path: evidencePath("shared-match-complete.png"), fullPage: true });
+    await page.goto(`/t/${finished.tournament.slug}`);
+    await expect(page.getByRole("heading", { name: "Final round", exact: true })).toBeVisible();
+    await expect(page.getByText("Finished", { exact: true })).toBeVisible();
+    await assertStandingsUI(page, fixture.expectedStandings);
     await page.screenshot({ path: evidencePath("final-standings.png"), fullPage: true });
-    writeEvidence("clock-20x6.json", { status: "PASS", matches: 60, tables: 10, rounds: 6, counts: Object.fromEntries(counts), tiebreakWitnesses: fixture.witnesses, timing, physicalSafari: "PENDING" });
+    await page.locator("#standings").screenshot({ path: evidencePath("final-standings-table.png") });
+    writeEvidence("clock-20x6.json", { status: "PASS", tournamentId: id, slug: finished.tournament.slug, tournamentStatus: finished.tournament.status, finalStandings: finished.standings, resultsScreenVerified: true, matches: 60, tables: 10, rounds: 6, counts: Object.fromEntries(counts), tiebreakWitnesses: fixture.witnesses, timing, physicalSafari: "PENDING" });
   } finally { await Promise.all(tables.map(table => table.context.close())); }
 });
 
@@ -133,21 +135,21 @@ test("phone and iPad layouts, overtime reversal, offline ending and frozen repor
   const current = await publishNext(page, id, 1);
   expect(current.tournament.config.timeLimitSeconds).toBe(1200);
   const match = current.rounds[0]!.matches[0]!;
-  const { context, page: phone } = await frozenPage(browser);
+  const { context, page: phone } = await frozenPage(browser, page);
   try {
-    await openMatch(phone, await issue(page.request, match.id));
+    await openMatchFromCard(phone, id, match.id);
     const ready = await clockRead(phone.request, match.id);
     const screens = [[320, 568], [375, 667], [390, 844], [844, 390], [768, 1024], [1024, 768], [820, 1180], [1180, 820], [507, 768]];
     for (const [width, height] of screens) {
       await phone.setViewportSize({ width: width!, height: height! });
-      await expect(phone.getByRole("button", { name: "Start clock", exact: true })).toBeVisible();
+      await expect(phone.getByRole("button", { name: "Start Timer", exact: true })).toBeVisible();
       const layout = await phone.evaluate(() => ({ width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight, viewportWidth: innerWidth, viewportHeight: innerHeight }));
       expect(layout.width).toBeLessThanOrEqual(layout.viewportWidth);
       expect(layout.height).toBeLessThanOrEqual(layout.viewportHeight + 1);
       await phone.screenshot({ path: evidencePath(`layout-${width}x${height}.png`) });
     }
     await phone.setViewportSize({ width: 390, height: 844 });
-    await phone.getByRole("button", { name: "Start clock", exact: true }).click();
+    await phone.getByRole("button", { name: "Start Timer", exact: true }).click();
     const durations = [1_220_000, 1_190_000];
     await phone.clock.fastForward(durations[ready.start!.side - 1]!);
     await phone.locator(`[data-side="${ready.start!.side}"]`).click();

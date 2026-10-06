@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
     const body = await jsonBody(request, z.object({ email: z.email().max(254), password: z.string().min(1).max(512) }).strict());
-    await rateLimit(request, "login", 12);
+    await rateLimit(request, "login", 16);
     const client = await authClient();
     const { data, error } = await client.auth.signInWithPassword(body);
     if (error || !data.user) throw new AppError("The email or password is incorrect.", 401);

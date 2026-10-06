@@ -13,7 +13,6 @@ export const clockEventSchema = z.object({
   reviewRequired: z.boolean().optional(),
 }).strict();
 export const clockPayloads = {
-  issue_match_link: z.object({}).strict(),
   claim_clock: z.object({ controllerId: uuid }).strict(),
   append_events: z.object({ controllerId: uuid, epoch: version, events: z.array(clockEventSchema).min(1).max(100) }).strict(),
   submit_shared_report: z.object({ raw1: score, raw2: score, expectedRevision: version, clockVersion: version }).strict(),
@@ -32,5 +31,5 @@ export const clockCommandSchema = z.object({
   requestId: uuid,
   expectedClockVersion: version.optional(),
 }).strict();
-export const clockClaimSchema = z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/), requestId: uuid }).strict();
-export const organizerClockCommands = new Set<ClockCommand>(["issue_match_link", "revoke_match_link", "takeover_clock", "correct_clock", "correct_starter", "record_manual_start"]);
+export const matchEntrySchema = z.object({ requestId: uuid, controllerId: uuid }).strict();
+export const organizerClockCommands = new Set<ClockCommand>(["revoke_match_link", "takeover_clock", "correct_clock", "correct_starter", "record_manual_start"]);

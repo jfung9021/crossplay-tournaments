@@ -37,7 +37,7 @@ Recommended disposable events:
 | --- | --- | --- |
 | Quick clock | 2 players, 1 round | Default 20 minutes, 2 points per completed 10 seconds |
 | Short clock | 2 players, 1 round per scenario | 1 minute per player; same penalty for quick overtime and recovery exercises |
-| Manual Swiss | 4 players, 2 rounds | Blank Minutes per player; hand-calculated standings exercise below |
+| Manual Swiss | 4 players, 2 rounds | Select External timer; hand-calculated standings exercise below |
 | Full rehearsal | 20 players, 6 rounds | Default 20 minutes; automated accelerated clocks and frozen realistic scores |
 | Odd field | 5 players, 3 rounds | Byes, withdrawals, forfeits |
 | Impossible pairing | 4 players, 3 rounds | Deliberately reduce to two players who already met |
@@ -65,7 +65,7 @@ This pass takes approximately 15–25 minutes after setup. Physical sleep checks
 - [ ] **SET-01** Create a tournament with a name and optional date. Refresh and reopen it from Your tournaments: both values and all rules persist. A blank name is rejected without creating a tournament.
 - [ ] **SET-02** Leave Rounds blank. With 2, 3, 4, 5, 16, 20, and 33 active players, the automatic suggestion is respectively 1, 2, 2, 3, 4, 5, and 6. Use separate drafts or the automated roster checks for this matrix. Twenty players do not automatically imply six rounds.
 - [ ] **SET-03** Set 20 players to six rounds explicitly. Save, refresh, and publish round 1: the tournament retains six rounds. Changing rounds, time limit, or penalties after publication is unavailable and rejected at the server boundary.
-- [ ] **SET-04** Before publication, save a custom time limit and 3 points per 15 seconds. The Rules page agrees. A separate blank time limit enables external-clock/manual reporting; it does not silently become 20 minutes.
+- [ ] **SET-04** Before publication, save a custom time limit such as 9:24 and 3 points per 0:15. The Rules page agrees. Select External timer explicitly for manual timing/reporting. Blank App timer duration is rejected and never changes the mode. Saving/copying 9:24 preserves exactly 564 stored seconds.
 - [ ] **SET-05** Reject zero/negative/fractional rounds, negative deductions, zero penalty interval, and excessive settings. Enforced limits are rounds 1–255, deduction 0–100 whole points, interval 1–3,600 whole seconds, and time limit 1–86,400 whole stored seconds. A zero deduction is valid.
 - [ ] **SET-06** With fewer than two active entrants, starting is unavailable. Reject an impossible requested round count before play: four players allow at most three no-rematch rounds, five allow at most five. These limits do not guarantee feasibility after withdrawals.
 - [ ] **ROSTER-01** Paste the 20 names below in one box. Preview says 20 players to add. Add players persists exactly 20, with no padded slots or duplicates after refresh.
@@ -160,7 +160,7 @@ Use manual reports for exact whole-second inputs. For exact clock millisecond bo
 
 ## Individual player links and manual reporting
 
-- [ ] **PLAYER-01** In Manual Swiss, issue New player link for each participant. Claim each in a separate browser profile. Your match shows that player's actual current match; choosing a public name does not grant reporting authority.
+- [ ] **PLAYER-01** In Manual Swiss, expand Individual player access, select an active player and use Create or replace player link. Changing the selected player clears the previous link display. Claim each invitation in a separate browser profile. Your match shows that player's actual current match; choosing a public name does not grant reporting authority.
 - [ ] **PLAYER-02** One player uses Report result to enter both scores and overtime. The opponent sees Confirm result and Report issue; the submitter waits for the opponent. A submitter cannot independently confirm their own report.
 - [ ] **PLAYER-03** Edit a pending report, refresh both profiles, and confirm the latest revision. A stale confirmation fails. Check that standings exclude both pending and disputed manual reports.
 - [ ] **PLAYER-04** Dispute a report and resolve it as organizer with a reason. The two players and public page agree on the final result after refresh.

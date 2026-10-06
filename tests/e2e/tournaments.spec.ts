@@ -3,6 +3,8 @@ import { resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import { test, expect, type APIRequestContext, type Browser, type BrowserContext, type Locator, type Page } from "@playwright/test";
 import type { Match, TournamentSnapshot } from "../../src/domain/types";
+import { formatDuration } from "../../src/domain/duration";
+import { openOrganizerActions } from "../support/swiss20-browser";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
 const origin = new URL(baseURL).origin;
@@ -44,7 +46,9 @@ async function createTournament(page: Page, name: string, names: string): Promis
   await page.goto("/admin/tournaments/new");
   await page.getByLabel("Tournament name", { exact: true }).fill(name);
   await expect(page.getByLabel("Overtime deduction (points)")).toHaveValue("2");
-  await expect(page.getByLabel("For every (seconds)")).toHaveValue("10");
+  await expect(page.getByLabel("For every (m:ss)")).toHaveValue("0:10");
+  await expect(page.getByLabel("Timer", { exact: true })).toHaveValue("app");
+  await expect(page.getByLabel("Time per player (m:ss)")).toHaveValue("20:00");
   await page.getByRole("button", { name: "Create tournament", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/tournaments\/[^/]+\/players$/);
   const id = new URL(page.url()).pathname.split("/")[3]!;
@@ -72,16 +76,18 @@ function matchCard(page: Page, current: TournamentSnapshot, match: Match, own = 
 async function fillScore(card: Locator, raw1: number, raw2: number, overtime1 = 0, overtime2 = 0): Promise<void> {
   await card.getByLabel("Score", { exact: true }).nth(0).fill(String(raw1));
   await card.getByLabel("Score", { exact: true }).nth(1).fill(String(raw2));
-  await card.getByLabel("Overtime (seconds)", { exact: true }).nth(0).fill(String(overtime1));
-  await card.getByLabel("Overtime (seconds)", { exact: true }).nth(1).fill(String(overtime2));
+  await card.getByLabel("Overtime (m:ss)", { exact: true }).nth(0).fill(formatDuration(overtime1));
+  await card.getByLabel("Overtime (m:ss)", { exact: true }).nth(1).fill(formatDuration(overtime2));
 }
 
 async function organizerScore(page: Page, current: TournamentSnapshot, match: Match, scores: [number, number, number?, number?], reason?: string): Promise<void> {
   const card = matchCard(page, current, match);
-  await card.getByRole("button", { name: /^(Enter|Resolve|Correct) result$/ }).click();
+  await openOrganizerActions(card);
+  await card.getByRole("button", { name: /^(Enter|Report|Resolve|Correct) result$/ }).click();
   await fillScore(card, scores[0], scores[1], scores[2], scores[3]);
-  if (reason) await card.getByLabel("Reason", { exact: true }).fill(reason);
+  if (reason) await card.locator("form.score-entry").getByLabel("Reason", { exact: true }).fill(reason);
   await card.getByRole("button", { name: "Save result", exact: true }).click();
+  await openOrganizerActions(card);
   await expect(card.getByRole("button", { name: "Correct result", exact: true })).toBeVisible();
 }
 
@@ -235,7 +241,7 @@ test("players report and confirm; organizer resolves a dispute and finishes an o
   const anonymous = await browser.newContext({ baseURL, viewport: { width: 375, height: 812 } });
   const mobile = await anonymous.newPage();
   await mobile.goto(`/t/${current.tournament.slug}`);
-  await expect(mobile.getByRole("heading", { name: "Standings", exact: true })).toBeVisible();
+  await expect(mobile.getByRole("heading", { name: "Final standings", exact: true })).toBeVisible();
   expect(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   const publicModel = await snapshot(anonymous.request, id);
   expect(publicModel.audit).toBeUndefined();
@@ -243,7 +249,7 @@ test("players report and confirm; organizer resolves a dispute and finishes an o
   expect(JSON.stringify(publicModel)).not.toMatch(/inviteHash|sessionHash|userId/);
   await mobile.screenshot({ path: testInfo.outputPath("public-mobile.png"), fullPage: true });
   await mobile.getByRole("link", { name: "Rules", exact: true }).click();
-  await expect(mobile.getByText(/each completed 10 seconds/)).toBeVisible();
+  await expect(mobile.getByText(/2 points deducted per completed 0:10 overtime/)).toBeVisible();
   await anonymous.close();
   for (const player of players) await player.context.close();
 });

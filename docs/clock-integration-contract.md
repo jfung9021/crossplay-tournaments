@@ -59,3 +59,11 @@ Replacing/revoking any claimed controller marks timing for review even if its la
 The match card's **Start Match** button opens `/match/[matchId]`; **Start Timer** starts timing, and **End game** freezes time before score entry. The old `/claim` endpoint, timer invitation command, fragment parsing, and timer-link controls are removed. Individual player invitations for optional manual reporting are separate and unchanged. No clock fields enter the tournament `Round` model or its pairing hash. No database migration is required for this entry revision.
 
 All nine table devices may use the same organizer login. They retain full organizer permissions, while each match has one controlling browser. Organizer sign-in permits 16 attempts per minute per network address.
+
+## Duration and navigation presentation
+
+All duration displays and inputs use m:ss. API fields remain integer seconds or milliseconds, with unchanged bounds. Optional blank manual overtime means zero; required duration fields reject blanks. App timer / External timer is an explicit form choice that serializes to the existing numeric timeLimitSeconds / null contract. Untouched organizer correction fields retain exact stored milliseconds; intentionally edited fields set whole seconds.
+
+The tournament view uses existing authenticated clock reads for state-aware entry labels. It refreshes visible registered matches with the tournament lifecycle and rejects responses from older refresh generations. No clock data is added to public snapshots or pairing inputs. Device-local table preferences store a physical table number under the tournament ID; historical rounds, management overviews and standings remain unfiltered.
+
+Manual overrides and time/starter corrections are grouped in Organizer actions. External-timer matches expose the existing organizer result form as the primary reporting action. Optional individual invitations move into Individual player access without changing permissions or confirmation rules. Final standings precede match cards on completed and archived overviews.

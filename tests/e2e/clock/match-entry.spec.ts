@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import type { MatchClockSnapshot } from "../../../src/client/match-clock-api";
-import { baseURL, createSimpleTournament, evidencePath, login, matchCard, origin, playerSession, publishNext, snapshot, writeEvidence } from "../../support/swiss20-browser";
+import { baseURL, command, createSimpleTournament, evidencePath, login, matchCard, origin, playerSession, publishNext, snapshot, writeEvidence } from "../../support/swiss20-browser";
 
 test("MATCH-ENTRY: admin opens from the match card and returns to its clock and score review", async ({ page: admin, browser }) => {
   await login(admin);
@@ -40,20 +40,31 @@ test("MATCH-ENTRY: admin opens from the match card and returns to its clock and 
     expect(ready.state?.status).toBe("ready");
     expect(ready.start?.played).toBe(false);
     await admin.screenshot({ path: evidencePath("match-entry", "phone-ready.png"), fullPage: true });
-    await admin.getByRole("button", { name: "Start Timer", exact: true }).click();
-    await admin.getByRole("button", { name: "Pause", exact: true }).click();
-    const controller = (await readClock()).controllerId;
     await admin.getByRole("link", { name: "Tournament", exact: true }).click();
     await card().getByRole("button", { name: "Start Match", exact: true }).click();
+    await expect(admin.getByRole("button", { name: "Start Timer", exact: true })).toBeEnabled();
+    await admin.getByRole("button", { name: "Start Timer", exact: true }).click();
+    await expect.poll(async () => (await readClock()).state?.status).toBe("running");
+    await admin.getByRole("link", { name: "Tournament", exact: true }).click();
+    await card().getByRole("button", { name: "Continue match", exact: true }).click();
+    await expect(admin.getByRole("button", { name: "Pause", exact: true })).toBeEnabled();
+    await admin.getByRole("button", { name: "Pause", exact: true }).click();
+    await expect.poll(async () => (await readClock()).state?.status).toBe("paused");
+    const controller = (await readClock()).controllerId;
+    await admin.getByRole("link", { name: "Tournament", exact: true }).click();
+    await card().getByRole("button", { name: "Continue match", exact: true }).click();
     await expect(admin.getByRole("button", { name: "Resume", exact: true })).toBeEnabled();
     expect((await readClock()).controllerId).toBe(controller);
     await admin.getByRole("button", { name: "End game", exact: true }).click();
+    await expect.poll(async () => (await readClock()).state?.status).toBe("ended");
+    await admin.getByRole("link", { name: "Back to tournament", exact: true }).click();
+    await card().getByRole("button", { name: "Report scores", exact: true }).click();
     await admin.getByLabel(`${ready.players[0].name} game score`, { exact: true }).fill("401");
     await admin.getByLabel(`${ready.players[1].name} game score`, { exact: true }).fill("399");
     await admin.getByRole("button", { name: "Review scores", exact: true }).click();
     await admin.getByRole("button", { name: `${ready.players[0].name}: agree`, exact: true }).click();
     await admin.getByRole("link", { name: "Back to tournament", exact: true }).click();
-    await card().getByRole("button", { name: "Open Match", exact: true }).click();
+    await card().getByRole("button", { name: "Review scores", exact: true }).click();
     await expect(admin.getByRole("heading", { name: "Review scores", exact: true })).toBeVisible();
     await admin.getByRole("button", { name: `${ready.players[1].name}: agree`, exact: true }).click();
     await expect(admin.getByRole("heading", { name: "Match complete", exact: true })).toBeVisible();
@@ -80,6 +91,8 @@ test("MATCH-ENTRY: nine devices share one admin account with independent timers 
     for (const device of devices) await login(device.page);
     await Promise.all(devices.map(async ({ page }, index) => {
       await page.goto(`/t/${tournament.tournament.slug}`);
+      await page.getByLabel("Table", { exact: true }).selectOption(String(tournament.rounds[0].matches[index].tableNumber));
+      await expect(page.getByRole("article")).toHaveCount(1);
       await matchCard(page, tournament, tournament.rounds[0].matches[index]).getByRole("button", { name: "Start Match", exact: true }).click();
       await expect(page.getByRole("button", { name: "Start Timer", exact: true })).toBeEnabled();
       await page.getByRole("button", { name: "Start Timer", exact: true }).click();
@@ -97,9 +110,19 @@ test("MATCH-ENTRY: nine devices share one admin account with independent timers 
     expect(new Set(states.map(value => value.controllerId)).size).toBe(9);
     expect(states.every(value => value.state?.status === "paused" && value.canControl)).toBe(true);
     await devices[0].page.screenshot({ path: evidencePath("match-entry", "ipad-paused.png"), fullPage: true });
+    await Promise.all(devices.map(async ({ page }, index) => {
+      await page.getByRole("link", { name: "Tournament", exact: true }).click();
+      await expect(page.getByLabel("Table", { exact: true })).toBeVisible();
+      await page.reload();
+      await expect(page.getByLabel("Table", { exact: true })).toHaveValue(String(tournament.rounds[0].matches[index].tableNumber));
+      await expect(page.getByRole("article")).toHaveCount(1);
+      await expect(matchCard(page, tournament, tournament.rounds[0].matches[index]).getByRole("button", { name: "Continue match", exact: true })).toBeVisible();
+    }));
+    await devices[0].page.screenshot({ path: evidencePath("match-entry", "ipad-selected-table.png"), fullPage: true });
     const firstMatch = tournament.rounds[0].matches[0];
     await admin.goto(`/admin/tournaments/${id}`);
-    await matchCard(admin, tournament, firstMatch).getByRole("button", { name: "Start Match", exact: true }).click();
+    await expect(admin.getByRole("article")).toHaveCount(9);
+    await matchCard(admin, tournament, firstMatch).getByRole("button", { name: "View match", exact: true }).click();
     await expect(admin.getByText("Read-only · Clock on another device", { exact: true })).toBeVisible();
     await expect(admin.getByRole("button", { name: "Resume", exact: true })).toBeDisabled();
     const retained = await devices[0].page.request.get(`/api/matches/${firstMatch.id}/clock`);
@@ -121,6 +144,61 @@ test("MATCH-ENTRY: nine devices share one admin account with independent timers 
     expect(await retried.json()).toMatchObject({ isOrganizer: false, canControl: true, controllerId: opened[ownerIndex].controllerId });
     const recovered = await devices[ownerIndex].page.request.get(`/api/matches/${race.rounds[0].matches[0].id}/clock`);
     expect(await recovered.json()).toMatchObject({ isOrganizer: false, canControl: true });
-    writeEvidence("match-entry/nine-devices.json", { status: "PASS", sameAdminAccount: true, devices: 9, distinctControllers: 9, otherDeviceReadOnly: true, concurrentEntryOneController: true, lostResponseRetryRestoresAccess: true, states });
+    writeEvidence("match-entry/nine-devices.json", { status: "PASS", sameAdminAccount: true, devices: 9, distinctControllers: 9, independentRememberedTables: true, otherDeviceReadOnly: true, concurrentEntryOneController: true, lostResponseRetryRestoresAccess: true, states });
   } finally { await Promise.all(devices.map(device => device.context.close())); }
+});
+
+test("MATCH-TABLE: remembered physical tables follow new rounds, preserve history and handle unavailable storage", async ({ page: admin, browser }) => {
+  await login(admin);
+  const id = await createSimpleTournament(admin, "Remembered table acceptance", "Maya Chen\nOwen Brooks\nPriya Shah\nTheo Martin\nAmelia Brooks", 2);
+  const first = await publishNext(admin, id, 1);
+  const tableOne = first.rounds[0].matches.find(match => match.player2Id && match.tableNumber === 1)!;
+  const tableTwo = first.rounds[0].matches.find(match => match.player2Id && match.tableNumber === 2)!;
+  const secondContext = await browser.newContext({ baseURL, storageState: await admin.context().storageState() });
+  const second = await secondContext.newPage();
+  const unavailableContext = await browser.newContext({ baseURL, storageState: await admin.context().storageState() });
+  await unavailableContext.addInitScript(() => {
+    Object.defineProperty(window, "localStorage", { get() { throw new DOMException("Storage unavailable", "SecurityError"); } });
+  });
+  const unavailable = await unavailableContext.newPage();
+  try {
+    await admin.goto(`/t/${first.tournament.slug}`);
+    await expect(admin.getByRole("article")).toHaveCount(3);
+    await expect(admin.getByRole("article").filter({ hasText: "Bye" })).toHaveCount(1);
+    await admin.getByLabel("Table", { exact: true }).selectOption("1");
+    await second.goto(`/t/${first.tournament.slug}`);
+    await second.getByLabel("Table", { exact: true }).selectOption("2");
+    await unavailable.goto(`/t/${first.tournament.slug}`);
+    await unavailable.getByLabel("Table", { exact: true }).selectOption("1");
+    await expect(unavailable.getByRole("article")).toHaveCount(1);
+    await expect(matchCard(unavailable, first, tableOne)).toBeVisible();
+    await unavailable.getByLabel("Table", { exact: true }).selectOption("all");
+    await expect(unavailable.getByRole("article")).toHaveCount(3);
+
+    for (const match of first.rounds[0].matches.filter(match => match.player2Id)) {
+      const response = await command(admin.request, id, "finalize_result", { matchId: match.id, expectedRevision: match.revision, kind: "played", raw1: 401, raw2: 399, overtime1: 0, overtime2: 0 });
+      expect(response.status()).toBe(200);
+    }
+    for (const entrantId of [tableTwo.player1Id, tableTwo.player2Id]) {
+      expect((await command(admin.request, id, "withdraw_entrant", { entrantId })).status()).toBe(200);
+    }
+    const next = await publishNext(admin, id, 2);
+    const nextTableOne = next.rounds[1].matches.find(match => match.player2Id && match.tableNumber === 1)!;
+    expect(new Set([nextTableOne.player1Id, nextTableOne.player2Id])).not.toEqual(new Set([tableOne.player1Id, tableOne.player2Id]));
+    await admin.goto(`/t/${first.tournament.slug}`);
+    await expect(admin.getByLabel("Table", { exact: true })).toHaveValue("1");
+    await expect(admin.getByRole("article")).toHaveCount(1);
+    await expect(matchCard(admin, next, nextTableOne)).toBeVisible();
+    await admin.goto(`/t/${first.tournament.slug}/rounds/1`);
+    await expect(admin.getByRole("article")).toHaveCount(3);
+    await expect(admin.getByLabel("Table", { exact: true })).toHaveCount(0);
+    await admin.goto(`/t/${first.tournament.slug}`);
+    await expect(admin.getByLabel("Table", { exact: true })).toHaveValue("1");
+    await second.reload();
+    await expect(second.getByText("Table 2 has no match this round", { exact: true })).toBeVisible();
+    await second.getByRole("button", { name: "Show all tables", exact: true }).click();
+    await expect(second.getByRole("article")).toHaveCount(2);
+    await expect(second.getByRole("article").filter({ hasText: "Bye" })).toHaveCount(1);
+    writeEvidence("match-entry/table-preference.json", { status: "PASS", canonicalTournamentId: id, nextRoundNewOpponents: true, missingWithdrawnTable: true, historyShowsAll: true, byesInAllTables: true, unavailableStorageWorks: true });
+  } finally { await secondContext.close(); await unavailableContext.close(); }
 });

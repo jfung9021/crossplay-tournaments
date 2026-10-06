@@ -75,7 +75,7 @@ test("EX-03: configurable completed-interval penalties, zero deduction, and sepa
   }, [400, 409], /locked/i);
   await page.goto(`/admin/tournaments/${id}/settings`);
   await expect(page.getByLabel("Overtime deduction (points)")).toBeDisabled();
-  await expect(page.getByLabel("For every (seconds)")).toBeDisabled();
+  await expect(page.getByLabel("For every (m:ss)")).toBeDisabled();
   const zeroId = await createSimpleTournament(page, "Harbor Crossplay Club — no overtime deduction", exceptionNames.slice(0, 2).join("\n"), 1, 0, 15);
   current = await publishNext(page, zeroId, 1);
   const zero = await scoreWithPreview(page, current, current.rounds[0]!.matches[0]!, 401, 399, 30, 401, 399);

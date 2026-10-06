@@ -76,8 +76,8 @@ test("CLOCK-REPORT-CORRECTIONS: pending reload, revised acknowledgements and org
     await expect(page.getByText("Both players confirmed.", { exact: true })).toHaveCount(0);
     await expect(page.getByText("405 game score · −8 points", { exact: true })).toBeVisible();
     await expect(page.getByText("401 game score · −2 points", { exact: true })).toBeVisible();
-    await expect(page.getByText("40s overtime", { exact: true })).toBeVisible();
-    await expect(page.getByText("10s overtime", { exact: true })).toBeVisible();
+    await expect(page.getByText("0:40 overtime", { exact: true })).toBeVisible();
+    await expect(page.getByText("0:10 overtime", { exact: true })).toBeVisible();
     const official = await readClock(page.request, matchId);
     expect(official.result).toMatchObject({ raw1: 405, raw2: 401, overtime1: 40, overtime2: 10, adjusted1: 397, adjusted2: 399 });
     expect(official.officialConfirmationMethod).toBe("organizer");

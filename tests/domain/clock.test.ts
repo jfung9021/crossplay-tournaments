@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyClockEvent, createClockState, deriveClock, type ClockEventKind, type ClockSide, type ClockState } from "../../src/domain/clock";
+import { applyClockEvent, createClockState, currentTurnSeconds, deriveClock, type ClockEventKind, type ClockSide, type ClockState } from "../../src/domain/clock";
 
 const rules = { timeLimitSeconds: 1200, penaltyIntervalSeconds: 10, penaltyPoints: 2 };
 function action(state: ClockState, kind: ClockEventKind, elapsedMs = 0, side?: ClockSide): ClockState {
@@ -7,6 +7,24 @@ function action(state: ClockState, kind: ClockEventKind, elapsedMs = 0, side?: C
 }
 
 describe("shared clock state machine", () => {
+  it("counts only this turn, including recovery and overtime, while excluding paused time", () => {
+    let state = action(createClockState(1), "start");
+    expect(currentTurnSeconds(state, 1999)).toBe(1);
+    state = action(state, "recover", 1250);
+    state = action(state, "pause", 2750);
+    expect(currentTurnSeconds(state, 60_000)).toBe(4);
+    state = action(state, "resume");
+    expect(currentTurnSeconds(state, 2000)).toBe(6);
+    state = action(state, "switch", 2000, 1);
+    expect(currentTurnSeconds(state)).toBe(0);
+    state = action(state, "switch", 900, 2);
+    expect(currentTurnSeconds(state, 1_210_000)).toBe(1210);
+    state = action(state, "end", 1_210_000);
+    expect(currentTurnSeconds(state, 80_000)).toBe(1210);
+    expect(currentTurnSeconds({ ...state, status: "running", reviewRequired: true }, 80_000)).toBe(1210);
+    expect(state.usedMs).toEqual([1_216_000, 900]);
+  });
+
   it("starts the saved side separately from ready and conserves time across rapid turns", () => {
     let state = createClockState(2);
     expect(deriveClock(state, rules).map(side => side.displaySeconds)).toEqual([1200, 1200]);

@@ -9,7 +9,7 @@ function integer(value: number, name: string, minimum = 0): void {
 export function createClockState(activeSide: ClockSide, epoch = 1): ClockState {
   if (activeSide !== 1 && activeSide !== 2) throw new Error("Invalid starting side.");
   integer(epoch, "clock epoch", 1);
-  return { status: "ready", activeSide, usedMs: [0, 0], epoch, sequence: 0, version: 0, anchorAtMs: null, reportSubmitted: false, reviewRequired: false };
+  return { status: "ready", activeSide, usedMs: [0, 0], currentTurnMs: 0, epoch, sequence: 0, version: 0, anchorAtMs: null, reportSubmitted: false, reviewRequired: false };
 }
 
 /** Replays one ordered event. Transport retries are deduplicated before replay. */
@@ -55,7 +55,20 @@ export function applyClockEvent(state: ClockState, event: ClockEvent): ClockStat
       throw new Error("Unknown clock event.");
   }
   next.anchorAtMs = next.status === "running" ? event.atMs : null;
+  // Preserve the shape of old journals so their exact replay validation still succeeds.
+  if (state.currentTurnMs !== undefined) {
+    next.currentTurnMs = event.kind === "start" || event.kind === "switch" ? 0
+      : state.currentTurnMs + (state.status === "running" ? event.elapsedMs : 0);
+    integer(next.currentTurnMs, "current turn time");
+  }
   return next;
+}
+
+export function currentTurnSeconds(state: ClockState, elapsedMs = 0): number | null {
+  integer(elapsedMs, "elapsed milliseconds");
+  if (state.status === "ready") return 0;
+  if (state.currentTurnMs === undefined) return null;
+  return Math.floor((state.currentTurnMs + (state.status === "running" && !state.reviewRequired ? elapsedMs : 0)) / 1000);
 }
 
 /** Render-only projection: delayed renders never lose elapsed time. */

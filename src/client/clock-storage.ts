@@ -49,6 +49,7 @@ function isState(value: unknown): value is ClockState {
   return ["ready", "running", "paused", "ended"].includes(state.status)
     && (state.activeSide === 1 || state.activeSide === 2)
     && Array.isArray(state.usedMs) && state.usedMs.length === 2 && state.usedMs.every(n => Number.isSafeInteger(n) && n >= 0)
+    && (state.currentTurnMs === undefined || Number.isSafeInteger(state.currentTurnMs) && state.currentTurnMs >= 0)
     && [state.epoch, state.sequence, state.version].every(n => Number.isSafeInteger(n) && n >= 0)
     && (state.anchorAtMs === null || (Number.isSafeInteger(state.anchorAtMs) && state.anchorAtMs >= 0))
     && typeof state.reportSubmitted === "boolean" && typeof state.reviewRequired === "boolean";
@@ -64,7 +65,12 @@ function readStored(storage: ClockStorage, key: string): StoredClock | null {
       || (stored.serverOffsetMs !== null && !Number.isFinite(stored.serverOffsetMs))) throw new Error("Invalid checkpoint.");
     let replay = stored.accepted;
     for (const event of stored.events) replay = applyClockEvent(replay, event);
-    if (JSON.stringify(replay) !== JSON.stringify(stored.state)) throw new Error("The checkpoint does not match its journal.");
+    // Older clients preserve unknown snapshot fields without updating them. Verify
+    // all authoritative timing exactly, then rebuild this display-only projection.
+    const replayTiming = { ...replay }; delete replayTiming.currentTurnMs;
+    const storedTiming = { ...stored.state }; delete storedTiming.currentTurnMs;
+    if (JSON.stringify(replayTiming) !== JSON.stringify(storedTiming)) throw new Error("The checkpoint does not match its journal.");
+    stored.state = replay;
     return stored;
   } catch {
     throw new Error("The saved clock could not be recovered. Ask the organizer to review its time.");

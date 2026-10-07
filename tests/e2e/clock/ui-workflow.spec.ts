@@ -185,9 +185,12 @@ test("UI-WORKFLOW: optional access, external reporting and final standings work 
   await page.goto(`/t/${tournament.tournament.slug}`);
   await expectStandingsFirst(page);
   await capture(page, "phone-final-standings.png");
-  await page.goto(`/admin/tournaments/${id}`);
+  await page.goto(`/admin/tournaments/${id}/settings`);
+  await page.getByText("Tournament actions", { exact: true }).click();
+  await page.getByRole("button", { name: "Archive tournament", exact: true }).click();
   await page.getByRole("button", { name: "Archive tournament", exact: true }).click();
   await expect(page.getByText("Archived", { exact: true })).toBeVisible();
+  await page.goto(`/admin/tournaments/${id}`);
   await expectStandingsFirst(page);
   await page.setViewportSize({ width: 1180, height: 820 });
   await page.goto(`/t/${tournament.tournament.slug}`);

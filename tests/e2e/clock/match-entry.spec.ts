@@ -152,8 +152,9 @@ test("MATCH-TABLE: remembered physical tables follow new rounds, preserve histor
   await login(admin);
   const id = await createSimpleTournament(admin, "Remembered table acceptance", "Maya Chen\nOwen Brooks\nPriya Shah\nTheo Martin\nAmelia Brooks", 2);
   const first = await publishNext(admin, id, 1);
-  const tableOne = first.rounds[0].matches.find(match => match.player2Id && match.tableNumber === 1)!;
-  const tableTwo = first.rounds[0].matches.find(match => match.player2Id && match.tableNumber === 2)!;
+  const tableOne = first.rounds[0].matches.find(match => match.player2Id)!;
+  // Byes have a table number too; physical matches need not be numbered 1 and 2.
+  const tableTwo = first.rounds[0].matches.find(match => match.player2Id && match.id !== tableOne.id)!;
   const secondContext = await browser.newContext({ baseURL, storageState: await admin.context().storageState() });
   const second = await secondContext.newPage();
   const unavailableContext = await browser.newContext({ baseURL, storageState: await admin.context().storageState() });
@@ -165,11 +166,11 @@ test("MATCH-TABLE: remembered physical tables follow new rounds, preserve histor
     await admin.goto(`/t/${first.tournament.slug}`);
     await expect(admin.getByRole("article")).toHaveCount(3);
     await expect(admin.getByRole("article").filter({ hasText: "Bye" })).toHaveCount(1);
-    await admin.getByLabel("Table", { exact: true }).selectOption("1");
+    await admin.getByLabel("Table", { exact: true }).selectOption(String(tableOne.tableNumber));
     await second.goto(`/t/${first.tournament.slug}`);
-    await second.getByLabel("Table", { exact: true }).selectOption("2");
+    await second.getByLabel("Table", { exact: true }).selectOption(String(tableTwo.tableNumber));
     await unavailable.goto(`/t/${first.tournament.slug}`);
-    await unavailable.getByLabel("Table", { exact: true }).selectOption("1");
+    await unavailable.getByLabel("Table", { exact: true }).selectOption(String(tableOne.tableNumber));
     await expect(unavailable.getByRole("article")).toHaveCount(1);
     await expect(matchCard(unavailable, first, tableOne)).toBeVisible();
     await unavailable.getByLabel("Table", { exact: true }).selectOption("all");
@@ -183,19 +184,19 @@ test("MATCH-TABLE: remembered physical tables follow new rounds, preserve histor
       expect((await command(admin.request, id, "withdraw_entrant", { entrantId })).status()).toBe(200);
     }
     const next = await publishNext(admin, id, 2);
-    const nextTableOne = next.rounds[1].matches.find(match => match.player2Id && match.tableNumber === 1)!;
-    expect(new Set([nextTableOne.player1Id, nextTableOne.player2Id])).not.toEqual(new Set([tableOne.player1Id, tableOne.player2Id]));
+    const nextTableOne = next.rounds[1].matches.find(match => match.player2Id && match.tableNumber === tableOne.tableNumber);
+    if (nextTableOne) expect(new Set([nextTableOne.player1Id, nextTableOne.player2Id])).not.toEqual(new Set([tableOne.player1Id, tableOne.player2Id]));
     await admin.goto(`/t/${first.tournament.slug}`);
-    await expect(admin.getByLabel("Table", { exact: true })).toHaveValue("1");
-    await expect(admin.getByRole("article")).toHaveCount(1);
-    await expect(matchCard(admin, next, nextTableOne)).toBeVisible();
+    await expect(admin.getByLabel("Table", { exact: true })).toHaveValue(String(tableOne.tableNumber));
+    if (nextTableOne) { await expect(admin.getByRole("article")).toHaveCount(1); await expect(matchCard(admin, next, nextTableOne)).toBeVisible(); } else await expect(admin.getByText(`Table ${tableOne.tableNumber} has no match this round`, { exact: true })).toBeVisible();
     await admin.goto(`/t/${first.tournament.slug}/rounds/1`);
     await expect(admin.getByRole("article")).toHaveCount(3);
     await expect(admin.getByLabel("Table", { exact: true })).toHaveCount(0);
     await admin.goto(`/t/${first.tournament.slug}`);
-    await expect(admin.getByLabel("Table", { exact: true })).toHaveValue("1");
+    await expect(admin.getByLabel("Table", { exact: true })).toHaveValue(String(tableOne.tableNumber));
+    await second.evaluate(id => localStorage.setItem(`crossplay.table.${id}`, "99"), id);
     await second.reload();
-    await expect(second.getByText("Table 2 has no match this round", { exact: true })).toBeVisible();
+    await expect(second.getByText("Table 99 has no match this round", { exact: true })).toBeVisible();
     await second.getByRole("button", { name: "Show all tables", exact: true }).click();
     await expect(second.getByRole("article")).toHaveCount(2);
     await expect(second.getByRole("article").filter({ hasText: "Bye" })).toHaveCount(1);

@@ -47,6 +47,15 @@ export async function readTournament(actor: Actor, id: string): Promise<Tourname
 
 export async function execute(actor: Actor, command: string, payload: Record<string, unknown>, requestId: string, expectedVersion?: number): Promise<Record<string, unknown>> {
   const sql = await ready();
+  if (["archive_tournament", "restore_tournament", "reset_tournament", "delete_tournament"].includes(command)) {
+    try {
+      const versions = await sql`select crossplay.lifecycle_version() as version`;
+      if (versions[0]?.version !== "20261008010000") throw new AppError("Tournament actions are not available yet.", 503);
+    } catch (error) {
+      if ((error as { code?: string }).code === "42883") throw new AppError("Tournament actions are not available yet.", 503);
+      throw error;
+    }
+  }
   const rows = await sql`select crossplay.execute(${sql.json(actor)}, ${command}, ${sql.json(payload as postgres.JSONValue)}, ${requestId}::uuid, ${expectedVersion ?? null}::bigint) as data`;
   return rows[0].data;
 }

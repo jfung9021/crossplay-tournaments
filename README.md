@@ -26,6 +26,8 @@ npm run dev
 
 The app does not silently fall back to an in-memory database. An unconfigured deployment shows a setup error and accepts no tournament writes.
 
+Portrait layouts and tournament actions are documented in [the October 8 release](docs/portrait-lifecycle-release.md). Archive/restore/reset/delete additionally require canonical migration `20261008010000_crossplay_lifecycle.sql` from `bite-open-card-draw`; the app gates those actions independently from ordinary tournament use.
+
 ## Database and organizer setup
 
 Production DDL is owned only by `Jonathan-Fung-Gaming/bite-open-card-draw`. Apply canonical migration `20260928010000_crossplay_schema.sql` there before enabling this app. Do not initialize a second Supabase migration history here.

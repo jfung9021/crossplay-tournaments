@@ -32,7 +32,10 @@ Commands and payloads:
 | finalize_result | tournamentId, matchId, expectedRevision, kind:played/forfeit/double_forfeit, raw1/raw2/overtime1/overtime2 for played, winnerId for forfeit, reason required for correction/dispute/administrative outcome |
 | finish_tournament | tournamentId, reason (required if early; all published matches must still be resolved) |
 | reopen_tournament | tournamentId, reason (finished only; results corrections, no additional rounds beyond config) |
-| archive_tournament | tournamentId (finished only) |
+| archive_tournament | tournamentId (draft, active or finished) |
+| restore_tournament | tournamentId (archived; restore prior state) |
+| reset_tournament | tournamentId, confirmationName (exact name; editable draft keeping roster/settings) |
+| delete_tournament | tournamentId, confirmationName (exact name; permanent deletion) |
 | issue_invite | tournamentId, entrantId, inviteHash (root random token; revoke old invitation and sessions) |
 | claim_invite | inviteHash, sessionHash (no tournament/version; atomically consume invite, save session expiry; return tournamentId,slug,entrantId) |
 
@@ -50,6 +53,18 @@ No ordinary player final-result edits. Organizer corrections preserve published 
 - GET `/api/auth` -> `{authenticated:boolean,email?:string,isOrganizer:boolean,configured:boolean}`.
 - POST `/api/auth` -> `{email,password}`; sign in via Supabase password auth (existing accounts; no outbound email workflow), check crossplay organizer permission, set secure session cookies.
 - DELETE `/api/auth` -> sign out organizer/player sessions.
-- All errors `{error:string,issues?:{line:number,message:string}[]}`; conflict HTTP409, not found404, forbidden403, validation400, unconfigured503. Never leak SQL/secrets.
+- All errors `{error:string,code?:string,issues?:{line:number,message:string}[]}`; conflict HTTP409, not found404, forbidden403, validation400, unconfigured503. Never leak SQL/secrets.
+
+## Lifecycle extension (October 8, 2026)
+
+Canonical migration `20261008010000_crossplay_lifecycle.sql` belongs to `bite-open-card-draw`. `lifecycle_version()` returns `20261008010000`; base and clock versions remain unchanged. New controls require snapshot `lifecycleAvailable:true`; mutation boundaries check capability independently and return 503 when unavailable. Older database snapshots keep ordinary workflows available.
+
+Tournament snapshots add `archivedFromStatus`, `runGeneration` and `lifecycleAvailable`. Legacy archived events are backfilled as finished. Public collections omit archives; archived drafts are staff-only. Previously published archive URLs are readable and immutable. Archive discards unpublished previews, revokes unfinished match access, advances clock epochs and pauses running clocks using only saved milliseconds. Pending report acknowledgements retain their saved clock binding. Restore requires reviewed time/fresh control for interrupted clocks.
+
+All four actions require verified tournament staff, expectedVersion and fingerprinted requestId. Archive/restore/reset return `{ok,id,slug,status,version,runGeneration}`; delete returns `{ok,id,deleted:true}`. Replay of an identical reset/delete returns that minimal receipt without re-executing, even after new play or deletion. Changed payloads fail. Gameplay receipts retired by lifecycle transitions return `STALE_ACTION` (409); archived writes return `TOURNAMENT_ARCHIVED` (409); incorrect names return `CONFIRMATION_REQUIRED` (400).
+
+Reset preserves the current config (including resolved numeric rounds), entrant IDs/names/seeds, tournament identity and staff. It reactivates retained entrants, clears all play/access, increments version and generation, and retains reset audit evidence. Delete clears dependent records and sensitive response caches but preserves rejection markers, unrelated tournaments and shared Auth users. Tournament-first locking serializes these operations with ordinary commands, clocks and invitation claims.
+
+The client sequences reads and rejects older tournament versions. Authoritative removal clears the tournament view; a generation change remounts local forms and match-entry state. Successful delete navigates directly to Your tournaments. Reset navigates to Players. Transient failures preserve local entries.
 
 UI uses crypto.randomUUID for request id only; retain same key for network retry of same action. Fetch helper needs same-origin cookies and JSON headers. Client-derived score preview uses `calculateScore(input,config): OfficialResult`; standings `calculateStandings(entrants,rounds): Standing[]`; pairing `generatePairings(input): PairingOutput`; bulk `parsePlayerNames(text,existingNames?): {names:string[],errors:{line:number,message:string}[]}`; `suggestRoundCount(count): number`; exported from src/domain/index.ts. UI imports only scoring/roster/types client-safe modules, never pairing solver. Root will expose shared domain APIs.

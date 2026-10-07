@@ -16,7 +16,15 @@ async function matchIdFrom(context: Context) {
 export async function GET(_request: Request, context: Context) {
   try {
     const matchId = await matchIdFrom(context);
-    return noStore(await readClock(await currentClockActor(matchId), matchId));
+    const actor = await currentClockActor(matchId);
+    try { return noStore(await readClock(actor, matchId)); }
+    catch (error) {
+      // A revoked table cookie must not hide the signed-in organizer's review controls.
+      if (!("matchSessionHash" in actor) || (error as { message?: string }).message !== "FORBIDDEN") throw error;
+      const organizer = await currentClockActor(matchId, true);
+      if (!("userId" in organizer)) throw error;
+      return noStore(await readClock(organizer, matchId));
+    }
   } catch (error) { return errorResponse(error); }
 }
 export async function POST(request: Request, context: Context) {

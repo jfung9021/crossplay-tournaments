@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ClockJournal, acquireClockTabLock } from "@/client/clock-storage";
 import type { ClockJournalSnapshot } from "@/client/clock-storage";
-import { ClockApiError, clockError, matchClockApi, matchControllerId } from "@/client/match-clock-api";
+import { ClockApiError, clockError, matchClockApi, matchControllerId, clearMatchLocalState } from "@/client/match-clock-api";
 import type { MatchClockSnapshot } from "@/client/match-clock-api";
 import { deriveClock } from "@/domain/clock";
 import { formatDuration } from "@/domain/duration";
@@ -22,6 +22,8 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
   const initializing = useRef<Promise<void> | null>(null);
   const flushing = useRef<Promise<boolean> | null>(null);
   const mounted = useRef(true);
+  const terminal = useRef(false);
+  const [unavailable, setUnavailable] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -34,15 +36,32 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
   const [nowMs, setNowMs] = useState(0);
   const refreshClock = useCallback(() => { setLocal(journal.current?.getSnapshot() ?? null); setNowMs(Date.now()); }, []);
 
+  const stop = useCallback((message: string) => {
+    terminal.current = true;
+    journal.current?.setControllerConflict(); journal.current = null; controller.current = null;
+    releaseLock.current?.(); releaseLock.current = null;
+    clearMatchLocalState(matchId);
+    if (mounted.current) { setReadonly(true); setSaveFailed(false); setLocal(null); setUnavailable(message); setLoading(false); }
+  }, [matchId]);
+
   const acceptSnapshot = useCallback((next: MatchClockSnapshot) => {
+    if (terminal.current || !mounted.current) return false;
+    if (next.tournamentStatus === "archived") { stop("This tournament is archived. Restore it from tournament settings before continuing."); return false; }
+    const previous = snapshotRef.current;
+    if (previous) {
+      if ((next.runGeneration ?? 0) < (previous.runGeneration ?? 0) || next.matchRevision < previous.matchRevision) return false;
+      if (previous.state && (!next.state || next.state.epoch < previous.state.epoch || next.state.epoch === previous.state.epoch && next.state.version < previous.state.version)) return false;
+      if (next.state?.version === previous.state?.version && next.matchRevision === previous.matchRevision && next.serverNowMs < previous.serverNowMs) return false;
+    }
     snapshotRef.current = next;
     if (mounted.current) setSnapshot(next);
-  }, []);
+    return true;
+  }, [stop]);
 
   const flush = useCallback(async (): Promise<boolean> => {
     if (flushing.current) return flushing.current;
     const adapter = journal.current;
-    if (!adapter || !controller.current || adapter.getSnapshot().controllerConflict) return false;
+    if (terminal.current || !adapter || !controller.current || adapter.getSnapshot().controllerConflict) return false;
     const work = async () => {
       try {
         while (adapter.getPendingEvents().length) {
@@ -56,17 +75,20 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
             const acceptedSequence = events[0].sequence - 1;
             const savedPrefix = latest.state && latest.controllerId === controller.current && latest.state.epoch === adapter.getSnapshot().state.epoch && latest.state.sequence > acceptedSequence && latest.state.version - adapter.getAcceptedVersion() === latest.state.sequence - acceptedSequence;
             if (!savedPrefix || !latest.state) throw cause;
-            adapter.acknowledge(latest.state, latest.serverNowMs); acceptSnapshot(latest);
+            if (!acceptSnapshot(latest)) return false;
+            adapter.acknowledge(latest.state, latest.serverNowMs);
             continue;
           }
           if (!next.state) throw new Error("The match clock is unavailable.");
-          adapter.acknowledge(next.state, next.serverNowMs);
           acceptSnapshot(next);
+          if (terminal.current) return false;
+          adapter.acknowledge(next.state, next.serverNowMs);
           if (adapter.getSnapshot().controllerConflict) throw new ClockApiError("Another device controls this clock. Ask the organizer for help.", 409);
         }
         if (mounted.current) setSaveFailed(false);
         return true;
       } catch (cause) {
+        if (cause instanceof ClockApiError && (cause.status === 404 || cause.code === "TOURNAMENT_ARCHIVED" || cause.code === "STALE_ACTION")) { stop(clockError(cause)); return false; }
         if (cause instanceof ClockApiError && [401, 403, 409, 410].includes(cause.status)) {
           adapter.setControllerConflict();
           if (mounted.current) { setReadonly(true); setError(clockError(cause)); }
@@ -76,32 +98,33 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
     };
     const promise = work(); flushing.current = promise;
     try { return await promise; } finally { if (flushing.current === promise) flushing.current = null; }
-  }, [matchId, acceptSnapshot, refreshClock]);
+  }, [matchId, acceptSnapshot, refreshClock, stop]);
 
   const initialize = useCallback(async () => {
+    if (terminal.current) return;
     if (initializing.current) return initializing.current;
     const work = async () => {
       setError(null); setLoading(true);
       try {
         let next = await matchClockApi<MatchClockSnapshot>(matchId);
-        acceptSnapshot(next);
+        if (!acceptSnapshot(next)) return;
         if (!next.canControl || next.isOrganizer || next.matchStatus === "final") { setReadonly(true); return; }
         const id = matchControllerId(matchId); controller.current = id;
         if (!releaseLock.current) releaseLock.current = await acquireClockTabLock(matchId, () => { journal.current?.setControllerConflict(); setReadonly(true); });
         if (!releaseLock.current) { setReadonly(true); setError("This clock is open in another tab, or this browser cannot safely control it. Close the other tab and try again."); return; }
         next = await matchClockApi<MatchClockSnapshot>(matchId, { command: "claim_clock", payload: { controllerId: id } });
-        acceptSnapshot(next);
+        if (!acceptSnapshot(next)) return;
         if (!next.state) throw new Error("The organizer has not enabled a clock for this match.");
         journal.current = new ClockJournal({ key: `${matchId}.${next.state.epoch}`, state: next.state, serverNowMs: next.serverNowMs });
         setReadonly(journal.current.getSnapshot().controllerConflict);
         refreshClock();
         void flush();
-      } catch (cause) { setError(clockError(cause)); setReadonly(true); }
+      } catch (cause) { if (cause instanceof ClockApiError && cause.status === 404) stop(clockError(cause)); else { setError(clockError(cause)); setReadonly(true); } }
       finally { setLoading(false); }
     };
     const promise = work(); initializing.current = promise;
     try { await promise; } finally { if (initializing.current === promise) initializing.current = null; }
-  }, [acceptSnapshot, flush, matchId, refreshClock]);
+  }, [acceptSnapshot, flush, matchId, refreshClock, stop]);
 
   useEffect(() => {
     mounted.current = true;
@@ -113,9 +136,11 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
     const timer = window.setInterval(refreshClock, 100);
     const saving = window.setInterval(() => { if (journal.current?.getPendingEvents().length && navigator.onLine && !journal.current.getSnapshot().controllerConflict) void flush(); }, 1000);
     const reconcile = async () => {
+      if (terminal.current) return;
       try {
         const next = await matchClockApi<MatchClockSnapshot>(matchId);
-        acceptSnapshot(next);
+        if (!acceptSnapshot(next)) return;
+        if (!next.canControl) { journal.current?.setControllerConflict(); setReadonly(true); }
         if (journal.current && next.state) {
           const previous = journal.current.getSnapshot();
           if (next.state.epoch > previous.state.epoch && !previous.pendingCount && next.canControl && next.controllerId === controller.current && releaseLock.current) {
@@ -125,7 +150,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
           if (journal.current.getSnapshot().controllerConflict) { setReadonly(true); setError("The clock changed. Reload to use the organizer-reviewed time."); }
           else { journal.current.setHidden(false, next.serverNowMs); await flush(); }
         }
-      } catch (cause) { if (cause instanceof ClockApiError && [401, 403, 410].includes(cause.status)) { journal.current?.setControllerConflict(); setReadonly(true); setError(clockError(cause)); } }
+      } catch (cause) { if (cause instanceof ClockApiError && cause.status === 404) stop(clockError(cause)); else if (cause instanceof ClockApiError && [401, 403, 410].includes(cause.status)) { journal.current?.setControllerConflict(); setReadonly(true); setError(clockError(cause)); } }
       refreshClock();
     };
     const visibility = () => {
@@ -133,10 +158,10 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
       else if (navigator.onLine) void reconcile();
     };
     const online = () => void reconcile();
-    const polling = window.setInterval(() => { if (document.visibilityState === "visible" && (readonly || snapshotRef.current?.state?.reportSubmitted)) void reconcile(); }, 10000);
+    const polling = window.setInterval(() => { if (!terminal.current && document.visibilityState === "visible") void reconcile(); }, 10000);
     document.addEventListener("visibilitychange", visibility); window.addEventListener("online", online);
     return () => { window.clearInterval(timer); window.clearInterval(saving); window.clearInterval(polling); document.removeEventListener("visibilitychange", visibility); window.removeEventListener("online", online); };
-  }, [acceptSnapshot, flush, matchId, readonly, refreshClock]);
+  }, [acceptSnapshot, flush, matchId, refreshClock, stop]);
 
   const state = local?.state ?? snapshot?.state;
   const status = state?.status;
@@ -160,7 +185,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
 
   function act(kind: ClockEventKind, side?: ClockSide, gestureId?: string) {
     try {
-      if (!journal.current || readonly) return;
+      if (terminal.current || !journal.current || readonly) return;
       journal.current.act(kind, side, gestureId);
       setError(null); refreshClock();
       if (kind !== "switch") void flush();
@@ -176,10 +201,11 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
       const next = await matchClockApi<MatchClockSnapshot>(matchId, { command, payload: { ...payload, ...(command === "submit_shared_report" ? { clockVersion: current.state.version } : {}) } });
       if (next.state) journal.current?.acknowledge(next.state, next.serverNowMs);
       acceptSnapshot(next);
-    } catch (cause) { setError(clockError(cause)); throw cause; }
+    } catch (cause) { if (cause instanceof ClockApiError && (cause.status === 404 || cause.code === "TOURNAMENT_ARCHIVED" || cause.code === "STALE_ACTION")) stop(clockError(cause)); else setError(clockError(cause)); throw cause; }
     finally { setBusy(false); }
   }
 
+  if (unavailable) return <div data-match-screen className={styles.shell}><section className={styles.entry}><h1>Match unavailable</h1><p role="status">{unavailable}</p><Link className={styles.navigation} href={snapshot ? `/t/${snapshot.tournamentId}` : "/"}>Back to tournament</Link></section></div>;
   if (loading || !snapshot || !state || snapshot.rules.timeLimitSeconds === null) return <div data-match-screen className={styles.shell}><section className={styles.entry}><h1>Match timer</h1>{loading ? <p role="status">Opening match…</p> : <>{error && <p role="alert">{error}</p>}{!error && <p>Open your tournament and choose Start Match.</p>}<button onClick={() => void initialize()}>Try again</button></>}{snapshot?.isOrganizer && <OrganizerMatchClock matchId={matchId} player1={snapshot.players[0]} player2={snapshot.players[1]} enabled={snapshot.rules.timeLimitSeconds !== null} final={snapshot.matchStatus === "final"} />}</section></div>;
   const elapsedMs = local?.elapsedMs ?? (state.status === "running" && state.anchorAtMs !== null ? Math.max(0, nowMs - state.anchorAtMs) : 0);
   const display = deriveClock(state, { ...snapshot.rules, timeLimitSeconds: snapshot.rules.timeLimitSeconds }, Math.floor(elapsedMs));
@@ -210,7 +236,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
         {error && <p role="alert" className={styles.error}>{error}</p>}
         {local?.controllerConflict && <button className="secondary" onClick={() => void initialize()}>Reload clock</button>}
         <div className={styles.actions}>{isReady ? <button disabled={!canWrite || busy} onClick={() => act("start", state.activeSide)}>Start Timer</button> : <><button className="secondary" disabled={!canWrite || busy} onClick={() => act(state.status === "paused" ? "resume" : "pause")}>{state.status === "paused" ? "Resume" : "Pause"}</button><button className={display.some(value => value.isOvertime) ? styles.endHighlight : ""} disabled={!canWrite || busy} onClick={() => act("end")}>End game</button></>}</div>
-        <Link href={`/t/${snapshot.tournamentId}`} style={{ fontSize: 13 }}>Tournament</Link>
+        <Link href={`/t/${snapshot.tournamentId}`} className={styles.navigation}>Tournament</Link>
         {stopped && <div className={styles.tools}><button onClick={() => setFlipped(value => !value)}>Flip sides</button><button className={styles.facing} aria-pressed={faceToFace} onClick={() => setFaceToFace(value => !value)}>Face to face {faceToFace ? "on" : "off"}</button></div>}
         {saveFailed && <p className={styles.status} role="status">Waiting to save</p>}
         {wakeUnavailable && state.status === "running" && <p className={styles.status}>Keep this screen awake</p>}

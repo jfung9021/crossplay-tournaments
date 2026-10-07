@@ -5,6 +5,8 @@ export interface MatchClockSnapshot {
   tournamentId: string;
   matchId: string;
   tournamentName: string;
+  tournamentStatus?: string;
+  runGeneration?: number;
   roundNumber: number;
   tableNumber: number;
   matchStatus: string;
@@ -23,10 +25,18 @@ export interface MatchClockSnapshot {
 }
 
 export class ClockApiError extends Error {
-  constructor(message: string, readonly status: number) { super(message); }
+  constructor(message: string, readonly status: number, readonly code?: string) { super(message); }
 }
 
 const requests = new Map<string, string>();
+
+export function clearMatchLocalState(matchId: string) {
+  try {
+    const keys = Object.keys(localStorage).filter(key => key === `crossplay.clock.controller.${matchId}` || key.startsWith(`crossplay.clock.${matchId}.`));
+    keys.forEach(key => localStorage.removeItem(key));
+  } catch { /* Storage can be unavailable; server epochs still reject the old controller. */ }
+  for (const key of requests.keys()) if (key.startsWith(`/api/matches/${matchId}/`)) requests.delete(key);
+}
 
 export function matchControllerId(matchId: string): string {
   const key = `crossplay.clock.controller.${matchId}`;
@@ -50,7 +60,7 @@ export async function matchClockApi<T>(matchId: string, body?: Record<string, un
   } catch { throw new ClockApiError("Waiting to save. Reconnect to continue reporting.", 0); }
   const result = await response.json().catch(() => ({}));
   if (response.status < 500) requests.delete(fingerprint);
-  if (!response.ok) throw new ClockApiError(result.error ?? "This action could not be completed.", response.status);
+  if (!response.ok) throw new ClockApiError(result.error ?? "This action could not be completed.", response.status, result.code);
   requests.delete(fingerprint);
   return result as T;
 }

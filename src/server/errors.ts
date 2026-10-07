@@ -12,6 +12,9 @@ export function errorResponse(error: unknown): Response {
   const messages: Record<string, [number, string]> = {
     FORBIDDEN: [403, "You do not have access to this action."],
     NOT_FOUND: [404, "Tournament or match not found."],
+    STALE_ACTION: [409, "This action belongs to an earlier tournament state. Refresh before continuing."],
+    TOURNAMENT_ARCHIVED: [409, "This tournament is archived. Restore it before making changes."],
+    CONFIRMATION_REQUIRED: [400, "Enter the tournament name exactly to confirm."],
     STALE_VERSION: [409, "This tournament changed. Refresh and try again."],
     STALE_PAIRINGS: [409, "These pairings are out of date. Generate a new round preview."],
     STALE_REVISION: [409, "This result changed. Refresh before submitting again."],
@@ -48,7 +51,7 @@ export function errorResponse(error: unknown): Response {
     EARLY_FINISH_REASON_REQUIRED: [400, "Enter a reason to finish before all scheduled rounds."],
     CORRECTIONS_ONLY: [400, "This tournament is reopened for result corrections only."],
   };
-  if (messages[message]) return Response.json({ error: messages[message][1] }, { status: messages[message][0] });
+  if (messages[message]) return Response.json({ error: messages[message][1], code: message }, { status: messages[message][0] });
   if (database?.code === "42501") return Response.json({ error: "You do not have access to this action." }, { status: 403 });
   if (database?.code === "40001" || /^(conflict|stale)/i.test(message)) return Response.json({ error: "This tournament changed. Refresh and try again." }, { status: 409 });
   if (database?.code === "P0002" || /^not found/i.test(message)) return Response.json({ error: "Tournament or match not found." }, { status: 404 });

@@ -15,6 +15,8 @@ import { IndividualPlayerAccess } from "@/components/individual-player-access";
 import { MatchEntriesProvider } from "@/client/use-match-entries";
 import { TableSelector, useTableSelection } from "@/components/table-selector";
 import { matchClockApi, type MatchClockSnapshot } from "@/client/match-clock-api";
+import { TournamentActions } from "@/components/tournament-actions";
+import { clearMatchLocalState } from "@/client/match-clock-api";
 
 type AuthState = { authenticated: boolean; email?: string; isOrganizer: boolean; configured: boolean };
 type View = "matches" | "players" | "settings" | "rules" | "round" | "history";
@@ -54,6 +56,7 @@ async function api<T>(path: string, method = "GET", body?: Record<string, unknow
 
 function errorMessage(error: unknown): string { return error instanceof Error ? error.message : "This action could not be completed."; }
 function signed(value: number): string { return value > 0 ? `+${value}` : String(value); }
+function isComplete(tournament: Tournament) { return tournament.status === "finished" || tournament.status === "archived" && (tournament.archivedFromStatus ?? "finished") === "finished"; }
 function dateLabel(value: string | null): string {
   if (!value) return "";
   return new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" }).format(new Date(`${value.slice(0, 10)}T12:00:00`));
@@ -71,20 +74,33 @@ function useSnapshot(key: string) {
   const [snapshot, setSnapshot] = useState<TournamentSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const sequence = useRef(0);
+  const latestVersion = useRef(-1);
+  const unavailable = useRef(false);
+  const cancelReads = useCallback(() => { sequence.current++; }, []);
+  const invalidate = useCallback(() => { unavailable.current = true; sequence.current++; setSnapshot(null); }, []);
   const refresh = useCallback(async () => {
-    try { const data = await api<TournamentSnapshot>(`/api/tournaments/${encodeURIComponent(key)}`); setSnapshot(data); setError(null); return data; }
-    catch (cause) { setError(errorMessage(cause)); return null; }
-    finally { setLoading(false); }
-  }, [key]);
-  useEffect(() => { void Promise.resolve().then(refresh); }, [refresh]);
+    if (unavailable.current) return null;
+    const request = ++sequence.current;
+    try {
+      const data = await api<TournamentSnapshot>(`/api/tournaments/${encodeURIComponent(key)}`);
+      if (request !== sequence.current || unavailable.current || data.tournament.version < latestVersion.current) return null;
+      latestVersion.current = data.tournament.version; setSnapshot(data); setError(null); return data;
+    } catch (cause) {
+      if (request !== sequence.current || unavailable.current) return null;
+      if (cause instanceof ApiError && [403, 404].includes(cause.status)) invalidate();
+      setError(errorMessage(cause)); return null;
+    } finally { if (request === sequence.current || unavailable.current) setLoading(false); }
+  }, [key, invalidate]);
+  useEffect(() => { unavailable.current = false; latestVersion.current = -1; void Promise.resolve().then(refresh); return cancelReads; }, [refresh, cancelReads]);
   useEffect(() => {
     const onFocus = () => { if (document.visibilityState === "visible") void refresh(); };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onFocus);
-    const timer = snapshot?.tournament.status === "active" ? window.setInterval(onFocus, 20000) : undefined;
+    const timer = snapshot ? window.setInterval(onFocus, 20000) : undefined;
     return () => { window.removeEventListener("focus", onFocus); document.removeEventListener("visibilitychange", onFocus); if (timer) window.clearInterval(timer); };
-  }, [refresh, snapshot?.tournament.status]);
-  return { snapshot, error, loading, refresh };
+  }, [refresh, snapshot]);
+  return { snapshot, error, loading, refresh, invalidate };
 }
 
 export function TournamentListPage({ admin = false }: { admin?: boolean }) {
@@ -164,24 +180,33 @@ export function NewTournamentPage() {
 }
 
 export function TournamentPage({ tournamentKey, admin = false, view = "matches", roundNumber, entrantId }: { tournamentKey: string; admin?: boolean; view?: View; roundNumber?: number; entrantId?: string }) {
-  const { snapshot, error, loading, refresh } = useSnapshot(tournamentKey);
+  const router = useRouter();
+  const { snapshot, error, loading, refresh, invalidate } = useSnapshot(tournamentKey);
   const command: Command = useCallback(async (name, payload = {}) => {
     if (!snapshot) throw new Error("Tournament is still loading.");
     try {
       const result = await api<Record<string, unknown>>(`/api/tournaments/${snapshot.tournament.id}/commands`, "POST", { command: name, payload, expectedVersion: snapshot.tournament.version });
-      await refresh(); return result;
-    } catch (cause) { if (cause instanceof ApiError && cause.status === 409) await refresh(); throw cause; }
-  }, [snapshot, refresh]);
+      if (name === "reset_tournament" || name === "delete_tournament") {
+        snapshot.rounds.flatMap(round => round.matches).forEach(match => clearMatchLocalState(match.id));
+        for (const key of pendingRequests.keys()) if (key.startsWith(`/api/tournaments/${snapshot.tournament.id}/`)) pendingRequests.delete(key);
+      }
+      if (name === "delete_tournament") { invalidate(); router.replace("/admin"); return result; }
+      await refresh();
+      if (name === "reset_tournament") router.replace(`/admin/tournaments/${snapshot.tournament.id}/players`);
+      return result;
+    } catch (cause) { if (cause instanceof ApiError && [403, 404, 409].includes(cause.status)) await refresh(); throw cause; }
+  }, [snapshot, refresh, invalidate, router]);
   if (loading) return <Loading />;
   if (!snapshot) return <><ErrorNotice message={error ?? "Tournament not found."} /><div className="actions"><button className="secondary" onClick={() => void refresh()}>Try again</button><Link href={admin ? "/admin" : "/"}>Tournaments</Link></div></>;
   if (admin && !snapshot.viewer.isOrganizer) return <div className="narrow"><h1>Organizer sign in</h1><p className="muted">An organizer account is required to manage this tournament.</p><Link className="button" href="/login">Sign in</Link></div>;
   const tournament = snapshot.tournament;
   const base = admin ? `/admin/tournaments/${tournament.id}` : `/t/${tournament.slug}`;
-  return <MatchEntriesProvider key={tournament.id} refreshKey={snapshot}>
+  return <MatchEntriesProvider key={`${tournament.id}:${tournament.runGeneration ?? 0}:${tournament.status}`} refreshKey={snapshot}>
     <Link className="back" href={admin ? "/admin" : "/"}>← {admin ? "Your tournaments" : "Tournaments"}</Link>
     <div className="page-heading"><div><p className="eyebrow">{["Swiss", dateLabel(tournament.date), `${tournament.entrantCount} players`].filter(Boolean).join(" · ")}</p><h1>{tournament.name}</h1><Badge status={tournament.status} /></div><div className="actions">{admin ? <Link className="button secondary" href={`/t/${tournament.slug}`}>Public page</Link> : snapshot.viewer.isOrganizer && <Link className="button secondary" href={`/admin/tournaments/${tournament.id}`}>Manage</Link>}</div></div>
     <nav className="tabs" aria-label="Tournament navigation"><Link href={base} aria-current={view === "matches" ? "page" : undefined}>{admin ? "Rounds & results" : "Tournament"}</Link>{admin ? <><Link href={`${base}/players`} aria-current={view === "players" ? "page" : undefined}>Players</Link><Link href={`${base}/settings`} aria-current={view === "settings" ? "page" : undefined}>Settings</Link></> : <><Link href={`${base}#standings`}>Standings</Link><Link href={`${base}/rules`} aria-current={view === "rules" ? "page" : undefined}>Rules</Link></>}</nav>
     <ErrorNotice message={error} />
+    {tournament.status === "archived" && <p className="notice">Archived · Read-only{tournament.archivedFromStatus === "active" ? ". Play was not completed." : ""}</p>}
     {view === "players" && <RosterPanel snapshot={snapshot} command={command} />}
     {view === "settings" && <SettingsPanel snapshot={snapshot} command={command} />}
     {view === "rules" && <RulesPanel tournament={tournament} />}
@@ -193,6 +218,7 @@ export function TournamentPage({ tournamentKey, admin = false, view = "matches",
 
 function RosterPanel({ snapshot, command }: { snapshot: TournamentSnapshot; command: Command }) {
   const [names, setNames] = useState("");
+  const [addingOpen, setAddingOpen] = useState(snapshot.entrants.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -204,9 +230,10 @@ function RosterPanel({ snapshot, command }: { snapshot: TournamentSnapshot; comm
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
-  return <div className={tournament.status === "draft" ? "main-and-aside" : "stack"}>
+  return <div className="stack">
+    {tournament.status === "draft" && (tournament.runGeneration ?? 0) > 0 && <p role="status" className="notice success">Tournament reset. Edit players and settings, then preview Round 1.</p>}
+    {tournament.status === "draft" && <details className="panel add-players" open={addingOpen} onToggle={event => setAddingOpen(event.currentTarget.open)}><summary>Add players</summary><form className="compact-stack" onSubmit={add}><Field id="bulk-names" label="Player names" note="One player per line. Up to 256 players."><textarea id="bulk-names" rows={9} placeholder={"Alex\nJamie\nMorgan"} value={names} onChange={event => { setNames(event.target.value); setSuccess(null); }} /></Field><div aria-live="polite"><p className="form-note">{parsed.names.length} {parsed.names.length === 1 ? "player" : "players"} to add</p>{parsed.errors.length > 0 && <div className="notice error">{parsed.errors.map((issue, index) => <div key={index}>Line {issue.line}: {issue.message}</div>)}</div>}{entrants.length + parsed.names.length > 256 && <div className="notice error">A tournament can have up to 256 players.</div>}</div><ErrorNotice message={error} />{success && <p role="status" className="notice success">{success}</p>}<button disabled={busy || !parsed.names.length || parsed.errors.length > 0 || entrants.length + parsed.names.length > 256}>{busy ? "Adding…" : "Add players"}</button></form></details>}
     <section><div className="section-heading"><h2>Players <span className="muted">{entrants.length}</span></h2><span className="muted">{entrants.filter(entrant => entrant.active).length} active</span></div>{entrants.length === 0 ? <div className="empty"><p>No players added.</p></div> : <div>{entrants.map(entrant => <RosterRow key={entrant.id} entrant={entrant} tournament={tournament} command={command} />)}</div>}<IndividualPlayerAccess entrants={entrants} tournament={tournament} command={command} /></section>
-    {tournament.status === "draft" && <aside className="panel"><h2>Add players</h2><form className="compact-stack" onSubmit={add}><Field id="bulk-names" label="Player names" note="One player per line. Up to 256 players."><textarea id="bulk-names" rows={9} placeholder={"Alex\nJamie\nMorgan"} value={names} onChange={event => { setNames(event.target.value); setSuccess(null); }} /></Field><div aria-live="polite"><p className="form-note">{parsed.names.length} {parsed.names.length === 1 ? "player" : "players"} to add</p>{parsed.errors.length > 0 && <div className="notice error">{parsed.errors.map((issue, index) => <div key={index}>Line {issue.line}: {issue.message}</div>)}</div>}{entrants.length + parsed.names.length > 256 && <div className="notice error">A tournament can have up to 256 players.</div>}</div><ErrorNotice message={error} />{success && <p role="status" className="notice success">{success}</p>}<button disabled={busy || !parsed.names.length || parsed.errors.length > 0 || entrants.length + parsed.names.length > 256}>{busy ? "Adding…" : "Add players"}</button></form></aside>}
   </div>;
 }
 
@@ -241,7 +268,7 @@ function SettingsPanel({ snapshot, command }: { snapshot: TournamentSnapshot; co
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
-  return <div className="main-and-aside"><section><h2>Settings</h2>{readOnly ? <RulesPanel tournament={tournament} /> : <form className="form" onSubmit={save}><SettingsFields values={values} setValues={next => { setValues(next); setSaved(false); }} locked={tournament.status !== "draft"} playerCount={snapshot.entrants.filter(entrant => entrant.active).length} /><ErrorNotice message={error} />{saved && <p role="status" className="notice success">Settings saved.</p>}<div><button disabled={busy}>{busy ? "Saving…" : "Save settings"}</button></div></form>}</section><aside className="panel"><h2>Run another tournament</h2><p className="muted">Create a draft with these rules.</p><Link className="button secondary" href={`/admin/tournaments/new?copy=${tournament.id}`}>Copy settings</Link></aside></div>;
+  return <><div className="main-and-aside settings-layout"><section><h2>Settings</h2>{readOnly ? <RulesPanel tournament={tournament} /> : <form className="form" onSubmit={save}><SettingsFields values={values} setValues={next => { setValues(next); setSaved(false); }} locked={tournament.status !== "draft"} playerCount={snapshot.entrants.filter(entrant => entrant.active).length} /><ErrorNotice message={error} />{saved && <p role="status" className="notice success">Settings saved.</p>}<div><button disabled={busy}>{busy ? "Saving…" : "Save settings"}</button></div></form>}</section><aside className="panel"><h2>Run another tournament</h2><p className="muted">Create a draft with these rules.</p><Link className="button secondary" href={`/admin/tournaments/new?copy=${tournament.id}`}>Copy settings</Link></aside></div><TournamentActions tournament={tournament} roundCount={snapshot.rounds.length} matchCount={snapshot.rounds.reduce((count, round) => count + round.matches.length, 0)} command={command} /></>;
 }
 
 function RulesPanel({ tournament }: { tournament: Tournament }) {
@@ -261,12 +288,12 @@ function RulesPanel({ tournament }: { tournament: Tournament }) {
 }
 
 function StandingsPanel({ snapshot }: { snapshot: TournamentSnapshot }) {
-  return <section id="standings"><div className="section-heading"><h2>{snapshot.tournament.status === "finished" || snapshot.tournament.status === "archived" ? "Final standings" : "Standings"}</h2><span className="muted" style={{ fontSize: 12 }}>Confirmed results</span></div>{snapshot.standings.length === 0 ? <p className="muted">Standings will appear when players are added.</p> : <div className="table-wrap"><table><thead><tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col" className="number">Points</th><th scope="col" className="number">Difference</th></tr></thead><tbody>{snapshot.standings.map(standing => <tr key={standing.entrantId} className={standing.entrantId === snapshot.viewer.entrantId ? "my-row" : undefined}><td>{standing.rank}</td><td className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${standing.entrantId}`}>{standing.name}</Link>{standing.entrantId === snapshot.viewer.entrantId && <small> · You</small>}{!standing.active && <small> · Withdrawn</small>}</td><td className="number">{standing.matchPoints}</td><td className="number">{signed(standing.difference)}</td></tr>)}</tbody></table></div>}</section>;
+  return <section id="standings"><div className="section-heading"><h2>{isComplete(snapshot.tournament) ? "Final standings" : snapshot.tournament.status === "archived" ? "Standings at archive" : "Standings"}</h2><span className="muted" style={{ fontSize: 12 }}>Confirmed results</span></div>{snapshot.standings.length === 0 ? <p className="muted">Standings will appear when players are added.</p> : <div className="table-wrap"><table><thead><tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col" className="number">Points</th><th scope="col" className="number">Difference</th></tr></thead><tbody>{snapshot.standings.map(standing => <tr key={standing.entrantId} className={standing.entrantId === snapshot.viewer.entrantId ? "my-row" : undefined}><td>{standing.rank}</td><td className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${standing.entrantId}`}>{standing.name}</Link>{standing.entrantId === snapshot.viewer.entrantId && <small> · You</small>}{!standing.active && <small> · Withdrawn</small>}</td><td className="number">{standing.matchPoints}</td><td className="number">{signed(standing.difference)}</td></tr>)}</tbody></table></div>}</section>;
 }
 
 function RoundLinks({ snapshot, selected }: { snapshot: TournamentSnapshot; selected?: number }) {
   const rounds = snapshot.rounds.filter(round => round.status !== "draft");
-  return rounds.length > 0 ? <nav className="round-nav" aria-label="Rounds">{rounds.map(round => <Link key={round.id} href={`/t/${snapshot.tournament.slug}/rounds/${round.number}`} aria-current={round.number === selected ? "page" : undefined}>Round {round.number}</Link>)}</nav> : null;
+  return rounds.length > 1 ? <nav className="round-nav" aria-label="Rounds">{rounds.map(round => <Link key={round.id} href={`/t/${snapshot.tournament.slug}/rounds/${round.number}`} aria-current={round.number === selected ? "page" : undefined}>Round {round.number}</Link>)}</nav> : null;
 }
 
 function PublicPanel({ snapshot, command }: { snapshot: TournamentSnapshot; command: Command }) {
@@ -281,11 +308,11 @@ function PublicPanel({ snapshot, command }: { snapshot: TournamentSnapshot; comm
     {finished && <StandingsPanel snapshot={snapshot} />}
     {mine && snapshot.tournament.status === "active" && <section><h2>Your match · Round {current?.number}</h2><MatchCard match={mine} snapshot={snapshot} command={command} player /></section>}
     {!current ? <div className="empty"><h2>Pairings are not published yet</h2><p>The first round will appear here.</p></div> : <section>
-      <div className="section-heading"><h2>{finished ? "Final round" : "Round " + current.number}</h2><Badge status={current.status} /></div>
-      <RoundLinks snapshot={snapshot} selected={current.number} />
+      <div className="section-heading"><h2>{isComplete(snapshot.tournament) ? "Final round" : "Round " + current.number}</h2><Badge status={current.status} /></div>
       {!finished && <TableSelector tables={tables} value={table} onChange={setTable} />}
       {!matches.length && table !== "all" && !finished && <div className="notice"><p>Table {table} has no match this round</p><div className="actions"><button className="secondary" onClick={() => setTable("all")}>Show all tables</button></div></div>}
       <div className="match-list">{matches.map(match => <MatchCard key={match.id} match={match} snapshot={snapshot} command={command} />)}</div>
+      {rounds.length > 1 && <details className="round-history"><summary>Rounds</summary><RoundLinks snapshot={snapshot} selected={current.number} /></details>}
     </section>}
     {!finished && <StandingsPanel snapshot={snapshot} />}
   </div>;
@@ -325,14 +352,14 @@ function OrganizerPanel({ snapshot, command }: { snapshot: TournamentSnapshot; c
     finally { setBusy(false); }
   }
   return <div className="stack">
-    <section className="panel subtle"><div className="section-heading"><div><h2>{finished ? "Tournament complete" : tournament.correctionsOnly ? "Results reopened" : draft ? `Round ${draft.number} is ready to publish` : !current ? "Start the tournament" : pending ? `${pending} ${pending === 1 ? "match" : "matches"} to resolve` : allRoundsPlayed ? "All rounds complete" : `Round ${current.number} complete`}</h2><p className="muted" style={{ marginTop: 7 }}>{finished ? `${published.length} rounds played.` : tournament.correctionsOnly ? "Correct the results, then finish the tournament again." : !current ? `${snapshot.entrants.filter(entrant => entrant.active).length} active players · ${planned} rounds` : draft ? "Players will see their opponents when you publish." : pending ? "Enter or confirm all results to continue." : allRoundsPlayed ? "Finish to make the final standings official." : `${planned - published.length} rounds remaining.`}</p></div></div>
+    <section className="panel subtle"><div className="section-heading"><div><h2>{tournament.status === "archived" ? "Tournament archived" : finished ? "Tournament complete" : tournament.correctionsOnly ? "Results reopened" : draft ? `Round ${draft.number} is ready to publish` : !current ? "Start the tournament" : pending ? `${pending} ${pending === 1 ? "match" : "matches"} to resolve` : allRoundsPlayed ? "All rounds complete" : `Round ${current.number} complete`}</h2><p className="muted" style={{ marginTop: 7 }}>{finished ? `${published.length} rounds played.` : tournament.correctionsOnly ? "Correct the results, then finish the tournament again." : !current ? `${snapshot.entrants.filter(entrant => entrant.active).length} active players · ${planned} rounds` : draft ? "Players will see their opponents when you publish." : pending ? "Enter or confirm all results to continue." : allRoundsPlayed ? "Finish to make the final standings official." : `${planned - published.length} rounds remaining.`}</p></div></div>
       <ErrorNotice message={error} />
       <div className="actions">
         {!finished && draft && <button disabled={busy} onClick={() => void run("publish_round", { roundId: draft.id })}>{busy ? "Publishing…" : `Publish round ${draft.number}`}</button>}
         {!finished && !tournament.correctionsOnly && !draft && !pending && !allRoundsPlayed && <button disabled={busy || snapshot.entrants.filter(entrant => entrant.active).length < 2} onClick={() => void run("generate_round")}>{busy ? "Pairing…" : `Preview round ${(current?.number ?? 0) + 1}`}</button>}
         {!finished && allRoundsPlayed && !pending && <button disabled={busy} onClick={() => void run("finish_tournament", { reason: "" })}>{busy ? "Finishing…" : "Finish tournament"}</button>}
-        {!current && <Link className="button secondary" href={`/admin/tournaments/${tournament.id}/players`}>Add players</Link>}
-        {tournament.status === "finished" && <button className="secondary" disabled={busy} onClick={() => void run("archive_tournament")}>Archive tournament</button>}
+        {!current && tournament.status === "draft" && <Link className="button secondary" href={`/admin/tournaments/${tournament.id}/players`}>Add players</Link>}
+        {finished && <Link className="button secondary" href={`/admin/tournaments/${tournament.id}/settings#tournament-actions`}>Tournament actions</Link>}
         {finished && <Link className="button secondary" href={`/admin/tournaments/new?copy=${tournament.id}`}>Copy settings</Link>}
       </div>
       {tournament.status === "active" && published.length > 0 && !pending && !allRoundsPlayed && <details className="section-space" open={tournament.correctionsOnly || undefined}><summary>{tournament.correctionsOnly ? "Finish corrected tournament" : "Finish early"}</summary><form className="form" onSubmit={event => { event.preventDefault(); void run("finish_tournament", { reason }); }}><Field id="finish-reason" label="Reason"><input id="finish-reason" required maxLength={1000} value={reason} onChange={event => setReason(event.target.value)} /></Field><div><button className="secondary" disabled={busy}>{tournament.correctionsOnly ? "Finish tournament" : "Finish tournament early"}</button></div></form></details>}
@@ -465,7 +492,7 @@ export function LoginPage() {
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
-  return <div className="narrow"><h1>Organizer sign in</h1><ErrorNotice message={error} />{auth && !auth.configured && <div className="notice">Organizer sign in has not been configured.</div>}{auth?.isOrganizer ? <><p className="muted">Signed in{auth.email ? ` as ${auth.email}` : ""}.</p><Link className="button" href="/admin">Your tournaments</Link></> : <form className="form" onSubmit={submit}><Field id="email" label="Email"><input id="email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} /></Field><Field id="password" label="Password"><input id="password" type="password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} /></Field><button disabled={busy || auth?.configured === false}>{busy ? "Signing in…" : "Sign in"}</button></form>}</div>;
+  return <div className="narrow"><h1>Organizer sign in</h1><ErrorNotice message={error} />{auth && !auth.configured && <div className="notice">Organizer sign in has not been configured.</div>}{auth?.isOrganizer ? <><p className="muted">Signed in{auth.email ? ` as ${auth.email}` : ""}.</p><Link className="button" href="/admin">Your tournaments</Link></> : <form className="form" onSubmit={submit}><Field id="email" label="Email"><input id="email" disabled={!auth || busy} type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} /></Field><Field id="password" label="Password"><input id="password" disabled={!auth || busy} type="password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} /></Field><button disabled={busy || !auth || auth.configured === false}>{busy ? "Signing in…" : "Sign in"}</button></form>}</div>;
 }
 
 export function JoinPage() {

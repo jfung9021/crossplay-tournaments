@@ -35,6 +35,9 @@ export const commandPayloads = {
   finish_tournament: z.object({ reason: z.string().trim().max(1000).optional() }).strict(),
   reopen_tournament: z.object({ reason: z.string().trim().min(1).max(1000) }).strict(),
   archive_tournament: z.object({}).strict(),
+  restore_tournament: z.object({}).strict(),
+  reset_tournament: z.object({ confirmationName: z.string().min(1).max(120) }).strict(),
+  delete_tournament: z.object({ confirmationName: z.string().min(1).max(120) }).strict(),
   issue_invite: z.object({ entrantId: uuid }).strict(),
 } as const;
 export type Command = keyof typeof commandPayloads;

@@ -18,6 +18,9 @@ export interface Tournament {
   entrantCount: number;
   currentRound: number;
   correctionsOnly?: boolean;
+  archivedFromStatus?: Exclude<TournamentStatus, "archived"> | null;
+  runGeneration?: number;
+  lifecycleAvailable?: boolean;
 }
 export interface Entrant {
   id: string;

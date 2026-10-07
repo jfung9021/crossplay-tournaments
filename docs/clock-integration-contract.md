@@ -4,6 +4,10 @@ Accepted implementation contract, 2026-09-30, with match entry revised 2026-10-0
 
 ## SQL boundary
 
+October 8 lifecycle extension: `clock_read` adds optional `tournamentStatus` and `runGeneration`; `canControl` is false outside active play. Archive revokes unfinished match access and advances epochs, retaining saved time and ended reports. Restore never automatically resumes a clock. Reset/delete clear clock, report, credential and starter records. Clock commands acquire the tournament lock before match/clock locks, recheck existence after waiting, reject archived writes and retire cached old-run replies.
+
+Authoritative 404 or archived/retired responses terminate local clock control and saving, release tab/wake locks and remove that match's local journal/controller data. Transient failures retain entries. Visible clock screens reconcile every ten seconds and on return/reconnect. Late responses cannot revive a terminal screen. A revoked table cookie falls back to an independently verified signed-in organizer for read-only review access; it never grants shared-device control.
+
 Runtime may execute `clock_version()`, `clock_read(actor jsonb, match_id uuid)`, and `clock_execute(actor jsonb, command text, payload jsonb, request_id uuid, expected_clock_version bigint default null)`. Existing private functions retain their interface. Actors are verified organizer `{userId}` or shared `{matchSessionHash}`; individual `{sessionHash}` may read their match but cannot use shared commands. Secrets are hashed before SQL.
 
 Snapshot:

@@ -136,9 +136,60 @@ details[open] > summary { margin-bottom: 15px; }
   .roster-content { flex-basis: 100%; }
   .match { padding: 16px; }
 }
-@media (max-width: 380px) {
+@media (max-width: 480px) {
   .container { padding-left: 16px; padding-right: 16px; }
   .form-grid { grid-template-columns: minmax(0, 1fr); }
   .score-entry .form-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .site-header nav { gap: 15px; }
+}
+
+/* Portrait is the primary tournament workflow. */
+button, .button { min-height: 44px; min-width: 44px; overflow-wrap: anywhere; }
+button.text { min-height: 44px; }
+input, select, textarea, .invite input { min-height: 44px; font-size: 16px; }
+button:not([data-side]):not(.secondary):not(.text):not(.danger), .actions button[type=submit] { min-height: 48px; }
+.wordmark, .site-header nav a, .tabs a, .back, .round-nav a, .tournament-row h2 a, .player-name a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+.player-name a { display: inline-block; padding-block: 10px; overflow-wrap: anywhere; max-width: 100%; }
+.tournament-row > div { min-width: 0; }
+.tournament-row h2, .section-heading, .rules-list dd, .history-meta { overflow-wrap: anywhere; }
+label:has(input[type=checkbox]) { display: flex; align-items: center; min-height: 44px; }
+details > summary { min-height: 44px; padding-block: 11px; }
+.site-header { height: 64px; }
+.container { padding-top: 16px; }
+.back { margin-bottom: 8px; }
+.page-heading { margin-bottom: 14px; gap: 12px; }
+.page-heading h1 { font-size: clamp(24px, 3.5vw, 32px); margin-bottom: 6px; }
+.tabs { margin-bottom: 18px; gap: 22px; flex-wrap: wrap; overflow: visible; }
+.tabs a { padding: 8px 1px; }
+.section-heading { margin-bottom: 12px; }
+.match-player { margin-top: 0; }
+.round-history { margin-top: 16px; }
+.add-players { max-width: 720px; }
+.add-players summary { color: var(--ink); font-size: 17px; font-weight: 600; }
+.settings-layout .form { max-width: 720px; }
+.danger-zone { max-width: 720px; }
+@media (max-width: 1099px) {
+  .main-and-aside { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .settings-layout > aside { max-width: 720px; }
+  .container, .site-header { padding-left: 24px; padding-right: 24px; }
+}
+@media (max-width: 600px) {
+  .site-header { height: 56px; }
+  .site-header nav { gap: 16px; }
+  .container { padding: 8px 16px 40px; }
+  .page-heading { flex-wrap: wrap; }
+  .page-heading .actions { align-self: center; }
+  .match-topline { margin-bottom: 6px; }
+  .match-bottom { margin-top: 8px; padding-top: 8px; }
+  .tabs { gap: 16px; }
+  .rules-list { grid-template-columns: 100px minmax(0, 1fr); }
+  .table-wrap table { table-layout: fixed; }
+  .table-wrap th:first-child { width: 16%; }
+  .table-wrap th:nth-child(2) { width: 36%; }
+  .table-wrap th:nth-child(3) { width: 21%; }
+  .table-wrap th:nth-child(4) { width: 27%; }
+}
+@media (max-width: 479px) {
+  .roster-content .inline-form { flex-wrap: wrap; }
+  .roster-content .inline-form input { flex: 1 0 100%; }
 }

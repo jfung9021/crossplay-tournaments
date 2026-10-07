@@ -96,6 +96,8 @@ try {
   if (clockMode) sql(database, readFileSync(clockMigration, "utf8"));
   const lifecycleMigration = resolve(sibling, "supabase/migrations/20261008010000_crossplay_lifecycle.sql");
   if (clockMode) sql(database, readFileSync(lifecycleMigration, "utf8"));
+  const turnTimeMigration = resolve(sibling, "supabase/migrations/20261008020000_crossplay_turn_time.sql");
+  if (clockMode) sql(database, readFileSync(turnTimeMigration, "utf8"));
   // Existing dedicated container's local-only role credential; no shared/hosted role is altered.
   sql(database, "alter role crossplay_runtime login password 'crossplay-runtime-local';");
   const account = async (label) => {
@@ -121,6 +123,7 @@ try {
     manifest.clockMigrationSha256 = sha(readFileSync(clockMigration));
     manifest.lifecycleVersion = sql(database, "select crossplay.lifecycle_version();");
     manifest.lifecycleMigrationSha256 = sha(readFileSync(lifecycleMigration));
+    manifest.turnTimeMigrationSha256 = sha(readFileSync(turnTimeMigration));
   }
   json("manifest.json", manifest);
   log(`Isolated run ${runId}; evidence ${evidence}`);

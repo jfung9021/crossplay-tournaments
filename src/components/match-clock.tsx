@@ -1,17 +1,34 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ClockJournal, acquireClockTabLock } from "@/client/clock-storage";
 import type { ClockJournalSnapshot } from "@/client/clock-storage";
 import { ClockApiError, clockError, matchClockApi, matchControllerId, clearMatchLocalState } from "@/client/match-clock-api";
 import type { MatchClockSnapshot } from "@/client/match-clock-api";
-import { deriveClock } from "@/domain/clock";
+import { currentTurnSeconds, deriveClock } from "@/domain/clock";
 import { formatDuration } from "@/domain/duration";
 import type { ClockEventKind, ClockSide } from "@/domain/clock-types";
 import { SharedMatchReport } from "@/components/shared-match-report";
 import { OrganizerMatchClock } from "@/components/organizer-match-clock";
 import styles from "./match-clock.module.css";
+
+function ClockDigits({ value }: { value: string }) {
+  const space = useRef<HTMLSpanElement>(null);
+  const digits = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const container = space.current!; const text = digits.current!;
+    const fit = () => {
+      const bounds = text.getBoundingClientRect();
+      const size = parseFloat(getComputedStyle(text).fontSize);
+      if (bounds.width && bounds.height) text.style.fontSize = `${Math.max(1, size * Math.min((container.clientWidth - 2) / bounds.width, (container.clientHeight - 2) / bounds.height))}px`;
+    };
+    fit();
+    const observer = new ResizeObserver(fit); observer.observe(container);
+    return () => observer.disconnect();
+  }, [value]);
+  return <span ref={space} className={styles.timerSpace} aria-hidden="true"><span ref={digits} className={styles.timer} data-clock-time>{value}</span></span>;
+}
 
 export function MatchClockPage({ matchId }: { matchId: string }) {
   const [snapshot, setSnapshot] = useState<MatchClockSnapshot | null>(null);
@@ -219,8 +236,16 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
   const panel = (index: number) => {
     const player = ordered[index]; const value = display[player.side - 1];
     const active = state.status === "running" && state.activeSide === player.side;
+    const turn = state.activeSide === player.side ? currentTurnSeconds(state, Math.floor(elapsedMs)) : 0;
     return <button type="button" className={`${styles.clockPanel} ${index === 0 ? styles.upper : ""} ${active ? styles.active : ""} ${value.isOvertime ? styles.overtime : ""}`} aria-label={`${player.name} clock${active ? ", tap to pass turn" : ""}`} aria-disabled={!canWrite || !active} onClick={event => { if (canWrite && active) act("switch", player.side, `click:${event.timeStamp}:${player.side}`); }} data-side={player.side} data-active={active}>
-      <span className={styles.panelContents}><span className={styles.name}>{player.name}</span><span className={styles.state}>{value.isOvertime ? active ? "Overtime · Running" : "Overtime" : active ? "Running" : state.status === "paused" ? "Paused" : ""}</span><span className={styles.timer} aria-hidden="true">{value.isOvertime ? "+" : ""}{formatDuration(value.displaySeconds)}</span><span className="sr-only">{formatDuration(value.displaySeconds)}{value.isOvertime ? " overtime" : " remaining"}</span><span className={styles.penalty}>{value.deduction > 0 ? `−${value.deduction} points` : ""}</span></span>
+      <span className={styles.panelContents}>
+        <span className={styles.name}>{player.name}</span>
+        <span className={styles.state}>{value.isOvertime ? active ? "Overtime · Running" : "Overtime" : active ? "Running" : state.status === "paused" ? "Paused" : ""}</span>
+        <ClockDigits value={`${value.isOvertime ? "+" : ""}${formatDuration(value.displaySeconds)}`} />
+        <span className="sr-only">{formatDuration(value.displaySeconds)}{value.isOvertime ? " overtime" : " remaining"}</span>
+        <span className={styles.penalty}>{value.deduction > 0 ? `−${value.deduction} points` : ""}</span>
+        <span className={styles.turn} data-turn-seconds={turn ?? undefined}>This turn {turn === null ? "—" : formatDuration(turn)}</span>
+      </span>
     </button>;
   };
   return <div data-match-screen className={styles.shell}>

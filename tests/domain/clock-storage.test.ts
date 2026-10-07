@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ClockJournal, type ClockStorage, type ClockTimeSource } from "../../src/client/clock-storage";
-import { applyClockEvent, createClockState, type ClockState } from "../../src/domain/clock";
+import { applyClockEvent, createClockState, currentTurnSeconds, type ClockState } from "../../src/domain/clock";
 
 class MemoryStorage implements ClockStorage {
   values = new Map<string, string>();
@@ -29,6 +29,46 @@ function accept(initial: ClockState, clock: ClockJournal) {
 }
 
 describe("durable clock journal", () => {
+  it("retains current-turn time through offline gestures, reload, pause and acknowledgement", () => {
+    const { clock, time, options, initial, offline } = setup();
+    clock.act("start"); time.advance(5000); clock.act("switch", 1);
+    const server = accept(initial, clock);
+    offline(); time.advance(3500); clock.act("pause");
+    time.advance(60_000); clock.act("resume"); time.advance(2500); time.monotonicMs = 0;
+    const restored = new ClockJournal({ ...options, state: server, contextId: "page-b", online: () => true, serverNowMs: time.wallMs });
+    const recovered = restored.getSnapshot();
+    expect(currentTurnSeconds(recovered.state, recovered.elapsedMs)).toBe(6);
+    const saved = accept(server, restored);
+    expect(saved.currentTurnMs).toBe(6000);
+    time.advance(1000); restored.act("switch", 2);
+    expect(restored.getSnapshot().state.currentTurnMs).toBe(0);
+  });
+
+  it("upgrades an old persisted journal without rejecting pending gestures", () => {
+    const { options, time } = setup();
+    const legacy = { ...options.state }; delete legacy.currentTurnMs;
+    const clock = new ClockJournal({ ...options, state: legacy });
+    clock.act("start"); time.advance(3000); clock.act("pause");
+    expect(currentTurnSeconds(clock.getSnapshot().state)).toBeNull();
+    const restored = new ClockJournal({ ...options, contextId: "page-b", serverNowMs: time.wallMs });
+    expect(restored.getSnapshot()).toMatchObject({ state: { currentTurnMs: 3000, usedMs: [3000, 0] }, controllerConflict: false });
+  });
+
+  it("accepts display metadata left stale by a client open during the database upgrade", () => {
+    const { clock, options, time, storage } = setup();
+    clock.act("start"); time.advance(3000); clock.act("pause");
+    const key = `crossplay.clock.${options.key}`;
+    const checkpoint = JSON.parse(storage.getItem(key)!);
+    // The previous app spreads unknown snapshot fields without updating them on gestures.
+    checkpoint.state.currentTurnMs = 0;
+    storage.setItem(key, JSON.stringify(checkpoint));
+    const restored = new ClockJournal({ ...options, contextId: "page-b", serverNowMs: time.wallMs });
+    expect(restored.getSnapshot()).toMatchObject({ state: { currentTurnMs: 3000, usedMs: [3000, 0] }, pendingCount: 2 });
+    checkpoint.state.usedMs[0] = 0;
+    storage.setItem(key, JSON.stringify(checkpoint));
+    expect(() => new ClockJournal(options)).toThrow("could not be recovered");
+  });
+
   it("persists exact offline gestures and end, with duplicate gesture and inactive taps ignored", () => {
     const { clock, time, initial, offline, storage } = setup();
     clock.act("start"); offline(); time.advance(1234);

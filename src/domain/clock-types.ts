@@ -13,6 +13,8 @@ export interface ClockState {
   status: ClockStatus;
   activeSide: ClockSide;
   usedMs: [number, number];
+  /** Display-only accepted time in the current turn; optional for pre-upgrade journals. */
+  currentTurnMs?: number;
   epoch: number;
   sequence: number;
   version: number;

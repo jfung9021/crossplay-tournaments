@@ -32,6 +32,57 @@ async function lifecycle(page: Page, id: string, action: string, name?: string) 
   await page.getByRole("button",{name:action,exact:true}).tap();
 }
 
+test("TIMER: fitted digits and durable current-turn duration", async ({page},info) => {
+  await login(page);
+  const id=await createSimpleTournament(page,`Turn timer ${info.project.name}`,"Alex Rowan\nMorgan Vale",1);
+  const current=await publishNext(page,id,1); const match=current.rounds[0].matches[0];
+  const time=new Date(); await page.clock.install({time}); await page.clock.pauseAt(new Date(time.getTime()+1000));
+  await openMatchFromCard(page,id,match.id);
+  const read=async()=>await (await page.request.get(`${baseURL}/api/matches/${match.id}/clock`)).json() as MatchClockSnapshot;
+  const ready=await read(); const side=ready.state!.activeSide;
+  const turn=(player: number)=>page.locator(`[data-side="${player}"] [data-turn-seconds]`);
+  const checkFit=async(label: string)=>{
+    await geometry(page,label,info.project.name);
+    for(const digits of await page.locator("[data-clock-time]").all()) {
+      const box=await digits.evaluate(el=>{
+        const text=el.getBoundingClientRect(), slot=el.parentElement!.getBoundingClientRect();
+        return {width:text.width,height:text.height,slotWidth:slot.width,slotHeight:slot.height,font:parseFloat(getComputedStyle(el).fontSize)};
+      });
+      expect(box.width).toBeLessThanOrEqual(box.slotWidth+1);
+      expect(box.height).toBeLessThanOrEqual(box.slotHeight+1);
+      expect(Math.max(box.width/box.slotWidth,box.height/box.slotHeight)).toBeGreaterThan(.95);
+      if(label==="timer-ready") expect(box.font).toBeGreaterThan(page.viewportSize()!.width*.24);
+    }
+  };
+  await checkFit("timer-ready");
+  await page.getByRole("button",{name:"Start Timer",exact:true}).tap();
+  await expect.poll(async()=>(await read()).state?.status).toBe("running");
+  await page.clock.fastForward(12_500);
+  await expect(turn(side)).toHaveText("This turn 0:12");
+  await page.getByRole("button",{name:"Pause",exact:true}).tap();
+  await expect.poll(async()=>(await read()).state?.currentTurnMs).toBe(12_500);
+  await page.clock.fastForward(60_000);
+  await expect(turn(side)).toHaveText("This turn 0:12");
+  await page.reload();
+  await expect(page.getByRole("button",{name:"Resume",exact:true})).toBeEnabled();
+  await expect(turn(side)).toHaveText("This turn 0:12");
+  await page.context().setOffline(true);
+  await page.getByRole("button",{name:"Resume",exact:true}).tap();
+  await page.clock.fastForward(3500);
+  await expect(turn(side)).toHaveText("This turn 0:16");
+  await page.locator(`[data-side="${side}"]`).tap();
+  await expect(turn(side)).toHaveText("This turn 0:00");
+  await page.clock.fastForward(1_220_000);
+  await expect(turn(3-side)).toHaveText("This turn 20:20");
+  await page.getByRole("button",{name:"Pause",exact:true}).tap();
+  await checkFit("timer-overtime");
+  await expect(page.locator(`[data-side="${3-side}"] [data-clock-time]`)).toHaveText("+0:20");
+  await page.context().setOffline(false);
+  await expect.poll(async()=>(await read()).state?.currentTurnMs).toBe(1_220_000);
+  await page.reload();
+  await expect(turn(3-side)).toHaveText("This turn 20:20");
+});
+
 test("PORTRAIT: touch setup, match, scores and lifecycle on phone and tablet", async ({page,browser},info) => {
   await login(page);
   const name=`Portrait ${info.project.name}`;

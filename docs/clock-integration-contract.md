@@ -71,3 +71,13 @@ All duration displays and inputs use m:ss. API fields remain integer seconds or 
 The tournament view uses existing authenticated clock reads for state-aware entry labels. It refreshes visible registered matches with the tournament lifecycle and rejects responses from older refresh generations. No clock data is added to public snapshots or pairing inputs. Device-local table preferences store a physical table number under the tournament ID; historical rounds, management overviews and standings remain unfiltered.
 
 Manual overrides and time/starter corrections are grouped in Organizer actions. External-timer matches expose the existing organizer result form as the primary reporting action. Optional individual invitations move into Individual player access without changing permissions or confirmation rules. Final standings precede match cards on completed and archived overviews.
+
+## Managed table entry extension
+
+With the optional tables capability, clock reads add `tablesAvailable`, `tablesEnabled`, `operationsVersion`, `physicalTableNumber`, `queueOrder`, and `tableReady`. Managed `/open` additionally requires `deviceId` and `expectedOperationsVersion`. Optional `mode:"replace"|"release"` requires `expectedClockVersion`, `expectedEpoch` and a reason; omitted mode means ordinary open. Legacy tournaments retain the original entry flow.
+
+The server derives hashed credentials from the verified organizer and stable request ID, then invokes `table_enter_match(actor,payload,requestId)` in one database transaction. A replacement revokes the previous session/controller, reserves a new shared match session and updates device duty together. Its receipt recovers a lost cookie response; a cookie changing after the first response is not part of the operation fingerprint. A device busy with another unfinished controlled match cannot move or replace. Ordinary opening never steals existing control.
+
+Managed direct `claim_clock` and start/resume/switch events validate queue availability. Legacy `takeover_clock` and `issue_match_link` cannot bypass managed duty; replacement uses the private composition inside `table_enter_match`. Reviewed correction retains exact unedited milliseconds and invalidates stale journals. Pending score reports require fresh entry and both acknowledgements after time review. Official results remain unchanged.
+
+The shared result screen returns to My table on finalization, preserving a result receipt and fetching later pairings through the tournament refresh lifecycle. Timer navigation and pending reports can return to My table without changing assignment. No handoff, refresh or next-pairing arrival automatically starts a clock.

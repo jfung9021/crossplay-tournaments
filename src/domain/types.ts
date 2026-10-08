@@ -97,6 +97,17 @@ export interface TournamentSnapshot {
   standings: Standing[];
   viewer: { isOrganizer: boolean; entrantId: string | null };
   audit?: AuditEvent[];
+  tables?: TableOperations;
+}
+export interface MatchLocation { matchId: string; tableNumber: number; originalTableNumber: number; queueOrder: number; ready: boolean }
+export interface TableDevice { deviceId: string; label: string; tableNumber: number | null; generation: number }
+export interface TableOperations {
+  available: boolean;
+  enabled: boolean;
+  version: number;
+  tables: { number: number; available: boolean }[];
+  locations: MatchLocation[];
+  devices?: TableDevice[];
 }
 export interface Pairing { player1Id: string; player2Id: string | null }
 export interface PairingInput {

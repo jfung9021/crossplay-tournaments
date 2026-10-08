@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { rememberTableMatch } from "@/client/table-device";
 import { ClockJournal, acquireClockTabLock } from "@/client/clock-storage";
 import type { ClockJournalSnapshot } from "@/client/clock-storage";
 import { ClockApiError, clockError, matchClockApi, matchControllerId, clearMatchLocalState } from "@/client/match-clock-api";
@@ -10,6 +12,8 @@ import { currentTurnSeconds, deriveClock } from "@/domain/clock";
 import { formatDuration } from "@/domain/duration";
 import type { ClockEventKind, ClockSide } from "@/domain/clock-types";
 import { SharedMatchReport } from "@/components/shared-match-report";
+import { readPreference, writePreference } from "@/client/device-preferences";
+import { clearReportDrafts } from "@/client/report-drafts";
 import { OrganizerMatchClock } from "@/components/organizer-match-clock";
 import styles from "./match-clock.module.css";
 
@@ -31,6 +35,7 @@ function ClockDigits({ value }: { value: string }) {
 }
 
 export function MatchClockPage({ matchId }: { matchId: string }) {
+  const router = useRouter();
   const [snapshot, setSnapshot] = useState<MatchClockSnapshot | null>(null);
   const snapshotRef = useRef<MatchClockSnapshot | null>(null);
   const journal = useRef<ClockJournal | null>(null);
@@ -49,6 +54,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
   const [wakeUnavailable, setWakeUnavailable] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const [faceToFace, setFaceToFace] = useState(false);
+  const [tabBlocked, setTabBlocked] = useState(false);
   const [local, setLocal] = useState<ClockJournalSnapshot | null>(null);
   const [nowMs, setNowMs] = useState(0);
   const refreshClock = useCallback(() => { setLocal(journal.current?.getSnapshot() ?? null); setNowMs(Date.now()); }, []);
@@ -58,6 +64,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
     journal.current?.setControllerConflict(); journal.current = null; controller.current = null;
     releaseLock.current?.(); releaseLock.current = null;
     clearMatchLocalState(matchId);
+    if (snapshotRef.current) clearReportDrafts(snapshotRef.current.tournamentId);
     if (mounted.current) { setReadonly(true); setSaveFailed(false); setLocal(null); setUnavailable(message); setLoading(false); }
   }, [matchId]);
 
@@ -128,7 +135,8 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
         if (!next.canControl || next.isOrganizer || next.matchStatus === "final") { setReadonly(true); return; }
         const id = matchControllerId(matchId); controller.current = id;
         if (!releaseLock.current) releaseLock.current = await acquireClockTabLock(matchId, () => { journal.current?.setControllerConflict(); setReadonly(true); });
-        if (!releaseLock.current) { setReadonly(true); setError("This clock is open in another tab, or this browser cannot safely control it. Close the other tab and try again."); return; }
+        if (!releaseLock.current) { setTabBlocked(true); setReadonly(true); setError("This clock is open in another tab, or this browser cannot safely control it. Close the other tab and try again."); return; }
+        setTabBlocked(false);
         next = await matchClockApi<MatchClockSnapshot>(matchId, { command: "claim_clock", payload: { controllerId: id } });
         if (!acceptSnapshot(next)) return;
         if (!next.state) throw new Error("The organizer has not enabled a clock for this match.");
@@ -182,6 +190,14 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
 
   const state = local?.state ?? snapshot?.state;
   const status = state?.status;
+  const placementKey = snapshot ? `placement.${snapshot.tournamentId}.${snapshot.runGeneration ?? 0}.${matchId}.${snapshot.players.map(player => player.id).join(".")}` : null;
+  const tournamentId = snapshot?.tournamentId;
+  const runGeneration = snapshot?.runGeneration ?? 0;
+  useEffect(() => {
+    if (!placementKey) return;
+    void Promise.resolve().then(() => { setFlipped(readPreference(placementKey) === "true"); setFaceToFace(readPreference("face-to-face") === "true"); });
+  }, [placementKey]);
+  useEffect(() => { if (tournamentId) clearReportDrafts(tournamentId, runGeneration); }, [tournamentId, runGeneration]);
   useEffect(() => {
     if (status !== "running" || readonly) return;
     let sentinel: WakeLockSentinel | null = null;
@@ -218,6 +234,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
       const next = await matchClockApi<MatchClockSnapshot>(matchId, { command, payload: { ...payload, ...(command === "submit_shared_report" ? { clockVersion: current.state.version } : {}) } });
       if (next.state) journal.current?.acknowledge(next.state, next.serverNowMs);
       acceptSnapshot(next);
+      if (next.matchStatus === "final" && next.tablesEnabled) { rememberTableMatch(next.tournamentId, matchId); router.replace(`/t/${next.tournamentId}/table`); }
     } catch (cause) { if (cause instanceof ClockApiError && (cause.status === 404 || cause.code === "TOURNAMENT_ARCHIVED" || cause.code === "STALE_ACTION")) stop(clockError(cause)); else setError(clockError(cause)); throw cause; }
     finally { setBusy(false); }
   }
@@ -260,9 +277,11 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
         {local?.recoveryPending && <p role="status" className={styles.status}>Reconnect to verify the clock.</p>}
         {error && <p role="alert" className={styles.error}>{error}</p>}
         {local?.controllerConflict && <button className="secondary" onClick={() => void initialize()}>Reload clock</button>}
+        {tabBlocked && <button className="secondary" onClick={() => void initialize()}>Try controlling on this tab</button>}
         <div className={styles.actions}>{isReady ? <button disabled={!canWrite || busy} onClick={() => act("start", state.activeSide)}>Start Timer</button> : <><button className="secondary" disabled={!canWrite || busy} onClick={() => act(state.status === "paused" ? "resume" : "pause")}>{state.status === "paused" ? "Resume" : "Pause"}</button><button className={display.some(value => value.isOvertime) ? styles.endHighlight : ""} disabled={!canWrite || busy} onClick={() => act("end")}>End game</button></>}</div>
-        <Link href={`/t/${snapshot.tournamentId}`} className={styles.navigation}>Tournament</Link>
-        {stopped && <div className={styles.tools}><button onClick={() => setFlipped(value => !value)}>Flip sides</button><button className={styles.facing} aria-pressed={faceToFace} onClick={() => setFaceToFace(value => !value)}>Face to face {faceToFace ? "on" : "off"}</button></div>}
+        <Link href={`/t/${snapshot.tournamentId}${snapshot.tablesEnabled ? "/table" : ""}`} className={styles.navigation}>{snapshot.tablesEnabled ? "My table" : "Tournament"}</Link>
+        {snapshot.tablesEnabled && state.status === "paused" && !waiting && <p className={styles.status}>Paused and saved · Ready for handoff from My table</p>}
+        {stopped && <div className={styles.tools}><button onClick={() => { setFlipped(!flipped); if (placementKey) writePreference(placementKey, String(!flipped)); }}>Flip sides</button><button className={styles.facing} aria-pressed={faceToFace} onClick={() => { setFaceToFace(!faceToFace); writePreference("face-to-face", String(!faceToFace)); }}>Face to face {faceToFace ? "on" : "off"}</button></div>}
         {saveFailed && <p className={styles.status} role="status">Waiting to save</p>}
         {wakeUnavailable && state.status === "running" && <p className={styles.status}>Keep this screen awake</p>}
       </div>

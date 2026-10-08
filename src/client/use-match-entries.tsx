@@ -61,3 +61,14 @@ export function useMatchEntry(matchId: string, enabled = true): MatchEntryRead &
   useEffect(() => enabled ? register?.(matchId) : undefined, [enabled, matchId, register]);
   return { ...(enabled ? context?.entries[matchId] ?? emptyEntry : emptyEntry), retry: context?.retry ?? (() => {}) };
 }
+
+export function useMatchEntries(matchIds: string[]) {
+  const context = useContext(EntriesContext);
+  const register = context?.register;
+  const idsKey = JSON.stringify([...new Set(matchIds)].sort());
+  useEffect(() => {
+    const removers = (JSON.parse(idsKey) as string[]).map(id => register?.(id));
+    return () => removers.forEach(remove => remove?.());
+  }, [idsKey, register]);
+  return { entries: context?.entries ?? {}, retry: context?.retry ?? (() => {}) };
+}

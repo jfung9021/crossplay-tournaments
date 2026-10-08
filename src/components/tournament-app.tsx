@@ -12,14 +12,20 @@ import { StartMatch } from "@/components/start-match";
 import { DurationInput } from "@/components/duration-input";
 import { formatDuration, parseDuration, durationValidationMessage } from "@/domain/duration";
 import { IndividualPlayerAccess } from "@/components/individual-player-access";
-import { MatchEntriesProvider } from "@/client/use-match-entries";
+import { MatchEntriesProvider, useMatchEntry, useMatchEntries } from "@/client/use-match-entries";
 import { TableSelector, useTableSelection } from "@/components/table-selector";
 import { matchClockApi, type MatchClockSnapshot } from "@/client/match-clock-api";
 import { TournamentActions } from "@/components/tournament-actions";
 import { clearMatchLocalState } from "@/client/match-clock-api";
+import { clearReportDrafts } from "@/client/report-drafts";
+import { useReportDraft } from "@/components/report-draft";
+import { TableHome, TablesPanel } from "@/components/table-workflow";
+import { matchLocation, physicalTable } from "@/domain/tables";
+import { localDestination, readPreference } from "@/client/device-preferences";
+import { rememberTableMatch, useTableDevice } from "@/client/table-device";
 
 type AuthState = { authenticated: boolean; email?: string; isOrganizer: boolean; configured: boolean };
-type View = "matches" | "players" | "settings" | "rules" | "round" | "history";
+type View = "matches" | "players" | "settings" | "rules" | "round" | "history" | "table" | "tables";
 type Command = (command: string, payload?: Record<string, unknown>) => Promise<Record<string, unknown>>;
 const pendingRequests = new Map<string, string>();
 
@@ -77,15 +83,16 @@ function useSnapshot(key: string) {
   const sequence = useRef(0);
   const latestVersion = useRef(-1);
   const unavailable = useRef(false);
+  const tournamentId = useRef<string | null>(null);
   const cancelReads = useCallback(() => { sequence.current++; }, []);
-  const invalidate = useCallback(() => { unavailable.current = true; sequence.current++; setSnapshot(null); }, []);
+  const invalidate = useCallback(() => { unavailable.current = true; sequence.current++; if (tournamentId.current) clearReportDrafts(tournamentId.current); setSnapshot(null); }, []);
   const refresh = useCallback(async () => {
     if (unavailable.current) return null;
     const request = ++sequence.current;
     try {
       const data = await api<TournamentSnapshot>(`/api/tournaments/${encodeURIComponent(key)}`);
       if (request !== sequence.current || unavailable.current || data.tournament.version < latestVersion.current) return null;
-      latestVersion.current = data.tournament.version; setSnapshot(data); setError(null); return data;
+      latestVersion.current = data.tournament.version; tournamentId.current = data.tournament.id; setSnapshot(data); setError(null); return data;
     } catch (cause) {
       if (request !== sequence.current || unavailable.current) return null;
       if (cause instanceof ApiError && [403, 404].includes(cause.status)) invalidate();
@@ -123,7 +130,7 @@ export function TournamentListPage({ admin = false }: { admin?: boolean }) {
     <div className="page-heading"><div><p className="eyebrow">Crossplay · Swiss</p><h1>{admin ? "Your tournaments" : "Tournaments"}</h1><p className="muted">{admin ? "Players, rounds, and results." : "Pairings, results, and standings."}</p></div>{admin && <Link className="button" href="/admin/tournaments/new">New tournament</Link>}</div>
     <ErrorNotice message={error} />
     {error && <button className="secondary" onClick={() => void load()}>Try again</button>}
-    {admin && tournaments && <div className="section-heading"><label><input type="checkbox" checked={archived} onChange={event => setArchived(event.target.checked)} />Show archived</label><button className="text" onClick={async () => { try { await api("/api/auth", "DELETE"); router.push("/"); router.refresh(); } catch (cause) { setError(errorMessage(cause)); } }}>Sign out</button></div>}
+    {admin && tournaments && <div className="section-heading"><label><input type="checkbox" checked={archived} onChange={event => setArchived(event.target.checked)} />Show archived</label><button className="text" onClick={async () => { try { await api("/api/auth", "DELETE"); clearReportDrafts(); router.push("/"); router.refresh(); } catch (cause) { setError(errorMessage(cause)); } }}>Sign out</button></div>}
     {!tournaments && !error && <Loading />}
     {visible?.length === 0 && <div className="empty"><h2>{admin ? "Create your first tournament" : "No tournaments yet"}</h2><p>{admin ? "Add your players and publish the first round." : "Published tournaments will appear here."}</p>{admin && <Link className="button" href="/admin/tournaments/new">New tournament</Link>}</div>}
     <ul className="list">{visible?.map(tournament => <li className="tournament-row" key={tournament.id}><div><h2><Link href={admin ? `/admin/tournaments/${tournament.id}` : `/t/${tournament.slug}`}>{tournament.name}</Link></h2><p>{[dateLabel(tournament.date), `${tournament.entrantCount} players`, tournament.currentRound ? `Round ${tournament.currentRound}${tournament.config.roundCount ? ` of ${tournament.config.roundCount}` : ""}` : null].filter(Boolean).join(" · ")}</p></div><Badge status={tournament.status} /></li>)}</ul>
@@ -182,12 +189,17 @@ export function NewTournamentPage() {
 export function TournamentPage({ tournamentKey, admin = false, view = "matches", roundNumber, entrantId }: { tournamentKey: string; admin?: boolean; view?: View; roundNumber?: number; entrantId?: string }) {
   const router = useRouter();
   const { snapshot, error, loading, refresh, invalidate } = useSnapshot(tournamentKey);
+  const device = useTableDevice();
+  useEffect(() => {
+    if (!admin && view === "matches" && snapshot?.viewer.isOrganizer && snapshot.tables?.enabled && ["draft", "active"].includes(snapshot.tournament.status) && !new URLSearchParams(window.location.search).has("browse") && !window.location.hash && snapshot.tables.devices?.some(duty => duty.deviceId === device.id && duty.tableNumber && duty.generation === (snapshot.tournament.runGeneration ?? 0))) router.replace(`/t/${snapshot.tournament.slug}/table`);
+  }, [admin, view, snapshot, device.id, router]);
   const command: Command = useCallback(async (name, payload = {}) => {
     if (!snapshot) throw new Error("Tournament is still loading.");
     try {
       const result = await api<Record<string, unknown>>(`/api/tournaments/${snapshot.tournament.id}/commands`, "POST", { command: name, payload, expectedVersion: snapshot.tournament.version });
       if (name === "reset_tournament" || name === "delete_tournament") {
         snapshot.rounds.flatMap(round => round.matches).forEach(match => clearMatchLocalState(match.id));
+        clearReportDrafts(snapshot.tournament.id);
         for (const key of pendingRequests.keys()) if (key.startsWith(`/api/tournaments/${snapshot.tournament.id}/`)) pendingRequests.delete(key);
       }
       if (name === "delete_tournament") { invalidate(); router.replace("/admin"); return result; }
@@ -196,22 +208,29 @@ export function TournamentPage({ tournamentKey, admin = false, view = "matches",
       return result;
     } catch (cause) { if (cause instanceof ApiError && [403, 404, 409].includes(cause.status)) await refresh(); throw cause; }
   }, [snapshot, refresh, invalidate, router]);
+  const snapshotId = snapshot?.tournament.id;
+  const snapshotGeneration = snapshot?.tournament.runGeneration ?? 0;
+  useEffect(() => { if (snapshotId) clearReportDrafts(snapshotId, snapshotGeneration); }, [snapshotId, snapshotGeneration]);
   if (loading) return <Loading />;
   if (!snapshot) return <><ErrorNotice message={error ?? "Tournament not found."} /><div className="actions"><button className="secondary" onClick={() => void refresh()}>Try again</button><Link href={admin ? "/admin" : "/"}>Tournaments</Link></div></>;
-  if (admin && !snapshot.viewer.isOrganizer) return <div className="narrow"><h1>Organizer sign in</h1><p className="muted">An organizer account is required to manage this tournament.</p><Link className="button" href="/login">Sign in</Link></div>;
+  if (admin && !snapshot.viewer.isOrganizer) return <div className="narrow"><h1>Organizer sign in</h1><p className="muted">An organizer account is required to manage this tournament.</p><Link className="button" href={`/login?next=${encodeURIComponent(`/admin/tournaments/${snapshot.tournament.id}${view === "tables" ? "/tables" : ""}`)}`}>Sign in</Link></div>;
   const tournament = snapshot.tournament;
   const base = admin ? `/admin/tournaments/${tournament.id}` : `/t/${tournament.slug}`;
   return <MatchEntriesProvider key={`${tournament.id}:${tournament.runGeneration ?? 0}:${tournament.status}`} refreshKey={snapshot}>
     <Link className="back" href={admin ? "/admin" : "/"}>← {admin ? "Your tournaments" : "Tournaments"}</Link>
     <div className="page-heading"><div><p className="eyebrow">{["Swiss", dateLabel(tournament.date), `${tournament.entrantCount} players`].filter(Boolean).join(" · ")}</p><h1>{tournament.name}</h1><Badge status={tournament.status} /></div><div className="actions">{admin ? <Link className="button secondary" href={`/t/${tournament.slug}`}>Public page</Link> : snapshot.viewer.isOrganizer && <Link className="button secondary" href={`/admin/tournaments/${tournament.id}`}>Manage</Link>}</div></div>
-    <nav className="tabs" aria-label="Tournament navigation"><Link href={base} aria-current={view === "matches" ? "page" : undefined}>{admin ? "Rounds & results" : "Tournament"}</Link>{admin ? <><Link href={`${base}/players`} aria-current={view === "players" ? "page" : undefined}>Players</Link><Link href={`${base}/settings`} aria-current={view === "settings" ? "page" : undefined}>Settings</Link></> : <><Link href={`${base}#standings`}>Standings</Link><Link href={`${base}/rules`} aria-current={view === "rules" ? "page" : undefined}>Rules</Link></>}</nav>
+    {view !== "table" && <nav className="tabs" aria-label="Tournament navigation"><Link href={base} aria-current={view === "matches" ? "page" : undefined}>{admin ? "Rounds & results" : "Tournament"}</Link>{admin ? <><Link href={`${base}/players`} aria-current={view === "players" ? "page" : undefined}>Players</Link><Link href={`${base}/settings`} aria-current={view === "settings" ? "page" : undefined}>Settings</Link></> : <><Link href={`${base}#standings`}>Standings</Link><Link href={`${base}/rules`} aria-current={view === "rules" ? "page" : undefined}>Rules</Link></>}</nav>}
     <ErrorNotice message={error} />
+    {error && snapshot && <p role="status" className="notice">Showing the last saved view. <button className="text" onClick={() => void refresh()}>Try refresh again</button></p>}
+    {snapshot.tables?.available && <nav className="table-nav" aria-label="Table workflow"><Link href={`/t/${tournament.slug}/table`} aria-current={view === "table" ? "page" : undefined}>My table</Link><Link href={`/t/${tournament.slug}?browse=1`}>Browse tables</Link><Link href={`/t/${tournament.slug}?browse=1#standings`}>Standings</Link>{snapshot.viewer.isOrganizer && <Link href={`/admin/tournaments/${tournament.id}/tables`} aria-current={view === "tables" ? "page" : undefined}>Manage tables</Link>}</nav>}
     {tournament.status === "archived" && <p className="notice">Archived · Read-only{tournament.archivedFromStatus === "active" ? ". Play was not completed." : ""}</p>}
     {view === "players" && <RosterPanel snapshot={snapshot} command={command} />}
     {view === "settings" && <SettingsPanel snapshot={snapshot} command={command} />}
     {view === "rules" && <RulesPanel tournament={tournament} />}
     {view === "history" && <PlayerHistory snapshot={snapshot} entrantId={entrantId ?? ""} />}
     {view === "round" && <RoundPanel snapshot={snapshot} roundNumber={roundNumber} command={command} />}
+    {view === "tables" && snapshot.viewer.isOrganizer && <TablesPanel snapshot={snapshot} refresh={refresh} />}
+    {view === "table" && <TableHome snapshot={snapshot} refresh={refresh} renderMatch={match => <MatchCard key={match.id} match={match} snapshot={snapshot} command={command} admin tableMode />} />}
     {view === "matches" && (admin ? <OrganizerPanel snapshot={snapshot} command={command} /> : <PublicPanel snapshot={snapshot} command={command} />)}
   </MatchEntriesProvider>;
 }
@@ -233,11 +252,16 @@ function RosterPanel({ snapshot, command }: { snapshot: TournamentSnapshot; comm
   return <div className="stack">
     {tournament.status === "draft" && (tournament.runGeneration ?? 0) > 0 && <p role="status" className="notice success">Tournament reset. Edit players and settings, then preview Round 1.</p>}
     {tournament.status === "draft" && <details className="panel add-players" open={addingOpen} onToggle={event => setAddingOpen(event.currentTarget.open)}><summary>Add players</summary><form className="compact-stack" onSubmit={add}><Field id="bulk-names" label="Player names" note="One player per line. Up to 256 players."><textarea id="bulk-names" rows={9} placeholder={"Alex\nJamie\nMorgan"} value={names} onChange={event => { setNames(event.target.value); setSuccess(null); }} /></Field><div aria-live="polite"><p className="form-note">{parsed.names.length} {parsed.names.length === 1 ? "player" : "players"} to add</p>{parsed.errors.length > 0 && <div className="notice error">{parsed.errors.map((issue, index) => <div key={index}>Line {issue.line}: {issue.message}</div>)}</div>}{entrants.length + parsed.names.length > 256 && <div className="notice error">A tournament can have up to 256 players.</div>}</div><ErrorNotice message={error} />{success && <p role="status" className="notice success">{success}</p>}<button disabled={busy || !parsed.names.length || parsed.errors.length > 0 || entrants.length + parsed.names.length > 256}>{busy ? "Adding…" : "Add players"}</button></form></details>}
-    <section><div className="section-heading"><h2>Players <span className="muted">{entrants.length}</span></h2><span className="muted">{entrants.filter(entrant => entrant.active).length} active</span></div>{entrants.length === 0 ? <div className="empty"><p>No players added.</p></div> : <div>{entrants.map(entrant => <RosterRow key={entrant.id} entrant={entrant} tournament={tournament} command={command} />)}</div>}<IndividualPlayerAccess entrants={entrants} tournament={tournament} command={command} /></section>
+    {tournament.status === "draft" && entrants.filter(entrant => entrant.active).length >= 2 && <Link className="button" href={`/admin/tournaments/${tournament.id}`}>Preview round 1</Link>}
+    <section><div className="section-heading"><h2>Players <span className="muted">{entrants.length}</span></h2><span className="muted">{entrants.filter(entrant => entrant.active).length} active</span></div>{entrants.length === 0 ? <div className="empty"><p>No players added.</p></div> : <div>{entrants.map(entrant => <RosterRow key={entrant.id} entrant={entrant} tournament={tournament} command={command} snapshot={snapshot} />)}</div>}<IndividualPlayerAccess entrants={entrants} tournament={tournament} command={command} /></section>
+    {tournament.status === "draft" && entrants.filter(entrant => entrant.active).length >= 2 && <Link className="button" href={`/admin/tournaments/${tournament.id}`}>Preview round 1</Link>}
   </div>;
 }
 
-function RosterRow({ entrant, tournament, command }: { entrant: Entrant; tournament: Tournament; command: Command }) {
+function RosterRow({ entrant, tournament, command, snapshot }: { entrant: Entrant; tournament: Tournament; command: Command; snapshot: TournamentSnapshot }) {
+  const outstanding = snapshot.rounds.filter(round => round.status !== "draft").flatMap(round => round.matches).find(match => match.status !== "final" && (match.player1Id === entrant.id || match.player2Id === entrant.id));
+  const standing = snapshot.standings.find(row => row.entrantId === entrant.id);
+  const [withdrew, setWithdrew] = useState(false);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(entrant.name);
   const [busy, setBusy] = useState(false);
@@ -245,14 +269,17 @@ function RosterRow({ entrant, tournament, command }: { entrant: Entrant; tournam
   const writable = tournament.status === "draft" || tournament.status === "active";
   async function run(action: string, payload: Record<string, unknown> = {}) {
     setBusy(true); setError(null);
-    try { await command(action, { entrantId: entrant.id, ...payload }); if (action === "update_entrant") setEditing(false); }
+    try { await command(action, { entrantId: entrant.id, ...payload }); if (action === "update_entrant") setEditing(false); if (action === "withdraw_entrant") setWithdrew(true); }
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
   return <div className="roster-row"><div className="roster-content">
     {editing ? <form className="inline-form" onSubmit={event => { event.preventDefault(); void run("update_entrant", { name }); }}><label className="sr-only" htmlFor={`name-${entrant.id}`}>Player name</label><input id={`name-${entrant.id}`} autoFocus required maxLength={80} value={name} onChange={event => setName(event.target.value)} /><button disabled={busy}>Save</button><button type="button" className="secondary" onClick={() => setEditing(false)}>Cancel</button></form> : <span className="player-name">{entrant.name} {!entrant.active && <span className="badge">Withdrawn</span>}</span>}
     <ErrorNotice message={error} />
-  </div>{!editing && writable && <div className="roster-actions"><button className="text" disabled={busy} onClick={() => { setName(entrant.name); setEditing(true); }}>Rename</button>{tournament.status === "draft" ? <button className="text" disabled={busy} onClick={() => void run("remove_entrant")}>Remove</button> : entrant.active && <button className="text" disabled={busy} onClick={() => void run("withdraw_entrant")}>Withdraw</button>}</div>}</div>;
+    {!entrant.active && <p className="form-note">Excluded from future rounds. {standing?.matchPoints ?? 0} points retained; results and final ranking remain.</p>}
+    {!entrant.active && outstanding && <p className="notice">The published match still needs a result. <Link href={`/admin/tournaments/${tournament.id}#match-${outstanding.id}`}>Resolve Table {physicalTable(snapshot, outstanding)}</Link></p>}
+    {withdrew && <p role="status" className="form-note">Player withdrawn. Any unpublished preview was discarded. <Link href={`/admin/tournaments/${tournament.id}`}>Review rounds</Link></p>}
+  </div>{!editing && writable && <div className="roster-actions"><button className="text" disabled={busy} onClick={() => { setName(entrant.name); setEditing(true); }}>Rename</button>{tournament.status === "draft" ? <button className="text" disabled={busy} onClick={() => void run("remove_entrant")}>Remove</button> : entrant.active && <button className="text" disabled={busy} onClick={() => void run("withdraw_entrant")}>Remove from future rounds</button>}</div>}</div>;
 }
 
 function SettingsPanel({ snapshot, command }: { snapshot: TournamentSnapshot; command: Command }) {
@@ -268,7 +295,7 @@ function SettingsPanel({ snapshot, command }: { snapshot: TournamentSnapshot; co
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
-  return <><div className="main-and-aside settings-layout"><section><h2>Settings</h2>{readOnly ? <RulesPanel tournament={tournament} /> : <form className="form" onSubmit={save}><SettingsFields values={values} setValues={next => { setValues(next); setSaved(false); }} locked={tournament.status !== "draft"} playerCount={snapshot.entrants.filter(entrant => entrant.active).length} /><ErrorNotice message={error} />{saved && <p role="status" className="notice success">Settings saved.</p>}<div><button disabled={busy}>{busy ? "Saving…" : "Save settings"}</button></div></form>}</section><aside className="panel"><h2>Run another tournament</h2><p className="muted">Create a draft with these rules.</p><Link className="button secondary" href={`/admin/tournaments/new?copy=${tournament.id}`}>Copy settings</Link></aside></div><TournamentActions tournament={tournament} roundCount={snapshot.rounds.length} matchCount={snapshot.rounds.reduce((count, round) => count + round.matches.length, 0)} command={command} /></>;
+  return <><div className="main-and-aside settings-layout"><section><h2>Settings</h2>{readOnly ? <RulesPanel tournament={tournament} /> : <form className="form" onSubmit={save}><SettingsFields values={values} setValues={next => { setValues(next); setSaved(false); }} locked={tournament.status !== "draft"} playerCount={snapshot.entrants.filter(entrant => entrant.active).length} /><ErrorNotice message={error} />{saved && <p role="status" className="notice success">Settings saved. {tournament.status === "draft" && <Link href={`/admin/tournaments/${tournament.id}${snapshot.entrants.length ? "" : "/players"}`}>{snapshot.entrants.length ? "Review round 1" : "Add players"}</Link>}</p>}<div><button disabled={busy}>{busy ? "Saving…" : "Save settings"}</button></div></form>}</section><aside className="panel"><h2>Run another tournament</h2><p className="muted">Create a draft with these rules.</p><Link className="button secondary" href={`/admin/tournaments/new?copy=${tournament.id}`}>Copy settings</Link></aside></div><TournamentActions tournament={tournament} roundCount={snapshot.rounds.length} matchCount={snapshot.rounds.reduce((count, round) => count + round.matches.length, 0)} command={command} /></>;
 }
 
 function RulesPanel({ tournament }: { tournament: Tournament }) {
@@ -288,7 +315,7 @@ function RulesPanel({ tournament }: { tournament: Tournament }) {
 }
 
 function StandingsPanel({ snapshot }: { snapshot: TournamentSnapshot }) {
-  return <section id="standings"><div className="section-heading"><h2>{isComplete(snapshot.tournament) ? "Final standings" : snapshot.tournament.status === "archived" ? "Standings at archive" : "Standings"}</h2><span className="muted" style={{ fontSize: 12 }}>Confirmed results</span></div>{snapshot.standings.length === 0 ? <p className="muted">Standings will appear when players are added.</p> : <div className="table-wrap"><table><thead><tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col" className="number">Points</th><th scope="col" className="number">Difference</th></tr></thead><tbody>{snapshot.standings.map(standing => <tr key={standing.entrantId} className={standing.entrantId === snapshot.viewer.entrantId ? "my-row" : undefined}><td>{standing.rank}</td><td className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${standing.entrantId}`}>{standing.name}</Link>{standing.entrantId === snapshot.viewer.entrantId && <small> · You</small>}{!standing.active && <small> · Withdrawn</small>}</td><td className="number">{standing.matchPoints}</td><td className="number">{signed(standing.difference)}</td></tr>)}</tbody></table></div>}</section>;
+  return <section id="standings"><div className="section-heading"><h2>{isComplete(snapshot.tournament) ? "Final standings" : snapshot.tournament.status === "archived" ? "Standings at archive" : "Standings"}</h2><span className="muted" style={{ fontSize: 12 }}>Confirmed results</span></div>{snapshot.standings.length === 0 ? <p className="muted">Standings will appear when players are added.</p> : <div className="table-wrap"><table><thead><tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col" className="number">Points</th><th scope="col" className="number">Difference</th></tr></thead><tbody>{snapshot.standings.map(standing => <tr key={standing.entrantId} className={standing.entrantId === snapshot.viewer.entrantId ? "my-row" : undefined}><td>{standing.rank}</td><td className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${standing.entrantId}`}>{standing.name}</Link><small style={{ display: "block" }}>{standing.wins} wins · {standing.draws} draws · {standing.losses} losses</small>{standing.entrantId === snapshot.viewer.entrantId && <small> · You</small>}{!standing.active && <small> · Withdrawn</small>}</td><td className="number">{standing.matchPoints}</td><td className="number">{signed(standing.difference)}</td></tr>)}</tbody></table></div>}</section>;
 }
 
 function RoundLinks({ snapshot, selected }: { snapshot: TournamentSnapshot; selected?: number }) {
@@ -302,8 +329,8 @@ function PublicPanel({ snapshot, command }: { snapshot: TournamentSnapshot; comm
   const [table, setTable] = useTableSelection(snapshot.tournament.id);
   const finished = snapshot.tournament.status === "finished" || snapshot.tournament.status === "archived";
   const mine = snapshot.viewer.entrantId ? current?.matches.find(match => match.player1Id === snapshot.viewer.entrantId || match.player2Id === snapshot.viewer.entrantId) : undefined;
-  const tables = current?.matches.filter(match => match.player2Id).map(match => match.tableNumber) ?? [];
-  const matches = current?.matches.filter(match => finished || table === "all" || (match.player2Id && match.tableNumber === table)) ?? [];
+  const tables = current?.matches.filter(match => match.player2Id).map(match => physicalTable(snapshot, match)) ?? [];
+  const matches = current?.matches.filter(match => finished || table === "all" || (match.player2Id && physicalTable(snapshot, match) === table)) ?? [];
   return <div className="stack">
     {finished && <StandingsPanel snapshot={snapshot} />}
     {mine && snapshot.tournament.status === "active" && <section><h2>Your match · Round {current?.number}</h2><MatchCard match={mine} snapshot={snapshot} command={command} player /></section>}
@@ -342,6 +369,14 @@ function OrganizerPanel({ snapshot, command }: { snapshot: TournamentSnapshot; c
   const current = published.at(-1);
   const selected = selectedRound === null ? draft ?? current : rounds.find(round => round.number === selectedRound) ?? draft ?? current;
   const pending = current?.matches.filter(match => match.status !== "final").length ?? 0;
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const clocks = useMatchEntries(snapshot.tournament.config.timeLimitSeconds !== null && selected?.status !== "draft" ? selected?.matches.filter(match => match.player2Id && match.status !== "final").map(match => match.id) ?? [] : []);
+  const attention = (match: Match) => match.status === "disputed" || clocks.entries[match.id]?.snapshot?.state?.reviewRequired || snapshot.tables?.enabled && match.player2Id && match.status !== "final" && !snapshot.tables.devices?.some(device => device.tableNumber === physicalTable(snapshot, match));
+  const shownMatches = selected?.matches.filter(match => {
+    const text = `${physicalTable(snapshot, match)} ${snapshot.entrants.find(entrant => entrant.id === match.player1Id)?.name ?? ""} ${snapshot.entrants.find(entrant => entrant.id === match.player2Id)?.name ?? ""}`.toLowerCase();
+    return text.includes(search.toLowerCase()) && (filter === "all" || filter === "attention" && attention(match) || filter === "unresolved" && match.status !== "final" || match.status === filter);
+  }) ?? [];
   const planned = tournament.config.roundCount ?? suggestRoundCount(Math.max(2, snapshot.entrants.filter(entrant => entrant.active).length));
   const finished = tournament.status === "finished" || tournament.status === "archived";
   const allRoundsPlayed = published.length >= planned;
@@ -354,6 +389,7 @@ function OrganizerPanel({ snapshot, command }: { snapshot: TournamentSnapshot; c
   return <div className="stack">
     <section className="panel subtle"><div className="section-heading"><div><h2>{tournament.status === "archived" ? "Tournament archived" : finished ? "Tournament complete" : tournament.correctionsOnly ? "Results reopened" : draft ? `Round ${draft.number} is ready to publish` : !current ? "Start the tournament" : pending ? `${pending} ${pending === 1 ? "match" : "matches"} to resolve` : allRoundsPlayed ? "All rounds complete" : `Round ${current.number} complete`}</h2><p className="muted" style={{ marginTop: 7 }}>{finished ? `${published.length} rounds played.` : tournament.correctionsOnly ? "Correct the results, then finish the tournament again." : !current ? `${snapshot.entrants.filter(entrant => entrant.active).length} active players · ${planned} rounds` : draft ? "Players will see their opponents when you publish." : pending ? "Enter or confirm all results to continue." : allRoundsPlayed ? "Finish to make the final standings official." : `${planned - published.length} rounds remaining.`}</p></div></div>
       <ErrorNotice message={error} />
+      {pending > 0 && <button className="text" onClick={() => { setSelectedRound(current?.number ?? null); setFilter("unresolved"); }}>{pending} matches to resolve</button>}
       <div className="actions">
         {!finished && draft && <button disabled={busy} onClick={() => void run("publish_round", { roundId: draft.id })}>{busy ? "Publishing…" : `Publish round ${draft.number}`}</button>}
         {!finished && !tournament.correctionsOnly && !draft && !pending && !allRoundsPlayed && <button disabled={busy || snapshot.entrants.filter(entrant => entrant.active).length < 2} onClick={() => void run("generate_round")}>{busy ? "Pairing…" : `Preview round ${(current?.number ?? 0) + 1}`}</button>}
@@ -366,13 +402,13 @@ function OrganizerPanel({ snapshot, command }: { snapshot: TournamentSnapshot; c
       {tournament.status === "finished" && <details className="section-space"><summary>Reopen results for a correction</summary><form className="form" onSubmit={event => { event.preventDefault(); void run("reopen_tournament", { reason }); }}><Field id="reopen-reason" label="Reason"><input id="reopen-reason" required maxLength={1000} value={reason} onChange={event => setReason(event.target.value)} /></Field><div><button className="secondary" disabled={busy}>Reopen results</button></div></form></details>}
     </section>
     {finished && <StandingsPanel snapshot={snapshot} />}
-    {selected && <section><div className="section-heading"><h2>Round {selected.number}</h2><Badge status={selected.status} /></div>{rounds.length > 1 && <div className="round-nav">{rounds.map(round => <button key={round.id} className={round.number === selected.number ? "" : "secondary"} onClick={() => setSelectedRound(round.number)}>Round {round.number}{round.status === "draft" ? " · Draft" : ""}</button>)}</div>}<div className="match-list">{selected.matches.map(match => <MatchCard key={match.id} match={match} snapshot={snapshot} command={command} admin={!finished && selected.status !== "draft"} draft={selected.status === "draft"} />)}</div></section>}
+    {selected && <section><div className="section-heading"><h2>Round {selected.number}</h2><Badge status={selected.status} /></div>{rounds.length > 1 && <div className="round-nav">{rounds.map(round => <button key={round.id} className={round.number === selected.number ? "" : "secondary"} onClick={() => setSelectedRound(round.number)}>Round {round.number}{round.status === "draft" ? " · Draft" : ""}</button>)}</div>}<div className="form-grid"><label>Show matches<select aria-label="Show matches" value={filter} onChange={event => setFilter(event.target.value)}><option value="all">All matches</option><option value="unresolved">Unresolved</option><option value="attention">Needs attention ({selected.matches.filter(attention).length})</option><option value="awaiting_confirmation">Awaiting confirmation ({selected.matches.filter(match => match.status === "awaiting_confirmation").length})</option><option value="unreported">Unreported ({selected.matches.filter(match => match.status === "unreported").length})</option></select></label><label>Find table or player<input value={search} onChange={event => setSearch(event.target.value)} type="search" /></label></div>{Object.values(clocks.entries).some(entry => entry.error) && <p role="status">Some clock status could not be refreshed. <button className="text" onClick={clocks.retry}>Try again</button></p>}<div className="match-list">{shownMatches.map(match => <MatchCard key={match.id} match={match} snapshot={snapshot} command={command} admin={!finished && selected.status !== "draft"} draft={selected.status === "draft"} />)}</div></section>}
     {!finished && <StandingsPanel snapshot={snapshot} />}
     {snapshot.audit && snapshot.audit.length > 0 && <details><summary>Organizer history</summary><ul className="list">{snapshot.audit.slice().reverse().map(event => <li key={event.id} className="history-meta"><time dateTime={event.createdAt}>{new Date(event.createdAt).toLocaleString()}</time> · {event.action.replaceAll("_", " ")}{event.reason && ` · ${event.reason}`}</li>)}</ul></details>}
   </div>;
 }
 
-function MatchCard({ match, snapshot, command, admin = false, player = false, draft = false }: { match: Match; snapshot: TournamentSnapshot; command?: Command; admin?: boolean; player?: boolean; draft?: boolean }) {
+function MatchCard({ match, snapshot, command, admin = false, player = false, draft = false, tableMode = false }: { match: Match; snapshot: TournamentSnapshot; command?: Command; admin?: boolean; player?: boolean; draft?: boolean; tableMode?: boolean }) {
   const [editing, setEditing] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [reviewTime, setReviewTime] = useState(false);
@@ -380,20 +416,23 @@ function MatchCard({ match, snapshot, command, admin = false, player = false, dr
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const disputeDraft = useReportDraft(`${snapshot.tournament.id}.${snapshot.tournament.runGeneration ?? 0}.${match.id}.${snapshot.viewer.entrantId ?? "organizer"}.dispute`, String(match.revision), { reason }, match.status !== "final");
   const player1 = snapshot.entrants.find(entrant => entrant.id === match.player1Id);
   const player2 = snapshot.entrants.find(entrant => entrant.id === match.player2Id);
   const organizer = snapshot.viewer.isOrganizer && !draft && snapshot.tournament.status === "active" && !!command && !!match.player2Id;
   const appTimer = snapshot.tournament.config.timeLimitSeconds !== null;
   const externalReport = organizer && !appTimer && match.status !== "final";
   const organizerTools = organizer && (admin || appTimer);
-  const canReport = player && snapshot.tournament.status === "active" && match.status !== "final" && match.status !== "disputed" && !!match.player2Id;
+  const playerEligible = player && snapshot.tournament.status === "active" && match.status !== "final" && match.status !== "disputed" && !!match.player2Id;
+  const playerClock = useMatchEntry(match.id, playerEligible && appTimer);
+  const canReport = playerEligible && (!appTimer || !playerClock.loading && !playerClock.error && !playerClock.snapshot?.state);
   const ownReport = match.report?.submittedBy === snapshot.viewer.entrantId;
   const reported = match.report ? calculateScore(match.report, snapshot.tournament.config) : null;
   const displayed = match.result ?? reported;
   async function run(action: string, payload: Record<string, unknown>) {
     if (!command) return;
     setBusy(true); setError(null);
-    try { await command(action, { matchId: match.id, expectedRevision: match.revision, ...payload }); setDisputing(false); }
+    try { await command(action, { matchId: match.id, expectedRevision: match.revision, ...payload }); if (action === "dispute_report") disputeDraft.clear(); setDisputing(false); }
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
@@ -404,18 +443,19 @@ function MatchCard({ match, snapshot, command, admin = false, player = false, dr
     return side === 1 ? displayed.adjusted1 : displayed.adjusted2;
   }
   return <article id={`match-${match.id}`} className="match" aria-label={`${player1?.name ?? "Player"}${player2 ? ` versus ${player2.name}` : ", bye"}`}>
-    <div className="match-topline"><span>{match.player2Id ? `Table ${match.tableNumber}` : "Bye"}</span>{draft ? <span>Not published</span> : <Badge status={match.status} />}</div>
+    <div className="match-topline"><span>{match.player2Id ? `Table ${physicalTable(snapshot, match)}` : "Bye"}{match.player2Id && matchLocation(snapshot, match) && <> · Queue {matchLocation(snapshot, match)!.queueOrder}</>}</span>{draft ? <span>Not published</span> : <Badge status={match.status} />}</div>
     <div className="match-player"><span className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${match.player1Id}`}>{player1?.name ?? "Player"}</Link>{player && snapshot.viewer.entrantId === match.player1Id && <small> · You</small>}</span><span className="match-score">{score(1)}</span></div>
     {match.player2Id && <div className="match-player"><span className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${match.player2Id}`}>{player2?.name ?? "Player"}</Link>{player && snapshot.viewer.entrantId === match.player2Id && <small> · You</small>}</span><span className="match-score">{score(2)}</span></div>}
     {match.kind === "forfeit" && <p className="score-preview">Forfeit</p>}{match.kind === "double_forfeit" && <p className="score-preview">Double forfeit · No match points</p>}
     {displayed && (displayed.overtime1 > 0 || displayed.overtime2 > 0) && <p className="score-preview">{[{ name: player1?.name, seconds: displayed.overtime1, raw: displayed.raw1, adjusted: displayed.adjusted1 }, { name: player2?.name, seconds: displayed.overtime2, raw: displayed.raw2, adjusted: displayed.adjusted2 }].filter(side => side.seconds > 0).map(side => `${side.name}: ${formatDuration(side.seconds)} overtime${side.raw !== null && side.adjusted !== null && side.raw > side.adjusted ? ` (−${side.raw - side.adjusted} points)` : ""}`).join(" · ")}</p>}
     {match.report && !match.result && <div className="match-bottom"><p className="muted">{match.status === "disputed" ? "An organizer is reviewing this result." : ownReport && player ? "Waiting for your opponent to confirm." : "Reported result · Not yet confirmed"}</p>{match.report.disputeReason && (admin || player) && <p>Issue: {match.report.disputeReason}</p>}</div>}
-    {organizer && appTimer && match.status !== "final" && !editing && <StartMatch match={match} onReviewTime={() => { setReviewTime(true); setToolsOpen(true); }} />}
-    {externalReport && !editing && <div className="match-bottom"><button onClick={() => setEditing(true)}>{match.status === "disputed" ? "Resolve result" : match.report ? "Review result" : "Report result"}</button></div>}
+    {organizer && appTimer && match.status !== "final" && !editing && <StartMatch match={match} tournament={snapshot} onReviewTime={() => { setReviewTime(true); setToolsOpen(true); }} />}
+    {externalReport && !editing && <div className="match-bottom"><button onClick={() => { if (tableMode) rememberTableMatch(snapshot.tournament.id, match.id); setEditing(true); }}>{match.status === "disputed" ? "Resolve result" : match.report ? "Review result" : "Report result"}</button></div>}
+    {playerEligible && appTimer && !canReport && <p className="notice">{playerClock.loading ? "Checking reporting options…" : playerClock.error ? "Could not check reporting options." : "Report scores on the shared table device."}{playerClock.error && <button className="text" onClick={playerClock.retry}>Try again</button>}</p>}
     {canReport && command && !editing && <div className="match-bottom">
       <ErrorNotice message={error} />
       {match.report && !ownReport ? <div className="actions"><button disabled={busy} onClick={() => void run("confirm_report", { reportId: match.report!.id })}>{busy ? "Confirming…" : "Confirm result"}</button><button className="secondary" disabled={busy} onClick={() => setDisputing(true)}>Report issue</button></div> : <button className={match.report ? "secondary" : ""} onClick={() => setEditing(true)}>{match.report ? "Edit result" : "Report result"}</button>}
-      {disputing && match.report && <form className="compact-stack score-entry" onSubmit={event => { event.preventDefault(); void run("dispute_report", { reportId: match.report!.id, reason }); }}><Field id={`dispute-${match.id}`} label="What needs to change?"><textarea id={`dispute-${match.id}`} required maxLength={1000} rows={3} value={reason} onChange={event => setReason(event.target.value)} /></Field><div className="actions"><button disabled={busy}>Send to organizer</button><button type="button" className="secondary" onClick={() => setDisputing(false)}>Cancel</button></div></form>}
+      {disputing && match.report && <form className="compact-stack score-entry" onChange={disputeDraft.markChanged} onSubmit={event => { event.preventDefault(); void run("dispute_report", { reportId: match.report!.id, reason }); }}>{disputeDraft.notice(value => { if (typeof value.reason === "string") setReason(value.reason); })}<Field id={`dispute-${match.id}`} label="What needs to change?"><textarea id={`dispute-${match.id}`} required maxLength={1000} rows={3} value={reason} onChange={event => setReason(event.target.value)} /></Field><div className="actions"><button disabled={busy}>Send to organizer</button><button type="button" className="secondary" onClick={() => setDisputing(false)}>Cancel</button></div></form>}
     </div>}
     {organizerTools && <details className="match-bottom organizer-actions" open={toolsOpen} onToggle={event => setToolsOpen(event.currentTarget.open)}><summary>Organizer actions</summary>
       {!editing && !externalReport && <button className="secondary" onClick={() => setEditing(true)}>{match.status === "final" ? "Correct result" : match.status === "disputed" ? "Resolve result" : match.report ? "Review result" : "Enter result"}</button>}
@@ -440,6 +480,7 @@ function ScoreForm({ match, snapshot, command, admin, close }: { match: Match; s
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const draft = useReportDraft(`${snapshot.tournament.id}.${snapshot.tournament.runGeneration ?? 0}.${match.id}.${admin ? "organizer" : snapshot.viewer.entrantId}.manual`, String(match.revision), { ...values, kind, winnerId, reason });
   const stale = revision !== match.revision;
   const [hasClock, setHasClock] = useState(false);
   const appOverride = admin && snapshot.tournament.config.timeLimitSeconds !== null;
@@ -456,11 +497,12 @@ function ScoreForm({ match, snapshot, command, admin, close }: { match: Match; s
   const players = [snapshot.entrants.find(entrant => entrant.id === match.player1Id), snapshot.entrants.find(entrant => entrant.id === match.player2Id)];
   async function submit(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError(null);
-    try { await command(admin ? "finalize_result" : "submit_report", { matchId: match.id, expectedRevision: revision, ...(admin ? { kind, reason, ...(kind === "forfeit" ? { winnerId } : {}) } : {}), ...(kind === "played" ? scores : {}) }); close(); }
+    try { await command(admin ? "finalize_result" : "submit_report", { matchId: match.id, expectedRevision: revision, ...(admin ? { kind, reason, ...(kind === "forfeit" ? { winnerId } : {}) } : {}), ...(kind === "played" ? scores : {}) }); draft.clear(); close(); }
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
-  return <form className="score-entry" onSubmit={submit}>
+  return <form className="score-entry" onChange={draft.markChanged} onSubmit={submit}>
+    {draft.notice(value => { setValues(previous => ({ raw1: typeof value.raw1 === "string" ? value.raw1 : previous.raw1, raw2: typeof value.raw2 === "string" ? value.raw2 : previous.raw2, overtime1: typeof value.overtime1 === "string" ? value.overtime1 : previous.overtime1, overtime2: typeof value.overtime2 === "string" ? value.overtime2 : previous.overtime2 })); if (typeof value.reason === "string") setReason(value.reason); if (["played", "forfeit", "double_forfeit"].includes(String(value.kind))) setKind(String(value.kind)); if (typeof value.winnerId === "string" && [match.player1Id, match.player2Id].includes(value.winnerId)) setWinnerId(value.winnerId); })}
     {stale && <div className="notice">This result changed while you were editing. Review the latest scores before submitting.<div style={{ marginTop: 10 }}><button type="button" className="secondary" onClick={() => { setValues(initialScores(match)); setRevision(match.revision); setError(null); }}>Load latest result</button></div></div>}
     {admin && <div style={{ marginBottom: 18 }}><Field id={`outcome-${match.id}`} label="Result type"><select id={`outcome-${match.id}`} value={kind} onChange={event => setKind(event.target.value)}><option value="played">Played match</option><option value="forfeit">Forfeit</option><option value="double_forfeit">Double forfeit</option></select></Field></div>}
     {kind === "played" && <>{players.map((entrant, index) => {
@@ -486,9 +528,18 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => { void api<AuthState>("/api/auth").then(setAuth).catch(cause => setError(errorMessage(cause))); }, []);
+  async function returnToWork() {
+    const explicit = localDestination(new URLSearchParams(window.location.search).get("next"));
+    let destination = explicit ?? localDestination(readPreference("last-table-home")) ?? "/admin";
+    if (!explicit && destination.startsWith("/t/")) {
+      try { const saved = await api<TournamentSnapshot>(`/api/tournaments/${encodeURIComponent(destination.split("/")[2])}`); if (!saved.viewer.isOrganizer || !["draft", "active"].includes(saved.tournament.status)) destination = "/admin"; }
+      catch { destination = "/admin"; }
+    }
+    router.push(destination); router.refresh();
+  }
   async function submit(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError(null);
-    try { await api("/api/auth", "POST", { email, password }); setPassword(""); router.push("/admin"); router.refresh(); }
+    try { await api("/api/auth", "POST", { email, password }); setPassword(""); await returnToWork(); }
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }

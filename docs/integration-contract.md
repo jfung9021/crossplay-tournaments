@@ -45,6 +45,14 @@ No ordinary player final-result edits. Organizer corrections preserve published 
 
 ## HTTP interface (parent owns)
 
+### Public display extension
+
+`GET /api/tournaments/[idOrSlug]/display` returns the allowlisted `TournamentDisplay` interface from `src/domain/display.ts`. It ignores organizer/player cookies and never accepts an actor. Base tables remain private. The additive owner migration `20261008040000_crossplay_public_display.sql` exposes function-only `display_version()` and `display_read(text)`; version is `20261008040000`. The stable read uses one statement snapshot and projects published data with saved clock-status metadata. The server calculates standings with the existing scoring function and hashes the visible projection into a revision, excluding server time. The HTTP response is not cached; its ETag corresponds to that revision.
+
+An absent or different display capability uses the existing anonymous `read_model` path and coarse result status. Transport/database errors do not masquerade as missing capability. Private drafts, reset events without a published round, and deleted/unknown events return 404. Pending scores, reports, reasons, audit, device/session/controller details and unpublished previews are absent even for signed-in organizers. Official half-point units stay internal to result objects; `Standing.matchPoints` remains displayed points.
+
+The browser reads once every five seconds, serializes requests, retains its last successful projection on transient failure, marks it stale after fifteen seconds, and backs off to thirty seconds. Focus, reconnection and manual retry refresh immediately. An authoritative 404 clears prior content; a run-generation change resets local pagination. The display neither claims a clock nor writes tournament state.
+
 - GET `/api/tournaments?scope=public|admin` -> `{tournaments}`. Unconfigured app: 503 `{error:"..."}`. Public collection is accessible without login.
 - POST `/api/tournaments` -> create, body `{name,slug?,date?,config,requestId}` -> `{id,slug}`.
 - GET `/api/tournaments/[idOrSlug]` -> `TournamentSnapshot` with standings populated by server.

@@ -20,7 +20,7 @@ import { clearMatchLocalState } from "@/client/match-clock-api";
 import { clearReportDrafts } from "@/client/report-drafts";
 import { useReportDraft } from "@/components/report-draft";
 import { TableHome, TablesPanel } from "@/components/table-workflow";
-import { matchLocation, physicalTable } from "@/domain/tables";
+import { matchLocation, physicalTable, tableQueue } from "@/domain/tables";
 import { localDestination, readPreference } from "@/client/device-preferences";
 import { rememberTableMatch, useTableDevice } from "@/client/table-device";
 
@@ -71,7 +71,23 @@ function statusLabel(status: string): string { return ({ draft: "Draft", active:
 
 function ErrorNotice({ message }: { message: string | null }) { return message ? <div role="alert" className="notice error">{message}</div> : null; }
 function Loading() { return <p className="loading" role="status">Loading…</p>; }
-function Badge({ status }: { status: string }) { return <span className={`badge ${status === "active" ? "active" : ""}`}>{statusLabel(status)}</span>; }
+function Badge({ status }: { status: string }) { return <span className={`badge ${status}`}>{statusLabel(status)}</span>; }
+function DisplayLaunch({ slug }: { slug: string }) {
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "manual">("idle");
+  const [url, setUrl] = useState("");
+  const path = `/t/${slug}/display`;
+  async function copy() {
+    const value = new URL(path, window.location.origin).href;
+    setUrl(value);
+    try { await navigator.clipboard.writeText(value); setCopyState("copied"); }
+    catch { setCopyState("manual"); }
+  }
+  return <div className="display-launch">
+    <div className="actions"><Link className="button secondary" href={path} target="_blank" rel="noopener noreferrer">Open TV display</Link><button className="text" onClick={() => void copy()}>Copy display link</button></div>
+    {copyState === "copied" && <p role="status" className="form-note">Display link copied.</p>}
+    {copyState === "manual" && <label>Copy this display link<input readOnly value={url} onFocus={event => event.currentTarget.select()} /></label>}
+  </div>;
+}
 function Field({ label, id, children, note }: { label: string; id: string; children: ReactNode; note?: string }) {
   return <div><label htmlFor={id}>{label}</label>{children}{note && <p className="form-note">{note}</p>}</div>;
 }
@@ -219,6 +235,7 @@ export function TournamentPage({ tournamentKey, admin = false, view = "matches",
   return <MatchEntriesProvider key={`${tournament.id}:${tournament.runGeneration ?? 0}:${tournament.status}`} refreshKey={snapshot}>
     <Link className="back" href={admin ? "/admin" : "/"}>← {admin ? "Your tournaments" : "Tournaments"}</Link>
     <div className="page-heading"><div><p className="eyebrow">{["Swiss", dateLabel(tournament.date), `${tournament.entrantCount} players`].filter(Boolean).join(" · ")}</p><h1>{tournament.name}</h1><Badge status={tournament.status} /></div><div className="actions">{admin ? <Link className="button secondary" href={`/t/${tournament.slug}`}>Public page</Link> : snapshot.viewer.isOrganizer && <Link className="button secondary" href={`/admin/tournaments/${tournament.id}`}>Manage</Link>}</div></div>
+    {admin && view === "matches" && <DisplayLaunch slug={tournament.slug} />}
     {view !== "table" && <nav className="tabs" aria-label="Tournament navigation"><Link href={base} aria-current={view === "matches" ? "page" : undefined}>{admin ? "Rounds & results" : "Tournament"}</Link>{admin ? <><Link href={`${base}/players`} aria-current={view === "players" ? "page" : undefined}>Players</Link><Link href={`${base}/settings`} aria-current={view === "settings" ? "page" : undefined}>Settings</Link></> : <><Link href={`${base}#standings`}>Standings</Link><Link href={`${base}/rules`} aria-current={view === "rules" ? "page" : undefined}>Rules</Link></>}</nav>}
     <ErrorNotice message={error} />
     {error && snapshot && <p role="status" className="notice">Showing the last saved view. <button className="text" onClick={() => void refresh()}>Try refresh again</button></p>}
@@ -232,6 +249,7 @@ export function TournamentPage({ tournamentKey, admin = false, view = "matches",
     {view === "tables" && snapshot.viewer.isOrganizer && <TablesPanel snapshot={snapshot} refresh={refresh} />}
     {view === "table" && <TableHome snapshot={snapshot} refresh={refresh} renderMatch={match => <MatchCard key={match.id} match={match} snapshot={snapshot} command={command} admin tableMode />} />}
     {view === "matches" && (admin ? <OrganizerPanel snapshot={snapshot} command={command} /> : <PublicPanel snapshot={snapshot} command={command} />)}
+    {!admin && view === "matches" && <DisplayLaunch slug={tournament.slug} />}
   </MatchEntriesProvider>;
 }
 
@@ -443,7 +461,7 @@ function MatchCard({ match, snapshot, command, admin = false, player = false, dr
     return side === 1 ? displayed.adjusted1 : displayed.adjusted2;
   }
   return <article id={`match-${match.id}`} className="match" aria-label={`${player1?.name ?? "Player"}${player2 ? ` versus ${player2.name}` : ", bye"}`}>
-    <div className="match-topline"><span>{match.player2Id ? `Table ${physicalTable(snapshot, match)}` : "Bye"}{match.player2Id && matchLocation(snapshot, match) && <> · Queue {matchLocation(snapshot, match)!.queueOrder}</>}</span>{draft ? <span>Not published</span> : <Badge status={match.status} />}</div>
+    <div className="match-topline"><span>{match.player2Id ? `Table ${physicalTable(snapshot, match)}` : "Bye"}{match.player2Id && matchLocation(snapshot, match) && tableQueue(snapshot, physicalTable(snapshot, match), match.roundNumber).length > 1 && <> · Queue {matchLocation(snapshot, match)!.queueOrder}</>}</span>{draft ? <span>Not published</span> : <Badge status={match.status} />}</div>
     <div className="match-player"><span className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${match.player1Id}`}>{player1?.name ?? "Player"}</Link>{player && snapshot.viewer.entrantId === match.player1Id && <small> · You</small>}</span><span className="match-score">{score(1)}</span></div>
     {match.player2Id && <div className="match-player"><span className="player-name"><Link href={`/t/${snapshot.tournament.slug}/players/${match.player2Id}`}>{player2?.name ?? "Player"}</Link>{player && snapshot.viewer.entrantId === match.player2Id && <small> · You</small>}</span><span className="match-score">{score(2)}</span></div>}
     {match.kind === "forfeit" && <p className="score-preview">Forfeit</p>}{match.kind === "double_forfeit" && <p className="score-preview">Double forfeit · No match points</p>}

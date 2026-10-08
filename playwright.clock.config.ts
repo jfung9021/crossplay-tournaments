@@ -16,6 +16,7 @@ export default defineConfig({
   projects: [
     { name: "chromium", testIgnore: "**/portrait-ui.spec.ts" },
     { name: "webkit-tables", testMatch: "**/table-device-ui.spec.ts", use: { browserName: "webkit", viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } },
+    { name: "webkit-display", testMatch: "**/display-ui.spec.ts", use: { browserName: "webkit", viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 } },
     ...(["chromium", "webkit"] as const).flatMap(browserName => [
       { name: `${browserName}-phone`, testMatch: "**/portrait-ui.spec.ts", use: { browserName, viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } },
       { name: `${browserName}-tablet`, testMatch: "**/portrait-ui.spec.ts", use: { browserName, viewport: { width: 820, height: 1180 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } },

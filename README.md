@@ -1,6 +1,6 @@
 # Crossplay tournaments
 
-A plain Swiss tournament manager for Crossplay, built with Next.js and a private PostgreSQL schema in the existing Supabase project.
+A Swiss tournament manager for Crossplay, built with Next.js and a private PostgreSQL schema in the existing Supabase project.
 
 ## Rules
 
@@ -14,6 +14,16 @@ A plain Swiss tournament manager for Crossplay, built with Next.js and a private
 - Published pairings remain fixed. Withdrawals affect future rounds. Competitive settings lock when the first round is published.
 
 The validated capacity is 2–256 entrants. Automatic round suggestion is `ceil(log2(players))`; the organizer can override it before play. More rounds and withdrawals can make legal pairings impossible; the app reports this instead of silently repeating opponents.
+
+## Live TV display
+
+Open a tournament overview and choose **Open TV display**, or copy its display link to the computer connected to the TV. `/t/[slug]/display` is public and read-only. Use a 1920×1080 display at 100% browser zoom and select fullscreen. The normal eighteen-player layout shows nine simultaneous tables and all eighteen standings. Larger or unusually long rosters use labelled pages with pause and previous/next controls.
+
+The display shows published pairings, saved match status and official scores. After a round finishes it waits for the organizer to publish the next Swiss round; it never predicts opponents. It does not show live ticking clocks, unconfirmed scores or private device information. A connection warning marks stale data. The QR code opens public standings.
+
+Richer saved-clock status requires owner migration `20261008040000_crossplay_public_display.sql`. Before that capability is present, the page falls back to public pairings, results and standings with coarse status. No public display action changes tournament state.
+
+The visual system and self-hosted font provenance are recorded in [the visual specification](docs/tv-visual-design.md). [The implementation plan](docs/tv-display-and-visual-refresh-plan.md) defines the bounded acceptance checks.
 
 ## Development
 

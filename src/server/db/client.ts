@@ -21,7 +21,7 @@ function database() {
   return connection;
 }
 
-async function ready() {
+export async function ready() {
   const sql = database();
   readiness ??= (async () => {
     const roles = await sql`select current_user as role`;

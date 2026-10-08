@@ -4,7 +4,7 @@ October 8, 2026. Implements the twelve outcomes in [the approved plan](table-dev
 
 ## Delivered behavior
 
-- Persistent event-specific device duty, `/t/[slug]/table`, validated sign-in return, independent browsing and result receipts followed by the next pairing.
+- Persistent event-specific device duty, `/t/[slug]/table`, validated sign-in return, independent browsing and result receipts followed by a waiting state until the next pairing is published. An already-published same-round queue is supported only when table capacity requires it.
 - Physical table setup, stable numbers, availability, queued play, audited moves/closures and coverage filters. Published opponents and completed locations stay unchanged.
 - Versioned, atomic shared-session replacement/release. Old writes fail; precise saved milliseconds survive; organizer time review is mandatory before play/reporting continues.
 - Remembered clock layout, recoverable editable report/correction drafts, competing-tab retry, clock-aware individual report guidance, organizer attention/search and setup continuation.
@@ -22,6 +22,12 @@ Migration capability is additive; existing tournaments require explicit enableme
 
 ## Release order
 
-Merge the owner migration, verify the established target and sole pending migration, apply it, and verify history/ACL parity. Then merge and deploy this application. Production verification is read-only. Exact PR, deployment and final evidence references are recorded after release.
+The owner migration merged first in [PR 171](https://github.com/Jonathan-Fung-Gaming/bite-open-card-draw/pull/171), commit `9d00cff7f73c9578491e41dd69c03bbb73dd1bdf`. Only `20261008030000_crossplay_table_devices.sql` was applied to verified project `gsiyqhkcgegjrvqcqioc`. All 62 local/remote migration records match, the final dry run is empty, and runtime capability/ACL verification passed.
+
+Application [PR 6](https://github.com/jfung9021/crossplay-tournaments/pull/6) passed its checks and merged as `2fc0f72b0b6c5007058a3bdb0d0c7ce224c59b55`. Production deployment `dpl_F9y1gS2RiVEWHNSVpC4soKNENbBM` is Ready and serves [Crossplay tournaments](https://crossplay-tournaments.vercel.app).
+
+Production verification passed at 2026-10-08 05:44:27 UTC: public pages and collection return successfully, private collection and foreign-origin mutations are rejected, the new capability is available, and operational tables/helpers remain private. No production tournament data was mutated. Sanitized local evidence is `.local/table-production-verification.json`. No release blocker remains.
+
+The user clarified the normal event has nine matches and nine phones. Its normal continuation is result receipt, waiting at the assigned table, then newly published next-round opponents. Queued examples in the screen gallery demonstrate the reduced-capacity fallback rather than expected event setup.
 
 Final local browser evidence: `1a11a02cb89_eb9e3387` (two managed-device scenarios, Chromium/WebKit) and `1a11a044fe1_92addd20` (two affected manual/login scenarios, Chromium/WebKit). Legacy layout/duplicate-tab and departure witnesses passed in `1a11a014435_eeed9cc9`. The latter runs preserve original test-selector/navigation assertion failures alongside their affected successful reruns. All accepted browser scenarios now pass. The 23-screen phone/iPad gallery is retained at `.local/table-device-preview/index.html`.

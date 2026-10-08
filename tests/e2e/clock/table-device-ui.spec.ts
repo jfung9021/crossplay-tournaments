@@ -113,7 +113,10 @@ test("TABLES: remembered duty, shared replacement, receipts, closure, departure 
   const departed = first.player1Id, name = current.entrants.find(entrant => entrant.id === departed)!.name;
   await second.goto(`/admin/tournaments/${id}/players`);
   await second.locator(".roster-row").filter({ hasText: name }).getByRole("button", { name: "Remove from future rounds", exact: true }).click();
-  await expect(second.locator(".roster-row").filter({ hasText: name })).toContainText("Withdrawn");
+  const departedName = second.locator(".roster-row").filter({ hasText: name }).locator(".player-name");
+  await expect(departedName).toHaveText(name);
+  await expect(departedName).toHaveCSS("font-style", "italic");
+  await expect(departedName).toHaveCSS("color", "rgb(104, 104, 104)");
   await capture(second, "16-departure-keeps-results", info.project.name);
   const history = (await snapshot(second.request, id)).rounds[0].matches;
   current = await publishNext(second, id, 2);

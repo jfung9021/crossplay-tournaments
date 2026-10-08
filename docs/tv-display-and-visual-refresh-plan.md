@@ -1,6 +1,6 @@
 # Live tournament TV and website visual refresh plan
 
-October 8, 2026. Implementation authorized. Three subagents own public data, the TV page and the visual refresh; the parent integrates and verifies the complete scope, then performs one general review. Release evidence will record the direct acceptance results and any hardware limitations.
+October 8, 2026. Implemented, reviewed and deployed. Three subagents implemented public data, the TV page and the visual refresh; the parent integrated and verified the complete scope and performed one general review. [Release evidence](tv-display-release.md) records acceptance results, deployment and hardware limitations.
 
 Build a public tournament display for a computer connected to a 1920×1080 TV, alongside a consistent visual refresh of the existing phone, iPad and desktop website. The normal event has eighteen players, nine matches and nine phones serving nine tables. Keep all nine current matches and all eighteen standings visible together at this size.
 
@@ -101,7 +101,7 @@ The current site uses a system font and a mostly white/green palette. Replace is
 | Navigation | Clear active tabs, a prominent assigned-table summary and one obvious next action. On phones, reserve the top of the table page for match or waiting status. |
 | Match cards and results | Consistent table tiles, aligned player/score columns, legible states and a distinct saved-result receipt. Omit queue-position decoration when a table has only one match in that round. |
 | Forms and organizer tools | Group related fields, preserve labels, strengthen primary/secondary/destructive distinctions and provide at least 44 px touch targets. Keep attention filters and departure consequences easy to scan. |
-| Standings | Aligned numerical columns, restrained row separators and clear withdrawn labels without visually demoting a player's rank. |
+| Standings | Aligned numerical columns and restrained row separators. Withdrawn names appear gray and italic, without a visible withdrawal label; their earned rank stays unchanged. |
 | Motion | Static by default with brief, restrained result transitions. Respect system reduced-motion preferences; no flashing, marquee text or compulsory celebration animation. |
 
 Inter is designed for screen interfaces and supports tabular figures under the SIL Open Font License. Roboto Slab's upstream repository identifies an Apache 2.0 license. Preserve the license distributed with whichever pinned font files are shipped. [Inter](https://rsms.me/inter/), [Roboto Slab](https://github.com/googlefonts/robotoslab).

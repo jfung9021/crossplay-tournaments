@@ -53,7 +53,7 @@
 .standingsTable .number { text-align: right; white-space: nowrap; }
 .standingsTable .rank { font-weight: 800; color: var(--brand, #245eb5); }
 .standingName { overflow-wrap: anywhere; font-weight: 550; }
-.withdrawn { display: inline; margin-left: 8px; color: var(--muted, #556274); font-size: 24px; line-height: 1.1; font-weight: 400; }
+.withdrawn { color: var(--inactive, #686868); font-style: italic; }
 .standingMeasurement { position: absolute; top: 0; left: 0; width: 100%; visibility: hidden; pointer-events: none; }
 .standingMeasureRow { display: grid; grid-template-columns: var(--rank-width) minmax(0, 1fr) var(--points-width) var(--difference-width); border-bottom: 1px solid var(--line, #d4dce6); font-size: 24px; line-height: 1.1; }
 .standingMeasureRow > span { display: block; padding: 3px 6px; overflow-wrap: anywhere; font-size: 24px; line-height: 1.1; font-weight: 550; }

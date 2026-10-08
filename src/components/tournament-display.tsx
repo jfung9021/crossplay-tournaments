@@ -37,7 +37,7 @@ function PageControls({ label, count, page }: { label: string; count: number; pa
   </nav>;
 }
 
-function MatchTile({ match, archived, measured = false }: { match: DisplayMatch; archived: boolean; measured?: boolean }) {
+function MatchTile({ match, archived, inactiveIds, measured = false }: { match: DisplayMatch; archived: boolean; inactiveIds: Set<string>; measured?: boolean }) {
   const Element = measured ? "div" : "article";
   const result = match.status === "final" ? match.result : null;
   const draw = result && result.points1 === result.points2 && match.kind === "played";
@@ -52,7 +52,7 @@ function MatchTile({ match, archived, measured = false }: { match: DisplayMatch;
       const otherPoints = result ? index === 0 ? result.points2 : result.points1 : null;
       const winner = points !== null && otherPoints !== null && points > otherPoints;
       const score = result ? index === 0 ? result.adjusted1 : result.adjusted2 : null;
-      return <div className={`${styles.player} ${winner ? styles.winner : ""}`} key={player.id}><span className={styles.playerName}>{player.name}</span>{result && <strong className={styles.score}>{score ?? (winner ? "Win" : match.kind === "double_forfeit" ? "0" : "Loss")}{winner && score !== null && <span className={styles.win}>Win</span>}</strong>}</div>;
+      return <div className={`${styles.player} ${winner ? styles.winner : ""}`} key={player.id}><span className={`${styles.playerName} ${inactiveIds.has(player.id) ? styles.withdrawn : ""}`}>{player.name}</span>{result && <strong className={styles.score}>{score ?? (winner ? "Win" : match.kind === "double_forfeit" ? "0" : "Loss")}{winner && score !== null && <span className={styles.win}>Win</span>}</strong>}</div>;
     })}</div>
     {(match.kind === "forfeit" || match.kind === "double_forfeit") && result && <p className={styles.queue}>{match.kind === "forfeit" ? "Forfeit" : "Double forfeit"}</p>}
   </Element>;
@@ -63,6 +63,7 @@ function Tables({ display }: { display: TournamentDisplay }) {
   const measurement = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState({ columns: 3, rows: 3, capacity: 9 });
   const matches = display.round?.matches ?? noMatches;
+  const inactiveIds = new Set(display.standings.filter(standing => !standing.active).map(standing => standing.entrantId));
   const archived = display.tournament.status === "archived";
   const count = Math.max(1, Math.ceil(matches.length / layout.capacity));
   const page = usePage(count, `${display.tournament.runGeneration}:${display.round?.number ?? 0}`);
@@ -85,10 +86,10 @@ function Tables({ display }: { display: TournamentDisplay }) {
     return () => { observer.disconnect(); cancelAnimationFrame(frame); };
   }, [matches, archived]);
   return <section className={styles.tablesRegion} aria-label="Current matches">
-    {!!display.round?.byes.length && <aside aria-label="Byes" className={styles.byes}>{display.round.byes.map(bye => <span key={bye.id}><strong>Bye</strong> · {bye.player1.name} · {bye.result ? `${bye.result.points1 / 2} point` : "Published"}</span>)}</aside>}
+    {!!display.round?.byes.length && <aside aria-label="Byes" className={styles.byes}>{display.round.byes.map(bye => <span key={bye.id}><strong>Bye</strong> · <span className={inactiveIds.has(bye.player1.id) ? styles.withdrawn : undefined}>{bye.player1.name}</span> · {bye.result ? `${bye.result.points1 / 2} point` : "Published"}</span>)}</aside>}
     <div ref={grid} className={styles.tableArea}>
-      <div className={styles.matchGrid} style={{ "--columns": layout.columns, "--rows": layout.rows } as CSSProperties}>{matches.slice(page.index * layout.capacity, (page.index + 1) * layout.capacity).map(match => <MatchTile key={match.id} match={match} archived={archived} />)}</div>
-      <div ref={measurement} aria-hidden="true" className={styles.matchMeasurement}>{matches.map(match => <MatchTile key={match.id} match={match} archived={archived} measured />)}</div>
+      <div className={styles.matchGrid} style={{ "--columns": layout.columns, "--rows": layout.rows } as CSSProperties}>{matches.slice(page.index * layout.capacity, (page.index + 1) * layout.capacity).map(match => <MatchTile key={match.id} match={match} archived={archived} inactiveIds={inactiveIds} />)}</div>
+      <div ref={measurement} aria-hidden="true" className={styles.matchMeasurement}>{matches.map(match => <MatchTile key={match.id} match={match} archived={archived} inactiveIds={inactiveIds} measured />)}</div>
       {!matches.length && <div className={styles.waiting}><h2>{display.round ? "No table matches this round" : "Waiting for published pairings"}</h2><p>Pairings appear when the organizer publishes the round.</p></div>}
     </div>
     <PageControls label="Tables" count={count} page={page} />
@@ -97,11 +98,11 @@ function Tables({ display }: { display: TournamentDisplay }) {
 
 function StandingsTable({ standings, indices, measured = false }: { standings: Standing[]; indices?: number[]; measured?: boolean }) {
   const rows = indices ? indices.map(index => standings[index]) : standings;
-  if (measured) return <>{rows.map(standing => <div className={styles.standingMeasureRow} key={standing.entrantId}><span>{standing.rank}</span><span>{standing.name}{!standing.active && <span className={styles.withdrawn}>Withdrawn</span>}</span><span>{standing.matchPoints}</span><span>{signed(standing.difference)}</span></div>)}</>;
+  if (measured) return <>{rows.map(standing => <div className={styles.standingMeasureRow} key={standing.entrantId}><span>{standing.rank}</span><span className={!standing.active ? styles.withdrawn : undefined}>{standing.name}</span><span>{standing.matchPoints}</span><span>{signed(standing.difference)}</span></div>)}</>;
   return <table className={styles.standingsTable} aria-label={measured ? undefined : "Tournament standings"}>
     <colgroup><col className={styles.rankColumn} /><col /><col className={styles.pointsColumn} /><col className={styles.differenceColumn} /></colgroup>
     <thead><tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col" className={styles.number}>Pts</th><th scope="col" className={styles.number}>+/−</th></tr></thead>
-    <tbody>{rows.map(standing => <tr key={standing.entrantId}><td className={styles.rank}>{standing.rank}</td><td className={styles.standingName}>{standing.name}{!standing.active && <span className={styles.withdrawn}>Withdrawn</span>}</td><td className={styles.number}>{standing.matchPoints}</td><td className={styles.number}>{signed(standing.difference)}</td></tr>)}</tbody>
+    <tbody>{rows.map(standing => <tr key={standing.entrantId}><td className={styles.rank}>{standing.rank}</td><td className={`${styles.standingName} ${!standing.active ? styles.withdrawn : ""}`}>{standing.name}</td><td className={styles.number}>{standing.matchPoints}</td><td className={styles.number}>{signed(standing.difference)}</td></tr>)}</tbody>
   </table>;
 }
 

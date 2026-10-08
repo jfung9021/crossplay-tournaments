@@ -52,7 +52,7 @@ Ratios were calculated from sRGB relative luminance with the WCAG contrast formu
 - Match cards receive a stable blue table tile, aligned player/score columns, distinct textual status badges and clear action grouping. Saved-result receipts use a green inset with the recorded result still visible.
 - The assigned-table summary has a strong blue edge and larger table heading. Device assignment, departure and organizer form behavior are unchanged by styling.
 - Buttons and navigation controls are at least 44 px high; primary actions are at least 48 px. Inputs remain 16 px or larger on phones. Visible labels, keyboard focus and native control behavior remain.
-- Standings retain earned ranks, player-history links and visible withdrawn text. No style places a withdrawn entrant below their earned position.
+- Standings retain earned ranks and player-history links. Per the user's final visual preference, inactive names use neutral gray (`#686868`) and italics across standings, roster, history and match cards, without a visible withdrawal badge or label. No style places an inactive entrant below their earned position.
 - The match-clock module retains its existing face-to-face geometry and player-side colors. It inherits Inter and shared surface/text/control roles. No timer, reporting or pairing logic is changed by this visual work.
 - Motion is limited to short color changes on ordinary controls when the operating system allows motion. Clock side buttons receive no hover animation or transform.
 - The dedicated TV component isolates its layout using `[data-tournament-display]` and CSS `:has()` to hide ordinary chrome and reset the container before first paint. It shares color/type roles, while owning its 1080p geometry and overflow pagination.

@@ -92,6 +92,7 @@ tr:last-child td { border-bottom: 0; }
 th:first-child, td:first-child { padding-left: 16px; }
 .number { text-align: right; font-variant-numeric: tabular-nums; }
 .player-name { overflow-wrap: anywhere; }
+.withdrawn-name { color: var(--inactive); font-style: italic; }
 .player-name a { display: inline-block; min-height: 44px; min-width: 44px; padding-block: 10px; overflow-wrap: anywhere; max-width: 100%; }
 .my-row { background: var(--brand-soft); }
 .match-list { display: grid; gap: 14px; }

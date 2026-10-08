@@ -15,6 +15,7 @@ export default defineConfig({
   use: { baseURL: process.env.PLAYWRIGHT_BASE_URL, ...devices["Desktop Chrome"], actionTimeout: 15_000, navigationTimeout: 30_000, trace: "off", screenshot: "off", video: "off" },
   projects: [
     { name: "chromium", testIgnore: "**/portrait-ui.spec.ts" },
+    { name: "webkit-tables", testMatch: "**/table-device-ui.spec.ts", use: { browserName: "webkit", viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } },
     ...(["chromium", "webkit"] as const).flatMap(browserName => [
       { name: `${browserName}-phone`, testMatch: "**/portrait-ui.spec.ts", use: { browserName, viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } },
       { name: `${browserName}-tablet`, testMatch: "**/portrait-ui.spec.ts", use: { browserName, viewport: { width: 820, height: 1180 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 } },

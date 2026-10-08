@@ -9,6 +9,12 @@ export interface MatchClockSnapshot {
   runGeneration?: number;
   roundNumber: number;
   tableNumber: number;
+  tablesAvailable?: boolean;
+  tablesEnabled?: boolean;
+  operationsVersion?: number;
+  physicalTableNumber?: number | null;
+  queueOrder?: number | null;
+  tableReady?: boolean;
   matchStatus: string;
   matchRevision: number;
   players: [{ id: string; name: string; side: 1 }, { id: string; name: string; side: 2 }];

@@ -124,3 +124,27 @@ export async function openOrganizerMatch(actor: Actor, matchId: string, sessionH
   });
   return result as { sessionCreated: boolean; snapshot: Record<string, unknown> };
 }
+
+async function tablesReady() {
+  const sql = await clockReady();
+  try {
+    const rows = await sql`select crossplay.tables_version() as version`;
+    if (rows[0]?.version !== "20261008030000") throw new AppError("Table management is not available yet.", 503);
+  } catch (error) {
+    if ((error as { code?: string }).code === "42883") throw new AppError("Table management is not available yet.", 503);
+    throw error;
+  }
+  return sql;
+}
+
+export async function executeTable(actor: Actor, command: string, payload: Record<string, unknown>, requestId: string, expectedVersion: number) {
+  const sql = await tablesReady();
+  const rows = await sql`select crossplay.table_execute(${sql.json(actor)}, ${command}, ${sql.json(payload as postgres.JSONValue)}, ${requestId}::uuid, ${expectedVersion}::bigint) as data`;
+  return rows[0].data;
+}
+
+export async function enterTableMatch(actor: Actor, payload: Record<string, unknown>, requestId: string): Promise<{ sessionCreated: boolean; snapshot: Record<string, unknown> }> {
+  const sql = await tablesReady();
+  const rows = await sql`select crossplay.table_enter_match(${sql.json(actor)}, ${sql.json(payload as postgres.JSONValue)}, ${requestId}::uuid) as data`;
+  return rows[0].data;
+}

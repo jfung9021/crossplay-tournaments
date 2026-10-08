@@ -57,3 +57,13 @@ The database owner's focused SQL and concurrency tests are the source of databas
 `npm run test:e2e:clock` provisions a disposable loopback database and local Auth identities, builds the app, and runs shared clock, recovery, security, phone/iPad viewport, existing reporting, and 20-player/six-round checks. It uses the prerequisites in [local Swiss testing](docs/local-swiss20-testing.md). Evidence goes to ignored `.local/evidence/clock/<run-id>`; physical iPhone/iPad Safari checks are separate from browser emulation.
 
 See [implementation plan](docs/implementation-plan.md), [integration contract](docs/integration-contract.md), and [release record](docs/release-status.md).
+
+## Table devices and players leaving early
+
+In **Manage tables**, enable physical tables with their actual numbers. Use **My table** on each shared phone or tablet to assign its duty; browsing another table never changes that assignment. After both players confirm a score, the device returns to its result receipt and next match. Extra matches queue at available tables until the previous result is final. Timers always start explicitly.
+
+Pause and save a match before releasing its device. If a device must leave, use **Replace or release this match's device** on the receiving organizer device, review the saved time, then continue. Old control is revoked atomically. Close a table by moving its unfinished matches to another table's queue; completed locations and results remain unchanged.
+
+**Remove from future rounds** excludes a departing player from later pairings. It preserves their published matches, earned points, score difference and final rank. Resolve any already-published unfinished match explicitly.
+
+These controls require the additive owner migration `20261008030000_crossplay_table_devices.sql`. They stay unavailable on earlier schemas; existing tournaments use the prior flow until table management is enabled. See [table workflow release](docs/table-device-workflow-release.md).

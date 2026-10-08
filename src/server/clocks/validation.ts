@@ -31,5 +31,11 @@ export const clockCommandSchema = z.object({
   requestId: uuid,
   expectedClockVersion: version.optional(),
 }).strict();
-export const matchEntrySchema = z.object({ requestId: uuid, controllerId: uuid }).strict();
+export const matchEntrySchema = z.object({
+  requestId: uuid, controllerId: uuid, deviceId: uuid.optional(),
+  expectedOperationsVersion: version.optional(), mode: z.enum(["open", "replace", "release"]).optional(),
+  expectedClockVersion: version.optional(), expectedEpoch: version.optional(), reason: reason.optional(), label: z.string().trim().min(1).max(80).optional(),
+}).strict().superRefine((value, context) => {
+  if (value.mode && value.mode !== "open" && (!value.deviceId || value.expectedOperationsVersion === undefined || value.expectedClockVersion === undefined || value.expectedEpoch === undefined || !value.reason)) context.addIssue({ code: "custom", message: "Load the saved clock and explain the handoff before continuing." });
+});
 export const organizerClockCommands = new Set<ClockCommand>(["revoke_match_link", "takeover_clock", "correct_clock", "correct_starter", "record_manual_start"]);

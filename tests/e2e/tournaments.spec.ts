@@ -216,7 +216,7 @@ test("players report and confirm; organizer resolves a dispute and finishes an o
   await organizerScore(page, current, disputed, [405, 400, 20], "Both players verified the overtime.");
   await page.goto(`/admin/tournaments/${id}/players`);
   const withdrawnName = current.entrants.find((entrant) => entrant.id === bye.player1Id)!.name;
-  await page.locator(".roster-row").filter({ has: page.getByText(withdrawnName, { exact: true }) }).getByRole("button", { name: "Withdraw", exact: true }).click();
+  await page.locator(".roster-row").filter({ has: page.getByText(withdrawnName, { exact: true }) }).getByRole("button", { name: "Remove from future rounds", exact: true }).click();
   await expect(page.locator(".roster-row").filter({ hasText: withdrawnName }).getByText("Withdrawn", { exact: true })).toBeVisible();
   current = await publishNext(page, id, 2);
   const publishedPairs = current.rounds[1]!.matches.map((match) => [match.player1Id, match.player2Id]);

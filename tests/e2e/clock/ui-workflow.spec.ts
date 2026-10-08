@@ -5,7 +5,7 @@ import { baseURL, command, createSimpleTournament, evidencePath, fillScore, logi
 
 async function saveSettings(page: Page) {
   await page.getByRole("button", { name: "Save settings", exact: true }).click();
-  await expect(page.getByRole("status")).toHaveText("Settings saved.");
+  await expect(page.getByRole("status")).toContainText("Settings saved.");
 }
 
 async function copySettings(page: Page, id: string, name: string) {

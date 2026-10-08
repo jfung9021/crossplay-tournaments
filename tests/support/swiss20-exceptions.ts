@@ -37,7 +37,7 @@ export async function withdraw(page: Page, id: string, entrantId: string) {
   const name = current.entrants.find(entrant => entrant.id === entrantId)!.name;
   await page.goto(`/admin/tournaments/${id}/players`);
   const row = page.locator(".roster-row").filter({ hasText: name });
-  await row.getByRole("button", { name: "Withdraw", exact: true }).click();
+  await row.getByRole("button", { name: "Remove from future rounds", exact: true }).click();
   await expect(row.getByText("Withdrawn", { exact: true })).toBeVisible();
 }
 

@@ -10,6 +10,16 @@ export function errorResponse(error: unknown): Response {
   const database = error as { code?: string; message?: string };
   const message = database?.message ?? "";
   const messages: Record<string, [number, string]> = {
+    TABLE_NOT_READY: [409, "This match is waiting for its table. Finish the earlier match first."],
+    DEVICE_ASSIGNMENT_REQUIRED: [409, "Assign this device to the match's table, or use View match."],
+    DEVICE_BUSY: [409, "This device still controls an unfinished match. Pause and save it, then release or replace the device."],
+    TABLE_DEVICE_OCCUPIED: [409, "A device is already assigned here. Remove its duty or use Replace this table's device."],
+    TABLE_UNAVAILABLE: [409, "Choose an available table."],
+    TABLES_IN_USE: [409, "This table has unfinished matches. Move them to an available table before closing it."],
+    RELEASE_CLOCK_BEFORE_MOVE: [409, "Pause and save the affected clock, then release its device before moving the match."],
+    STALE_TABLE_VERSION: [409, "Table assignments changed. Refresh and review them before trying again."],
+    TABLES_NOT_ENABLED: [409, "Set up the tournament's tables first."],
+    NO_TABLES_AVAILABLE: [409, "Open at least one table before generating pairings."],
     FORBIDDEN: [403, "You do not have access to this action."],
     NOT_FOUND: [404, "Tournament or match not found."],
     STALE_ACTION: [409, "This action belongs to an earlier tournament state. Refresh before continuing."],

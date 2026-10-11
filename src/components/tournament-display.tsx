@@ -62,11 +62,11 @@ function MatchTile({ match, archived, inactiveIds, clockStore, measured = false 
       const points = result ? index === 0 ? result.points1 : result.points2 : null;
       const otherPoints = result ? index === 0 ? result.points2 : result.points1 : null;
       const winner = points !== null && otherPoints !== null && points > otherPoints;
+      const forfeited = result !== null && (match.kind === "double_forfeit" || (match.kind === "forfeit" && !winner));
       const scores = result ?? provisional;
       const score = scores ? index === 0 ? scores.adjusted1 : scores.adjusted2 : null;
-      return <div className={`${styles.player} ${winner ? styles.winner : ""}`} key={player.id}><span className={`${styles.playerName} ${inactiveIds.has(player.id) ? styles.withdrawn : ""}`}>{player.name}</span>{scores ? <strong className={styles.score}>{score ?? (winner ? "Win" : match.kind === "double_forfeit" ? "0" : "Loss")}{winner && score !== null && <span className={styles.win}>Win</span>}</strong> : clockVisible && !measured ? <ClockNumber store={clockStore} matchId={match.id} side={index + 1} /> : <strong className={styles.score}>—</strong>}</div>;
+      return <div className={`${styles.player} ${winner ? styles.winner : ""}`} key={player.id}><span className={`${styles.playerName} ${inactiveIds.has(player.id) || forfeited ? styles.withdrawn : ""}`}>{player.name}</span>{scores ? <strong className={styles.score}>{winner && score !== null && <span className={styles.win}>Win</span>}{score ?? (winner ? "Win" : match.kind === "double_forfeit" ? "0" : "Loss")}</strong> : clockVisible && !measured ? <ClockNumber store={clockStore} matchId={match.id} side={index + 1} /> : <strong className={styles.score}>—</strong>}</div>;
     })}</div>
-    {(match.kind === "forfeit" || match.kind === "double_forfeit") && result && <p className={styles.queue}>{match.kind === "forfeit" ? "Forfeit" : "Double forfeit"}</p>}
   </Element>;
 }
 

@@ -1,4 +1,16 @@
 import type { OutcomeKind, Standing, TournamentStatus } from "./types";
+import type { ClockRules, ClockSide, ClockStatus } from "./clock-types";
+
+export interface DisplayClock {
+  status: ClockStatus;
+  activeSide: ClockSide;
+  usedMs: [number, number];
+  epoch: number;
+  version: number;
+  sequence: number;
+  rules: ClockRules;
+  sample: { usedMs: [number, number]; sampledAtMs: number; uncertaintyMs: number } | null;
+}
 
 export interface DisplayMatch {
   id: string;
@@ -10,6 +22,7 @@ export interface DisplayMatch {
   kind: OutcomeKind;
   status: "ready" | "playing" | "paused" | "reporting" | "awaiting_confirmation" | "organizer_review" | "final" | "outstanding" | "queued";
   result: { adjusted1: number | null; adjusted2: number | null; points1: number; points2: number } | null;
+  provisional?: { adjusted1: number; adjusted2: number; revision: number } | null;
   completedAt: string | null;
 }
 
@@ -17,6 +30,8 @@ export interface TournamentDisplay {
   revision: string;
   serverNowMs: number;
   clockStatusAvailable: boolean;
+  liveTimingAvailable?: boolean;
+  clocks?: Record<string, DisplayClock>;
   tournament: { id: string; slug: string; name: string; status: TournamentStatus; roundCount: number | null; currentRound: number; runGeneration: number };
   round: { number: number; totalMatches: number; finalMatches: number; matches: DisplayMatch[]; byes: DisplayMatch[] } | null;
   standings: Standing[];

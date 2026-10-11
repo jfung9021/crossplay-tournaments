@@ -6,7 +6,8 @@ export const runtime = "nodejs";
 export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const display = await readDisplay((await context.params).id);
-    return Response.json(display, { headers: { "Cache-Control": "no-store", ETag: `"${display.revision}"` } });
+    // Content revision intentionally excludes live samples and synchronization time.
+    return Response.json(display, { headers: { "Cache-Control": "no-store", "X-Display-Revision": display.revision } });
   } catch (error) {
     const response = errorResponse(error);
     response.headers.set("Cache-Control", "no-store");

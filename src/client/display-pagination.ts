@@ -11,8 +11,9 @@ export function paginateRows(heights: number[], availableHeight: number): number
   return pages.length ? pages : [[]];
 }
 
-export function tableGrid(width: number, height: number, measuredCardHeight = 210) {
-  const columns = Math.max(1, Math.min(3, Math.floor((width + 16) / 336)));
-  const rows = Math.max(1, Math.min(3, Math.floor((height + 16) / (measuredCardHeight + 16))));
+export function tableGrid(width: number, height: number, measuredCardHeight = 156, matchCount = 9) {
+  const normal = matchCount <= 8;
+  const columns = Math.max(1, Math.min(normal ? 2 : 3, Math.floor((width + 16) / (normal ? 420 : 336))));
+  const rows = Math.max(1, Math.min(normal ? 4 : 3, Math.floor((height + 16) / (measuredCardHeight + 16))));
   return { columns, rows, capacity: columns * rows };
 }

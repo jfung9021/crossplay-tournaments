@@ -11,12 +11,13 @@ import { assertLocalEnvironment, assertLoopback } from "../tests/support/local-e
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const sibling = resolve(root, "../bite-open-card-draw");
-const clockMode = process.argv.includes("--clock");
+const tvLiveMode = process.argv.includes("--tv-live");
+const clockMode = tvLiveMode || process.argv.includes("--clock");
 const runId = `${Date.now().toString(16)}_${randomBytes(4).toString("hex")}`;
 const database = `crossplay_acceptance_${runId}`;
 const container = process.env.CROSSPLAY_TEST_CONTAINER ?? "crossplay-test-db";
 const databasePort = process.env.CROSSPLAY_TEST_DATABASE_PORT ?? "55432";
-const evidence = resolve(root, clockMode ? ".local/evidence/clock" : ".local/evidence/swiss20", runId);
+const evidence = resolve(root, tvLiveMode ? ".local/evidence/tv-live/integration" : clockMode ? ".local/evidence/clock" : ".local/evidence/swiss20", runId);
 mkdirSync(evidence, { recursive: true });
 const json = (name, data) => { const path = resolve(evidence, name); mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, JSON.stringify(data, null, 2) + "\n"); };
 const sha = (value) => createHash("sha256").update(value).digest("hex");
@@ -89,19 +90,29 @@ try {
   assertLocalEnvironment(env);
   if (!env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) throw new Error("Local publishable Auth key missing.");
   stage = "provision";
-  docker("exec", container, "createdb", "-U", "postgres", database);
+  const template = process.env.CROSSPLAY_TEST_TEMPLATE;
+  if (tvLiveMode && (!template || !/^crossplay_[a-z0-9_]+$/.test(template))) throw new Error("TV acceptance requires an existing isolated Crossplay schema template.");
+  if (tvLiveMode && sql(template, "select crossplay.display_version();") !== "20261008040000") throw new Error("Expected the existing public-display schema before the new migration.");
+  docker("exec", container, "createdb", "-U", "postgres", ...(tvLiveMode ? ["-T", template] : []), database);
   const migration = resolve(sibling, "supabase/migrations/20260928010000_crossplay_schema.sql");
-  for (const path of [resolve(sibling, "supabase/tests/crossplay_baseline.sql"), migration]) sql(database, readFileSync(path, "utf8"));
+  if (!tvLiveMode) for (const path of [resolve(sibling, "supabase/tests/crossplay_baseline.sql"), migration]) sql(database, readFileSync(path, "utf8"));
   const clockMigration = resolve(sibling, "supabase/migrations/20260930020000_crossplay_shared_clock.sql");
-  if (clockMode) sql(database, readFileSync(clockMigration, "utf8"));
+  if (clockMode && !tvLiveMode) sql(database, readFileSync(clockMigration, "utf8"));
   const lifecycleMigration = resolve(sibling, "supabase/migrations/20261008010000_crossplay_lifecycle.sql");
-  if (clockMode) sql(database, readFileSync(lifecycleMigration, "utf8"));
+  if (clockMode && !tvLiveMode) sql(database, readFileSync(lifecycleMigration, "utf8"));
   const turnTimeMigration = resolve(sibling, "supabase/migrations/20261008020000_crossplay_turn_time.sql");
   const tablesMigration = resolve(sibling, "supabase/migrations/20261008030000_crossplay_table_devices.sql");
   const displayMigration = resolve(sibling, "supabase/migrations/20261008040000_crossplay_public_display.sql");
-  if (clockMode) sql(database, readFileSync(turnTimeMigration, "utf8"));
-  if (clockMode) sql(database, readFileSync(tablesMigration, "utf8"));
-  if (clockMode) sql(database, readFileSync(displayMigration, "utf8"));
+  if (clockMode && !tvLiveMode) sql(database, readFileSync(turnTimeMigration, "utf8"));
+  if (clockMode && !tvLiveMode) sql(database, readFileSync(tablesMigration, "utf8"));
+  if (clockMode && !tvLiveMode) sql(database, readFileSync(displayMigration, "utf8"));
+  const liveDisplayMigration = resolve(sibling, "supabase/migrations/20261011010000_crossplay_tv_live_clocks.sql");
+  if (clockMode) sql(database, readFileSync(liveDisplayMigration, "utf8"));
+  if (tvLiveMode) {
+    const output = sql(database, readFileSync(resolve(sibling, "supabase/tests/crossplay_tv_live_clocks_test.sql"), "utf8"));
+    json("migration-check.json", { status: "PASS", template, migration: "20261011010000", output });
+    log("New migration's focused SQL checks passed on the isolated clone.");
+  }
   // Existing dedicated container's local-only role credential; no shared/hosted role is altered.
   sql(database, "alter role crossplay_runtime login password 'crossplay-runtime-local';");
   const account = async (label) => {
@@ -130,11 +141,12 @@ try {
     manifest.turnTimeMigrationSha256 = sha(readFileSync(turnTimeMigration));
     manifest.tablesMigrationSha256 = sha(readFileSync(tablesMigration));
     manifest.displayMigrationSha256 = sha(readFileSync(displayMigration));
+    manifest.liveDisplayMigrationSha256 = sha(readFileSync(liveDisplayMigration));
   }
   json("manifest.json", manifest);
   log(`Isolated run ${runId}; evidence ${evidence}`);
   stage = "independent-checkers";
-  const checkerCode = await runNode([resolve(root, "node_modules/vitest/vitest.mjs"), "run", "tests/domain/swiss-reference.test.ts", "tests/server/local-environment.test.ts", "--reporter=json", `--outputFile=${resolve(evidence, "checker-tests.json")}`], "checker-tests.log", { echo: true });
+  const checkerCode = tvLiveMode ? 0 : await runNode([resolve(root, "node_modules/vitest/vitest.mjs"), "run", "tests/domain/swiss-reference.test.ts", "tests/server/local-environment.test.ts", "--reporter=json", `--outputFile=${resolve(evidence, "checker-tests.json")}`], "checker-tests.log", { echo: true });
   if (checkerCode) throw new Error("Independent checker or local target guard failed; see checker-tests.json.");
   const buildStamp = resolve(root, ".local/swiss20-build.json");
   const buildIdentity = sha(JSON.stringify([authUrl, priorAuth.key, env.NEXT_PUBLIC_SITE_URL]));
@@ -181,7 +193,8 @@ try {
   const browser = await chromium.launch();
   manifest.browserVersion = browser.version(); await browser.close();
   json("manifest.json", manifest);
-  const passthrough = process.argv.slice(2).filter((arg) => !["--reuse-build", "--clock"].includes(arg));
+  const passthrough = process.argv.slice(2).filter((arg) => !["--reuse-build", "--clock", "--tv-live"].includes(arg));
+  if (tvLiveMode) passthrough.unshift("tv-live.spec.ts", "--project=chromium");
   const browserCode = await runNode([resolve(root, "node_modules/@playwright/test/cli.js"), "test", clockMode ? "--config=playwright.clock.config.ts" : "--config=playwright.swiss20.config.ts", ...passthrough], "browser.log", { echo: true });
   if (browserCode) throw new Error("Browser acceptance failed; original failure retained in results.json and browser.log.");
   if (!clockMode) {

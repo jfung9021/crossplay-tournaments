@@ -58,6 +58,16 @@ Replacing/revoking any claimed controller marks timing for review even if its la
 
 ## HTTP boundary
 
+### Spectator checkpoint extension October 11
+
+`GET/POST /api/matches/[matchId]/display-checkpoint` is separate from official clock commands. GET requires verified match read access and calibrates against database server time. POST requires same origin and the current controlling actor/device, with strict `{controllerId,generation,epoch,version,sequence,sampledAtMs,uncertaintyMs,elapsedMs}` input. SQL rechecks controller ownership and exact generation/epoch/version/sequence under tournament, match, and clock locks, rejects samples older than two seconds or ahead beyond their uncertainty, and retains only the latest capture. It reconstructs spectator used time from accepted clock values plus elapsed duration on the running side. No clock events, official elapsed values, scores, or tournament versions are changed.
+
+The controlling screen publishes every two seconds while visible and after accepted gestures. It uses the existing monotonic journal only after all pending events are acknowledged and timing is reliable. Telemetry is single-flight, times out after 1.5 seconds, and is never journaled or replayed offline. Turn switches now enter the existing serialized gameplay flush immediately. Old database capability responses disable telemetry for thirty seconds before probing again.
+
+Phone and TV calibration use request round-trip midpoint estimates with uncertainty of half the round-trip duration plus 1 ms, adding 1 ms per elapsed second and expiring calibration after thirty seconds or a wall/monotonic discontinuity over one second. The phone accepts calibration uncertainty at most 500 ms; the TV requires combined uncertainty at most 1000 ms. Sample expiry uses capture time, not receipt time. These are spectator estimates; the official journal and server scoring remain authoritative. Capability `20261011010000` belongs to the migration owner and must pass focused SQL checks before deployment.
+
+### Official match clocks
+
 `GET/POST /api/matches/[matchId]/clock`; POST `{command,payload,requestId,expectedClockVersion?}`. `POST /api/matches/[matchId]/open` accepts only `{requestId,controllerId}` from a verified organizer. The server creates and claims a device session and reserves a ready clock in one transaction, serialized by a per-match advisory lock. Existing valid device cookies reopen the same match; another device sees the existing clock read-only. Repeating a committed entry request can restore a lost response cookie without replacing the controller. The HttpOnly cookie never appears in a URL.
 
 The match card's **Start Match** button opens `/match/[matchId]`; **Start Timer** starts timing, and **End game** freezes time before score entry. The old `/claim` endpoint, timer invitation command, fragment parsing, and timer-link controls are removed. Individual player invitations for optional manual reporting are separate and unchanged. No clock fields enter the tournament `Round` model or its pairing hash. No database migration is required for this entry revision.

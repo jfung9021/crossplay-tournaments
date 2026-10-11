@@ -47,6 +47,8 @@ Ratios were calculated from sRGB relative luminance with the WCAG contrast formu
 
 ## Application treatment
 
+October 11 TV extension: the primary layout now assumes sixteen players, with eight cards in two columns and four rows beside a wider standings panel. Standings use measured name heights and distribute spare height across all visible rows, including the final-results view. Pagination controls are excluded when deciding whether a shortened roster can return to one page. Clock digits, saved times, and pending/final scores share a reserved numeric region. Pending cards use the waiting color and an explicit Awaiting confirmation label; official winners retain the existing final treatment. Only the clock text subscribes to the shared 100 ms display scheduler; table/standings regions are memoized and hidden sizing samples never tick.
+
 - Warm paper holds white bordered cards with restrained 14 px rounding and a light shadow. The 1120 px website container remains, with single-column layouts on phones and portrait tablets.
 - Page headings increase in weight and size without a promotional hero above operational controls. Phone pages retain compact top spacing. Navigation has a soft blue selected state and a strong bottom marker.
 - Match cards receive a stable blue table tile, aligned player/score columns, distinct textual status badges and clear action grouping. Saved-result receipts use a green inset with the recorded result still visible.

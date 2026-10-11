@@ -1,16 +1,16 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import type { DisplayMatch, TournamentDisplay } from "@/domain/display";
+import type { DisplayClock, DisplayMatch, TournamentDisplay } from "@/domain/display";
 import { calculateStandings } from "@/domain/standings";
 import { matchLocation, physicalTable } from "@/domain/tables";
 import type { Match, TournamentSnapshot } from "@/domain/types";
 import { AppError } from "@/server/errors";
 
-export type DisplayMetadata = Record<string, { status: DisplayMatch["status"]; completedAt: string | null }>;
+export type DisplayMetadata = Record<string, { status: DisplayMatch["status"]; completedAt: string | null; provisional?: DisplayMatch["provisional"]; clock?: DisplayClock | null }>;
 const clockStatuses = new Set<DisplayMatch["status"]>(["ready", "playing", "paused", "reporting", "awaiting_confirmation", "organizer_review", "final", "outstanding", "queued"]);
 
 /** The last boundary is an allowlist, even if an upstream source is privileged. */
-export function buildDisplay(snapshot: TournamentSnapshot, metadata: DisplayMetadata | null, serverNowMs: number): TournamentDisplay {
+export function buildDisplay(snapshot: TournamentSnapshot, metadata: DisplayMetadata | null, serverNowMs: number, liveTimingAvailable = false): TournamentDisplay {
   const published = snapshot.rounds.filter(round => round.status !== "draft").sort((a, b) => a.number - b.number);
   if (snapshot.tournament.status === "draft" || snapshot.tournament.status === "archived" && snapshot.tournament.archivedFromStatus === "draft" || !published.length) {
     throw new AppError("Tournament not yet available.", 404);
@@ -34,6 +34,8 @@ export function buildDisplay(snapshot: TournamentSnapshot, metadata: DisplayMeta
       id: match.id, roundNumber: match.roundNumber, tableNumber: match.player2Id ? physicalTable(snapshot, match) : null,
       queueOrder: location?.queueOrder ?? 1, player1: player(match.player1Id), player2: match.player2Id ? player(match.player2Id) : null,
       kind: match.kind, status, result: result ? { adjusted1: result.adjusted1, adjusted2: result.adjusted2, points1: result.points1, points2: result.points2 } : null,
+      provisional: liveTimingAvailable && snapshot.tournament.status === "active" && status === "awaiting_confirmation" && clock?.provisional
+        ? { adjusted1: clock.provisional.adjusted1, adjusted2: clock.provisional.adjusted2, revision: clock.provisional.revision } : null,
       completedAt: result ? clock?.completedAt ?? null : null,
     };
   }
@@ -43,11 +45,22 @@ export function buildDisplay(snapshot: TournamentSnapshot, metadata: DisplayMeta
     .filter(match => match.completedAt !== null).sort((a, b) => Date.parse(b.completedAt!) - Date.parse(a.completedAt!) || a.id.localeCompare(b.id))[0] ?? null;
   const body = {
     clockStatusAvailable: metadata !== null,
+    liveTimingAvailable,
     tournament: { id: snapshot.tournament.id, slug: snapshot.tournament.slug, name: snapshot.tournament.name, status: snapshot.tournament.status,
       roundCount: snapshot.tournament.config.roundCount, currentRound: current.number, runGeneration: snapshot.tournament.runGeneration ?? 0 },
     round: { number: current.number, totalMatches: matches.filter(match => match.player2).length, finalMatches: matches.filter(match => match.player2 && match.status === "final").length,
       matches: matches.filter(match => match.player2), byes: matches.filter(match => !match.player2) },
     standings: calculateStandings(snapshot.entrants, published), latestResult,
   };
-  return { ...body, revision: createHash("sha256").update(JSON.stringify(body)).digest("hex"), serverNowMs };
+  const clocks: Record<string, DisplayClock> = {};
+  if (liveTimingAvailable && snapshot.tournament.status === "active") for (const match of matches) {
+    const clock = metadata?.[match.id]?.clock;
+    if (!clock || !["ready", "playing", "paused", "reporting"].includes(match.status)) continue;
+    clocks[match.id] = {
+      status: clock.status, activeSide: clock.activeSide, usedMs: [clock.usedMs[0], clock.usedMs[1]], epoch: clock.epoch, version: clock.version, sequence: clock.sequence,
+      rules: { timeLimitSeconds: clock.rules.timeLimitSeconds, penaltyIntervalSeconds: clock.rules.penaltyIntervalSeconds, penaltyPoints: clock.rules.penaltyPoints },
+      sample: clock.sample ? { usedMs: [clock.sample.usedMs[0], clock.sample.usedMs[1]], sampledAtMs: clock.sample.sampledAtMs, uncertaintyMs: clock.sample.uncertaintyMs } : null,
+    };
+  }
+  return { ...body, clocks, revision: createHash("sha256").update(JSON.stringify(body)).digest("hex"), serverNowMs };
 }

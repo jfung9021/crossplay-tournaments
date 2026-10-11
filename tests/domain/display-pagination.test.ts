@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import { paginateRows, tableGrid } from "../../src/client/display-pagination";
 
 describe("TV display pagination", () => {
+  it("fits eight compact cards in two columns and four rows", () => {
+    expect(tableGrid(1079, 740, 156, 8)).toEqual({ columns: 2, rows: 4, capacity: 8 });
+    expect(paginateRows(Array(16).fill(36), 634)).toHaveLength(1);
+  });
   it("fits the normal nine tables and eighteen rows at their measured 1080p sizes", () => {
     expect(tableGrid(1120, 740, 228)).toEqual({ columns: 3, rows: 3, capacity: 9 });
     expect(paginateRows(Array(18).fill(34), 640)).toHaveLength(1);

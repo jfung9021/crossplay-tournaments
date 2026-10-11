@@ -14,6 +14,7 @@ import type { ClockEventKind, ClockSide } from "@/domain/clock-types";
 import { SharedMatchReport } from "@/components/shared-match-report";
 import { readPreference, writePreference } from "@/client/device-preferences";
 import { clearReportDrafts } from "@/client/report-drafts";
+import { createCheckpointPublisher } from "@/client/clock-checkpoint";
 import { OrganizerMatchClock } from "@/components/organizer-match-clock";
 import styles from "./match-clock.module.css";
 
@@ -43,6 +44,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
   const releaseLock = useRef<(() => void) | null>(null);
   const initializing = useRef<Promise<void> | null>(null);
   const flushing = useRef<Promise<boolean> | null>(null);
+  const checkpoints = useRef<ReturnType<typeof createCheckpointPublisher> | null>(null);
   const mounted = useRef(true);
   const terminal = useRef(false);
   const [unavailable, setUnavailable] = useState<string | null>(null);
@@ -110,6 +112,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
           if (adapter.getSnapshot().controllerConflict) throw new ClockApiError("Another device controls this clock. Ask the organizer for help.", 409);
         }
         if (mounted.current) setSaveFailed(false);
+        void checkpoints.current?.publish();
         return true;
       } catch (cause) {
         if (cause instanceof ClockApiError && (cause.status === 404 || cause.code === "TOURNAMENT_ARCHIVED" || cause.code === "STALE_ACTION")) { stop(clockError(cause)); return false; }
@@ -156,6 +159,19 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
     void Promise.resolve().then(initialize);
     return () => { mounted.current = false; releaseLock.current?.(); releaseLock.current = null; };
   }, [initialize]);
+
+  useEffect(() => {
+    const publisher = createCheckpointPublisher(matchId, () => {
+      const current = snapshotRef.current;
+      if (terminal.current || !journal.current || !controller.current || !current?.canControl || current.matchStatus === "final") return null;
+      return { local: journal.current.getSnapshot(), controllerId: controller.current, generation: current.runGeneration ?? 0 };
+    });
+    checkpoints.current = publisher;
+    const interval = setInterval(() => void publisher.publish(), 2000);
+    const visibility = () => { publisher.invalidate(); if (document.visibilityState === "visible") void publisher.publish(); };
+    document.addEventListener("visibilitychange", visibility);
+    return () => { clearInterval(interval); publisher.dispose(); checkpoints.current = null; document.removeEventListener("visibilitychange", visibility); };
+  }, [matchId]);
 
   useEffect(() => {
     const timer = window.setInterval(refreshClock, 100);
@@ -221,7 +237,7 @@ export function MatchClockPage({ matchId }: { matchId: string }) {
       if (terminal.current || !journal.current || readonly) return;
       journal.current.act(kind, side, gestureId);
       setError(null); refreshClock();
-      if (kind !== "switch") void flush();
+      void flush();
     } catch (cause) { setError(clockError(cause)); }
   }
 

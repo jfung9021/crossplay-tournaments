@@ -10,7 +10,7 @@ vi.mock("../../src/server/db/client", () => ({
     if (query.includes("display_version")) {
       if (db.mode === "absent") throw { code: "42883" };
       if (db.mode === "failed") throw { code: "08006" };
-      return [{ version: db.mode === "different" ? "future-version" : "20261008040000" }];
+      return [{ version: db.mode === "different" ? "future-version" : db.mode === "live" ? "20261011010000" : "20261008040000" }];
     }
     if (db.mode === "private") throw { message: "NOT_FOUND" };
     if (db.mode === "forbidden") throw { message: "FORBIDDEN" };
@@ -42,6 +42,36 @@ function final(match: Match, points1 = 1, points2 = 1) {
 beforeEach(() => { db.mode = "available"; db.queries = []; db.reads.mockReset(); db.source = { snapshot: fixture(), matches: {}, serverNowMs: 12345 }; });
 
 describe("public display shaping", () => {
+  it("projects only submitted adjusted scores and never awards pending points", () => {
+    const source = fixture(); source.rounds[0].matches[0].status = "awaiting_confirmation";
+    const metadata: DisplayMetadata = { m1: { status: "awaiting_confirmation", completedAt: null, provisional: { adjusted1: 396, adjusted2: 390, revision: 1 } } };
+    const pending = buildDisplay(source, metadata, 100, true);
+    expect(pending.round?.matches[0]).toMatchObject({ provisional: { adjusted1: 396, adjusted2: 390, revision: 1 }, result: null });
+    expect(pending.standings.find(row => row.entrantId === "p1")?.matchPoints).toBe(0);
+    expect(pending.round?.finalMatches).toBe(0); expect(pending.latestResult).toBeNull();
+    metadata.m1.provisional!.revision = 2; metadata.m1.provisional!.adjusted1 = 398;
+    expect(buildDisplay(source, metadata, 200, true).revision).not.toBe(pending.revision);
+    source.rounds[0].matches[0].status = "disputed";
+    expect(buildDisplay(source, metadata, 200, true).round?.matches[0].provisional).toBeNull();
+    final(source.rounds[0].matches[0], 2, 0);
+    expect(buildDisplay(source, metadata, 200, true).round?.matches[0]).toMatchObject({ status: "final", provisional: null });
+    expect(buildDisplay(source, metadata, 200).round?.matches[0].provisional).toBeNull();
+  });
+
+  it("separates safe clock samples from content revisions and excludes final/review clocks", () => {
+    const source = fixture();
+    const metadata: DisplayMetadata = { m1: { status: "playing", completedAt: null, clock: { status: "running", activeSide: 1, usedMs: [0, 0], epoch: 1, version: 1, sequence: 1,
+      rules: { timeLimitSeconds: 1200, penaltyIntervalSeconds: 10, penaltyPoints: 2 }, sample: { usedMs: [1000, 0], sampledAtMs: 100, uncertaintyMs: 10 } } } };
+    const first = buildDisplay(source, metadata, 100, true);
+    expect(first.clocks?.m1.sample?.usedMs).toEqual([1000, 0]);
+    metadata.m1.clock!.sample!.sampledAtMs = 200;
+    expect(buildDisplay(source, metadata, 200, true).revision).toBe(first.revision);
+    expect(buildDisplay(source, metadata, 200).clocks).toEqual({});
+    metadata.m1.status = "organizer_review";
+    expect(buildDisplay(source, metadata, 200, true).clocks).toEqual({});
+    final(source.rounds[0].matches[0]);
+    expect(buildDisplay(source, metadata, 200, true).clocks).toEqual({});
+  });
   it("allowlists public values even with an organizer-shaped source, hiding pending scores and drafts", () => {
     const source = fixture();
     source.rounds[0].matches[0].report = { id: "PRIVATE_REPORT", revision: 1, submittedBy: "PRIVATE_ACTOR", raw1: 98765, raw2: 87654, overtime1: 1, overtime2: 2, disputeReason: "PRIVATE_DISPUTE" };
@@ -102,10 +132,10 @@ describe("public display shaping", () => {
 });
 
 describe("display endpoint and capability", () => {
-  it("ignores organizer cookies, exposes stable ETag and always prevents caching", async () => {
+  it("ignores organizer cookies, exposes content revision separately from timing and prevents caching", async () => {
     const response = await GET(new Request("http://localhost/api/tournaments/public-cup/display", { headers: { cookie: "organizer=PRIVATE_COOKIE" } }), { params: Promise.resolve({ id: "public-cup" }) });
     expect(response.status).toBe(200); expect(response.headers.get("cache-control")).toBe("no-store");
-    const body = await response.json(); expect(response.headers.get("etag")).toBe(`"${body.revision}"`); expect(body.serverNowMs).toBe(12345);
+    const body = await response.json(); expect(response.headers.get("x-display-revision")).toBe(body.revision); expect(response.headers.get("etag")).toBeNull(); expect(body.serverNowMs).toBe(12345);
     expect(db.queries.at(-1)?.values).toEqual(["public-cup"]); expect(db.reads).not.toHaveBeenCalled();
     expect(JSON.stringify(body)).not.toContain("PRIVATE_");
   });
